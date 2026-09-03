@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Job Postings — Recruitment Management System
+    </title>
+
+
+    <!-- Google Font -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- Project CSS -->
+    <link
+        rel="stylesheet"
+        href="css/frost-ui.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/responsive.css"
+    >
+
+</head>
+
+
+<body
+    data-active="Job Postings"
+    class="app-page"
+>
+
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside
+        id="appSidebar"
+        class="sidebar glass-panel"
+    ></aside>
+
+
+    <!-- =====================================================
+         MAIN APPLICATION
+         ===================================================== -->
+
+    <main class="app-main">
+
+
+        <!-- TOP BAR -->
+
+        <header
+            id="appTopbar"
+            class="topbar glass-panel"
+        ></header>
+
+
+        <!-- PAGE CONTENT -->
+
+        <section class="page-content">
+
+
+            <!-- PAGE HEADER -->
+
+            <div class="page-intro">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Vacancy management
+                    </p>
+
+                    <h2>
+                        Job Postings
+                    </h2>
+
+                    <p>
+                        Create, review, search, close,
+                        and reopen recruitment opportunities.
+                    </p>
+
+                </div>
+
+
+                <button
+                    class="btn btn-primary"
+                    id="openAddModal"
+                    type="button"
+                >
+                    ＋ Add Job Posting
+                </button>
+
+            </div>
+
+
+            <!-- =================================================
+                 SEARCH / FILTER
+                 ================================================= -->
+
+            <section
+                class="glass-panel section-card"
+            >
+
+                <div class="toolbar">
+
+
+                    <!-- SEARCH -->
+
+                    <div class="search-wrap">
+
+                        <span class="search-icon">
+                            ⌕
+                        </span>
+
+                        <input
+                            id="jobSearch"
+                            type="search"
+                            placeholder="Search job code, position, or department"
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <!-- STATUS -->
+
+                    <select
+                        id="statusFilter"
+                        class="select-control"
+                    >
+
+                        <option value="">
+                            All statuses
+                        </option>
+
+                        <option value="Open">
+                            Open
+                        </option>
+
+                        <option value="Closed">
+                            Closed
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- TABLE -->
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Job Code
+                                </th>
+
+                                <th>
+                                    Position
+                                </th>
+
+                                <th>
+                                    Department
+                                </th>
+
+                                <th>
+                                    Employment
+                                </th>
+
+                                <th>
+                                    Vacancies
+                                </th>
+
+                                <th>
+                                    Posted
+                                </th>
+
+                                <th>
+                                    Closing
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="jobsTable">
+
+                            <tr>
+
+                                <td
+                                    colspan="9"
+                                    class="table-empty"
+                                >
+                                    Loading job postings…
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         TOAST
+         ===================================================== -->
+
+    <div
+        id="toastRoot"
+        class="toast-root"
+    ></div>
+
+
+    <!-- =====================================================
+         JOB POSTING MODAL
+         ===================================================== -->
+
+    <div
+        id="jobModal"
+        class="modal-backdrop"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal glass-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modalTitle"
+        >
+
+
+            <!-- MODAL HEADER -->
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p
+                        class="eyebrow"
+                        id="modalEyebrow"
+                    >
+                        Create vacancy
+                    </p>
+
+                    <h3 id="modalTitle">
+                        Add Job Posting
+                    </h3>
+
+                </div>
+
+
+                <button
+                    id="closeModal"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <!-- ERROR -->
+
+            <div
+                id="jobFormError"
+                class="form-error"
+                role="alert"
+            ></div>
+
+
+            <!-- FORM -->
+
+            <form
+                id="jobForm"
+                novalidate
+            >
+
+                <!-- Hidden ID -->
+
+                <input
+                    type="hidden"
+                    id="jobId"
+                >
+
+
+                <!-- JOB CODE -->
+
+                <div class="form-group">
+
+                    <label for="jobCode">
+                        Job Code
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        id="jobCode"
+                        name="jobCode"
+                        type="text"
+                        placeholder="JOB-001"
+                        maxlength="30"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- JOB TITLE -->
+
+                <div class="form-group">
+
+                    <label for="jobTitle">
+                        Position
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        id="jobTitle"
+                        name="jobTitle"
+                        type="text"
+                        placeholder="Software Developer"
+                        maxlength="150"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- DEPARTMENT -->
+
+                <div class="form-group">
+
+                    <label for="department">
+                        Department
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        id="department"
+                        name="department"
+                        type="text"
+                        placeholder="Information Technology"
+                        maxlength="120"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- EMPLOYMENT TYPE -->
+
+                <div class="form-group">
+
+                    <label for="employmentType">
+                        Employment Type
+                        <span>*</span>
+                    </label>
+
+                    <select
+                        id="employmentType"
+                        name="employmentType"
+                        required
+                    >
+
+                        <option value="">
+                            Select employment type
+                        </option>
+
+                        <option value="Full-Time">
+                            Full-Time
+                        </option>
+
+                        <option value="Part-Time">
+                            Part-Time
+                        </option>
+
+                        <option value="Contract">
+                            Contract
+                        </option>
+
+                        <option value="Temporary">
+                            Temporary
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- VACANCIES -->
+
+                <div class="form-group">
+
+                    <label for="vacancies">
+                        Vacancies
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        id="vacancies"
+                        name="vacancies"
+                        type="number"
+                        min="1"
+                        step="1"
+                        placeholder="2"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- POSTING DATE -->
+
+                <div class="form-group">
+
+                    <label for="postingDate">
+                        Posting Date
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        id="postingDate"
+                        name="postingDate"
+                        type="date"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- CLOSING DATE -->
+
+                <div class="form-group">
+
+                    <label for="closingDate">
+                        Closing Date
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        id="closingDate"
+                        name="closingDate"
+                        type="date"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="form-group">
+
+                    <label for="description">
+                        Job Description
+                    </label>
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        rows="4"
+                        placeholder="Develop and maintain software applications."
+                    ></textarea>
+
+                </div>
+
+
+                <!-- QUALIFICATIONS -->
+
+                <div class="form-group">
+
+                    <label for="qualifications">
+                        Qualifications
+                    </label>
+
+                    <textarea
+                        id="qualifications"
+                        name="qualifications"
+                        rows="5"
+                        placeholder="Bachelor's degree in IT/CS&#10;Programming experience&#10;Database knowledge"
+                    ></textarea>
+
+                </div>
+
+
+                <!-- FORM BUTTONS -->
+
+                <div class="button-row">
+
+                    <button
+                        id="cancelModal"
+                        class="btn btn-secondary"
+                        type="button"
+                    >
+                        Cancel
+                    </button>
+
+
+                    <button
+                        id="saveJobButton"
+                        class="btn btn-primary"
+                        type="submit"
+                    >
+                        Save Job Posting
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SUPABASE
+         ===================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- =====================================================
+         PROJECT JAVASCRIPT
+         ORDER IS IMPORTANT
+         ===================================================== -->
+
+    <script src="js/config.js"></script>
+
+    <script src="js/supabase.js"></script>
+
+    <script src="js/auth.js"></script>
+
+    <script src="js/components.js"></script>
+
+    <script src="js/job-postings.js"></script>
+
+
+</body>
+
+</html>

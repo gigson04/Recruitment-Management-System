@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Job Postings — Recruitment Management System</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="css/frost-ui.css">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/responsive.css">
+    </head>
+    <body data-active="Job Postings" class="app-page">
+        <aside id="appSidebar" class="sidebar glass-panel"></aside>
+        <main class="app-main">
+            <header id="appTopbar" class="topbar glass-panel"></header>
+            <section class="page-content">
+                <div class="page-intro">
+                    <div>
+                        <p class="eyebrow">Vacancy management</p>
+                        <h2>Job Postings</h2>
+                        <p>Create, review, search, close, and reopen recruitment opportunities.</p>
+                    </div>
+                    <button class="btn btn-primary" id="openAddModal">＋ Add Job Posting</button>
+                </div>
+                <section class="glass-panel section-card">
+                    <div class="toolbar">
+                        <div class="search-wrap">
+                            <span class="search-icon">⌕</span>
+                            <input id="jobSearch" type="search" placeholder="Search job code, position, or department">
+                        </div>
+                        <select id="statusFilter" class="select-control">
+                            <option value="">All statuses</option>
+                            <option value="Open">Open</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Job Code</th>
+                                    <th>Position</th>
+                                    <th>Department</th>
+                                    <th>Employment</th>
+                                    <th>Vacancies</th>
+                                    <th>Posted</th>
+                                    <th>Closing</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jobsTable">
+                                <tr>
+                                    <td colspan="9" class="table-empty">Loading job postings…</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </section>
+        </main>
+        <div id="toastRoot" class="toast-root"></div>
+

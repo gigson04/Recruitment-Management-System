@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Applicants — Recruitment Management System</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/frost-ui.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+
+<body data-active="Applicants" class="app-page">
+
+    <aside id="appSidebar" class="sidebar glass-panel"></aside>
+
+    <main class="app-main">
+
+        <header id="appTopbar" class="topbar glass-panel"></header>
+
+        <section class="page-content">
+
+            <div class="page-intro">
+                <div>
+                    <p class="eyebrow">Stage 4 · Applicant Management</p>
+                    <h2>Applicants</h2>
+                    <p>Register and manage applicant information.</p>
+                </div>
+
+                <button
+                    id="openApplicantModal"
+                    class="btn btn-primary"
+                    type="button">
+                    ＋ Add Applicant
+                </button>
+            </div>
+
+            <section class="glass-panel section-card">
+
+                <div class="toolbar">
+
+                    <div class="search-wrap">
+                        <span class="search-icon">⌕</span>
+                        <input
+                            id="applicantSearch"
+                            type="search"
+                            placeholder="Search applicant number, name, or email"
+                            autocomplete="off">
+                    </div>
+
+                    <select
+                        id="applicantStatusFilter"
+                        class="select-control">
+
+                        <option value="">All statuses</option>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+
+                    </select>
+
+                </div>
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Applicant No.</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Contact</th>
+                                <th>Education</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="applicantsTable">
+                            <tr>
+                                <td colspan="7" class="table-empty">
+                                    Loading applicants...
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+    <div id="toastRoot" class="toast-root"></div>
+
+
+    <!-- ADD / EDIT MODAL -->
+
+    <div
+        id="applicantModal"
+        class="modal-backdrop"
+        aria-hidden="true">
+
+        <div
+            class="modal glass-panel"
+            role="dialog"
+            aria-modal="true">
+
+            <div class="modal-head">
+
+                <div>
+                    <p class="eyebrow">Applicant Registration</p>
+                    <h3 id="applicantModalTitle">Add Applicant</h3>
+                </div>
+
+                <button
+                    id="closeApplicantModal"
+                    class="icon-button"
+                    type="button">
+                    ×
+                </button>
+
+            </div>
+
+            <div
+                id="applicantFormError"
+                class="form-error"
+                role="alert">
+            </div>
+
+            <form id="applicantForm" novalidate>
+
+                <input
+                    type="hidden"
+                    id="applicantId">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="applicantNo">
+                            Applicant No. *
+                        </label>
+                        <input
+                            id="applicantNo"
+                            type="text"
+                            placeholder="APP-001"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="firstName">
+                            First Name *
+                        </label>
+                        <input
+                            id="firstName"
+                            type="text"
+                            placeholder="Juan"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastName">
+                            Last Name *
+                        </label>
+                        <input
+                            id="lastName"
+                            type="text"
+                            placeholder="Dela Cruz"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">
+                            Email *
+                        </label>
+                        <input
+                            id="email"
+                            type="email"
+                            placeholder="juan@email.com"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactNo">
+                            Contact No. *
+                        </label>
+                        <input
+                            id="contactNo"
+                            type="tel"
+                            placeholder="09123456789"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="applicantStatus">
+                            Status
+                        </label>
+                        <select id="applicantStatus">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="address">
+                            Address *
+                        </label>
+                        <textarea
+                            id="address"
+                            rows="2"
+                            placeholder="Bayombong, Nueva Vizcaya"
+                            required></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="education">
+                            Education *
+                        </label>
+                        <textarea
+                            id="education"
+                            rows="2"
+                            placeholder="BS Information Technology"
+                            required></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="experience">
+                            Work Experience *
+                        </label>
+                        <textarea
+                            id="experience"
+                            rows="2"
+                            placeholder="2 years Software Development"
+                            required></textarea>
+                    </div>
+
+                </div>
+
+                <div class="button-row">
+
+                    <button
+                        id="cancelApplicantModal"
+                        class="btn btn-secondary"
+                        type="button">
+                        Cancel
+                    </button>
+
+                    <button
+                        id="saveApplicantButton"
+                        class="btn btn-primary"
+                        type="submit">
+                        Save Applicant
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- VIEW MODAL -->
+
+    <div
+        id="viewApplicantModal"
+        class="modal-backdrop"
+        aria-hidden="true">
+
+        <div
+            class="modal glass-panel"
+            role="dialog"
+            aria-modal="true">
+
+            <div class="modal-head">
+
+                <div>
+                    <p class="eyebrow">Applicant Profile</p>
+                    <h3 id="viewApplicantTitle">Applicant</h3>
+                </div>
+
+                <button
+                    id="closeViewApplicant"
+                    class="icon-button"
+                    type="button">
+                    ×
+                </button>
+
+            </div>
+
+            <div id="viewApplicantBody"></div>
+
+            <div class="button-row">
+
+                <button
+                    id="closeViewApplicantBottom"
+                    class="btn btn-secondary"
+                    type="button">
+                    Close
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- SUPABASE + PROJECT JS -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/applicants.js"></script>
+
+</body>
+</html>
