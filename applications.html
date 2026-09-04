@@ -1,43 +1,841 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Applications — Recruitment Management System</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="css/frost-ui.css">
-        <link rel="stylesheet" href="css/style.css">
-        <link rel="stylesheet" href="css/responsive.css">
-    </head>
-    <body data-active="Applications" class="app-page">
-        <aside id="appSidebar" class="sidebar glass-panel"></aside>
-        <main class="app-main">
-            <header id="appTopbar" class="topbar glass-panel"></header>
-            <section class="page-content">
-                <div class="page-intro">
-                    <div>
-                        <p class="eyebrow">Laboratory module</p>
-                        <h2>Applications</h2>
-                        <p>This module is wired into the same Supabase-backed application and ready for the next laboratory activity.</p>
-                    </div>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Applications — Recruitment Management System
+    </title>
+
+    <!-- Google Font -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Project CSS -->
+    <link
+        rel="stylesheet"
+        href="css/frost-ui.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/responsive.css"
+    >
+
+    <style>
+
+        /* =================================================
+           APPLICATION PAGE
+           ================================================= */
+
+        .application-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .application-section {
+            padding: 18px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background:
+                rgba(255, 255, 255, 0.30);
+        }
+
+        .application-section-full {
+            grid-column: 1 / -1;
+        }
+
+        .application-section h4 {
+            margin: 0 0 5px;
+            color: #26384d;
+            font-size: 14px;
+        }
+
+        .application-section p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        /* =================================================
+           JOB DETAILS
+           ================================================= */
+
+        .job-summary {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .job-detail {
+            padding: 11px 12px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background:
+                rgba(255, 255, 255, 0.28);
+        }
+
+        .job-detail small {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .job-detail strong,
+        .job-detail span {
+            color: #405268;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .job-description {
+            margin-top: 12px;
+        }
+
+        .job-description small {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .job-description-text {
+            color: #46576b;
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        /* =================================================
+           APPLICATION TABLE
+           ================================================= */
+
+        .status-text {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .application-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .application-meta strong {
+            color: #26384d;
+            font-size: 12px;
+        }
+
+        .application-meta span {
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        /* =================================================
+           MODAL
+           ================================================= */
+
+        .application-modal-body {
+            max-height: 72vh;
+            overflow-y: auto;
+        }
+
+        .form-error {
+            margin-bottom: 12px;
+            color: #b54747;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        /* =================================================
+           EMPTY STATE
+           ================================================= */
+
+        .application-empty {
+            text-align: center;
+            padding: 30px 15px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        /* =================================================
+           MOBILE
+           ================================================= */
+
+        @media (max-width: 700px) {
+
+            .application-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .application-section-full {
+                grid-column: auto;
+            }
+
+            .job-summary {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body
+    data-active="Applications"
+    class="app-page"
+>
+
+
+    <!-- =================================================
+         SIDEBAR
+         ================================================= -->
+
+    <aside
+        id="appSidebar"
+        class="sidebar glass-panel"
+    ></aside>
+
+
+    <!-- =================================================
+         MAIN APPLICATION
+         ================================================= -->
+
+    <main class="app-main">
+
+
+        <!-- =================================================
+             TOP BAR
+             ================================================= -->
+
+        <header
+            id="appTopbar"
+            class="topbar glass-panel"
+        ></header>
+
+
+        <!-- =================================================
+             PAGE CONTENT
+             ================================================= -->
+
+        <section class="page-content">
+
+
+            <!-- =================================================
+                 PAGE HEADER
+                 ================================================= -->
+
+            <div class="page-intro">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Stage 5 · Job Application
+                    </p>
+
+                    <h2>
+                        Applications
+                    </h2>
+
+                    <p>
+                        Submit and manage applicant job applications.
+                    </p>
+
                 </div>
-                <section class="glass-panel section-card">
-                    <div class="empty-state">
-                        <div class="empty-icon">◌</div>
-                        <h3>Applications module</h3>
-                        <p>The navigation and database architecture are already in place. Build this module here in the next laboratory without creating a new project or database.</p>
+
+
+                <button
+                    id="openApplicationModal"
+                    class="btn btn-primary"
+                    type="button"
+                >
+                    ＋ New Application
+                </button>
+
+            </div>
+
+
+            <!-- =================================================
+                 APPLICATION TABLE
+                 ================================================= -->
+
+            <section
+                class="glass-panel section-card"
+            >
+
+                <div class="toolbar">
+
+                    <div class="search-wrap">
+
+                        <span
+                            class="search-icon"
+                            aria-hidden="true"
+                        >
+                            ⌕
+                        </span>
+
+                        <input
+                            id="applicationSearch"
+                            type="search"
+                            placeholder="Search applicant, job, or application"
+                            autocomplete="off"
+                        >
+
                     </div>
-                </section>
+
+
+                    <select
+                        id="applicationStatusFilter"
+                        class="select-control"
+                    >
+
+                        <option value="">
+                            All statuses
+                        </option>
+
+                        <option value="SUBMITTED">
+                            Submitted
+                        </option>
+
+                        <option value="Under Screening">
+                            Under Screening
+                        </option>
+
+                        <option value="Qualified">
+                            Qualified
+                        </option>
+
+                        <option value="For Interview">
+                            For Interview
+                        </option>
+
+                        <option value="Interviewed">
+                            Interviewed
+                        </option>
+
+                        <option value="Selected">
+                            Selected
+                        </option>
+
+                        <option value="Hired">
+                            Hired
+                        </option>
+
+                        <option value="Rejected">
+                            Rejected
+                        </option>
+
+                        <option value="Withdrawn">
+                            Withdrawn
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Application
+                                </th>
+
+                                <th>
+                                    Applicant
+                                </th>
+
+                                <th>
+                                    Position
+                                </th>
+
+                                <th>
+                                    Date Applied
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="applicationsTable">
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="table-empty"
+                                >
+                                    Loading applications...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
             </section>
-        </main>
-        <div id="toastRoot" class="toast-root"></div>
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-        <script src="js/config.js"></script>
-        <script src="js/supabase.js"></script>
-        <script src="js/auth.js"></script>
-        <script src="js/components.js"></script>
-        <script src="js/app.js"></script>
-    </body>
+
+        </section>
+
+    </main>
+
+
+    <!-- =================================================
+         TOAST
+         ================================================= -->
+
+    <div
+        id="toastRoot"
+        class="toast-root"
+    ></div>
+
+
+    <!-- =================================================
+         NEW APPLICATION MODAL
+         ================================================= -->
+
+    <div
+        id="applicationModal"
+        class="modal-backdrop"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal glass-panel application-modal-body"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="applicationModalTitle"
+        >
+
+
+            <!-- HEADER -->
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Job Application
+                    </p>
+
+                    <h3 id="applicationModalTitle">
+                        New Application
+                    </h3>
+
+                </div>
+
+
+                <button
+                    id="closeApplicationModal"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <!-- ERROR -->
+
+            <div
+                id="applicationFormError"
+                class="form-error"
+                role="alert"
+            ></div>
+
+
+            <!-- FORM -->
+
+            <form
+                id="applicationForm"
+                novalidate
+            >
+
+                <div class="application-grid">
+
+
+                    <!-- =================================================
+                         APPLICANT
+                         ================================================= -->
+
+                    <div class="application-section">
+
+                        <div class="form-group">
+
+                            <label for="applicationApplicant">
+                                Applicant *
+                            </label>
+
+                            <select
+                                id="applicationApplicant"
+                                required
+                            >
+
+                                <option value="">
+                                    Select applicant
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         JOB
+                         ================================================= -->
+
+                    <div class="application-section">
+
+                        <div class="form-group">
+
+                            <label for="applicationJob">
+                                Job Position *
+                            </label>
+
+                            <select
+                                id="applicationJob"
+                                required
+                            >
+
+                                <option value="">
+                                    Select available job
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         SELECTED JOB DETAILS
+                         ================================================= -->
+
+                    <div
+                        id="selectedJobSection"
+                        class="application-section application-section-full"
+                        hidden
+                    >
+
+                        <h4 id="selectedJobTitle">
+                            Job Details
+                        </h4>
+
+                        <p id="selectedJobCode">
+                            Select a job to view details.
+                        </p>
+
+
+                        <div class="job-summary">
+
+
+                            <div class="job-detail">
+
+                                <small>
+                                    Department
+                                </small>
+
+                                <strong id="selectedJobDepartment">
+                                    —
+                                </strong>
+
+                            </div>
+
+
+                            <div class="job-detail">
+
+                                <small>
+                                    Employment Type
+                                </small>
+
+                                <strong id="selectedJobEmploymentType">
+                                    —
+                                </strong>
+
+                            </div>
+
+
+                            <div class="job-detail">
+
+                                <small>
+                                    Closing Date
+                                </small>
+
+                                <strong id="selectedJobClosingDate">
+                                    —
+                                </strong>
+
+                            </div>
+
+
+                            <div class="job-detail">
+
+                                <small>
+                                    Vacancies
+                                </small>
+
+                                <strong id="selectedJobVacancies">
+                                    —
+                                </strong>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="job-description">
+
+                            <small>
+                                Description
+                            </small>
+
+                            <div
+                                id="selectedJobDescription"
+                                class="job-description-text"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+
+                        <div class="job-description">
+
+                            <small>
+                                Qualifications
+                            </small>
+
+                            <div
+                                id="selectedJobQualifications"
+                                class="job-description-text"
+                            >
+                                —
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         COVER LETTER
+                         ================================================= -->
+
+                    <div
+                        class="application-section application-section-full"
+                    >
+
+                        <div class="form-group">
+
+                            <label for="coverLetter">
+                                Cover Letter *
+                            </label>
+
+                            <textarea
+                                id="coverLetter"
+                                rows="8"
+                                placeholder="I am interested in applying for the position..."
+                                required
+                            ></textarea>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- BUTTONS -->
+
+                <div
+                    class="button-row"
+                    style="margin-top:18px;"
+                >
+
+                    <button
+                        id="cancelApplicationModal"
+                        class="btn btn-secondary"
+                        type="button"
+                    >
+                        Cancel
+                    </button>
+
+
+                    <button
+                        id="submitApplicationButton"
+                        class="btn btn-primary"
+                        type="submit"
+                    >
+                        Submit Application
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         VIEW APPLICATION MODAL
+         ================================================= -->
+
+    <div
+        id="viewApplicationModal"
+        class="modal-backdrop"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal glass-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="viewApplicationTitle"
+        >
+
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Application Details
+                    </p>
+
+                    <h3 id="viewApplicationTitle">
+                        Application
+                    </h3>
+
+                </div>
+
+
+                <button
+                    id="closeViewApplication"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div
+                id="viewApplicationBody"
+                class="profile-grid"
+            ></div>
+
+
+            <div class="button-row">
+
+                <button
+                    id="closeViewApplicationBottom"
+                    class="btn btn-secondary"
+                    type="button"
+                >
+                    Close
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         SUPABASE
+         ================================================= -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- =================================================
+         PROJECT JAVASCRIPT
+         ================================================= -->
+
+    <script src="js/config.js"></script>
+
+    <script src="js/supabase.js"></script>
+
+    <script src="js/auth.js"></script>
+
+    <script src="js/components.js"></script>
+
+    <script src="js/application.js"></script>
+
+
+</body>
+
 </html>

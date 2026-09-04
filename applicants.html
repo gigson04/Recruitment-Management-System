@@ -15,7 +15,10 @@
     </title>
 
 
-    <!-- Google Font -->
+    <!-- =================================================
+         GOOGLE FONT
+         ================================================= -->
+
     <link
         rel="preconnect"
         href="https://fonts.googleapis.com"
@@ -33,7 +36,10 @@
     >
 
 
-    <!-- Project CSS -->
+    <!-- =================================================
+         PROJECT CSS
+         ================================================= -->
+
     <link
         rel="stylesheet"
         href="css/frost-ui.css"
@@ -49,6 +55,10 @@
         href="css/responsive.css"
     >
 
+
+    <!-- =================================================
+         PAGE-SPECIFIC CSS
+         ================================================= -->
 
     <style>
 
@@ -115,7 +125,9 @@
 
         .applicant-name {
             display: flex;
+
             flex-direction: column;
+
             gap: 3px;
         }
 
@@ -131,6 +143,129 @@
             color: var(--muted);
 
             font-size: 11px;
+        }
+
+
+        /* ================================================
+           RESUME LINK
+           ================================================ */
+
+        .resume-link {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            color: #355f8a;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            text-decoration: none;
+        }
+
+
+        .resume-link:hover {
+            text-decoration: underline;
+        }
+
+
+        .form-help {
+            display: block;
+
+            margin-top: 6px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+
+            line-height: 1.45;
+        }
+
+
+        .muted {
+            color: var(--muted);
+        }
+
+
+        /* ================================================
+           FILE INPUT
+           ================================================ */
+
+        #resumeFile {
+            width: 100%;
+
+            padding: 10px;
+
+            border: 1px solid var(--line);
+
+            border-radius: 10px;
+
+            background:
+                rgba(255, 255, 255, 0.45);
+
+            color: #46576b;
+
+            font-family: inherit;
+
+            font-size: 13px;
+
+            cursor: pointer;
+
+            box-sizing: border-box;
+        }
+
+
+        #resumeFile:hover {
+            background:
+                rgba(255, 255, 255, 0.60);
+        }
+
+
+        #resumeFile::file-selector-button {
+            margin-right: 10px;
+
+            padding: 8px 12px;
+
+            border: 1px solid var(--line);
+
+            border-radius: 8px;
+
+            background:
+                rgba(255, 255, 255, 0.70);
+
+            color: #33485e;
+
+            font-family: inherit;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+        }
+
+
+        #resumeFile::file-selector-button:hover {
+            background:
+                rgba(255, 255, 255, 0.90);
+        }
+
+
+        /* ================================================
+           FORM ERROR
+           ================================================ */
+
+        .form-error {
+            margin-bottom: 12px;
+
+            color: #b54747;
+
+            font-size: 12px;
+
+            line-height: 1.45;
         }
 
 
@@ -178,7 +313,9 @@
     <main class="app-main">
 
 
-        <!-- TOP BAR -->
+        <!-- =================================================
+             TOP BAR
+             ================================================= -->
 
         <header
             id="appTopbar"
@@ -193,7 +330,9 @@
         <section class="page-content">
 
 
-            <!-- PAGE HEADER -->
+            <!-- =================================================
+                 PAGE HEADER
+                 ================================================= -->
 
             <div class="page-intro">
 
@@ -237,7 +376,9 @@
             >
 
 
-                <!-- TOOLBAR -->
+                <!-- =================================================
+                     TOOLBAR
+                     ================================================= -->
 
                 <div class="toolbar">
 
@@ -288,7 +429,9 @@
                 </div>
 
 
-                <!-- TABLE -->
+                <!-- =================================================
+                     TABLE
+                     ================================================= -->
 
                 <div class="table-wrap">
 
@@ -387,7 +530,9 @@
         >
 
 
-            <!-- MODAL HEADER -->
+            <!-- =================================================
+                 MODAL HEADER
+                 ================================================= -->
 
             <div class="modal-head">
 
@@ -418,7 +563,9 @@
             </div>
 
 
-            <!-- FORM ERROR -->
+            <!-- =================================================
+                 FORM ERROR
+                 ================================================= -->
 
             <div
                 id="applicantFormError"
@@ -427,7 +574,9 @@
             ></div>
 
 
-            <!-- FORM -->
+            <!-- =================================================
+                 FORM
+                 ================================================= -->
 
             <form
                 id="applicantForm"
@@ -435,7 +584,7 @@
             >
 
 
-                <!-- Hidden applicant ID -->
+                <!-- Hidden Applicant ID -->
 
                 <input
                     type="hidden"
@@ -446,14 +595,14 @@
                 <div class="form-grid">
 
 
-                    <!-- APPLICANT NUMBER -->
+                    <!-- =================================================
+                         APPLICANT NUMBER
+                         ================================================= -->
 
                     <div class="form-group">
 
                         <label for="applicantNo">
-
                             Applicant No. *
-
                         </label>
 
 
@@ -468,14 +617,14 @@
                     </div>
 
 
-                    <!-- FIRST NAME -->
+                    <!-- =================================================
+                         FIRST NAME
+                         ================================================= -->
 
                     <div class="form-group">
 
                         <label for="firstName">
-
                             First Name *
-
                         </label>
 
 
@@ -490,14 +639,14 @@
                     </div>
 
 
-                    <!-- LAST NAME -->
+                    <!-- =================================================
+                         LAST NAME
+                         ================================================= -->
 
                     <div class="form-group">
 
                         <label for="lastName">
-
                             Last Name *
-
                         </label>
 
 
@@ -512,14 +661,14 @@
                     </div>
 
 
-                    <!-- EMAIL -->
+                    <!-- =================================================
+                         EMAIL
+                         ================================================= -->
 
                     <div class="form-group">
 
                         <label for="email">
-
                             Email *
-
                         </label>
 
 
@@ -534,14 +683,14 @@
                     </div>
 
 
-                    <!-- CONTACT -->
+                    <!-- =================================================
+                         CONTACT
+                         ================================================= -->
 
                     <div class="form-group">
 
                         <label for="contactNo">
-
                             Contact No. *
-
                         </label>
 
 
@@ -557,14 +706,14 @@
                     </div>
 
 
-                    <!-- STATUS -->
+                    <!-- =================================================
+                         STATUS
+                         ================================================= -->
 
                     <div class="form-group">
 
                         <label for="applicantStatus">
-
                             Status
-
                         </label>
 
 
@@ -585,14 +734,14 @@
                     </div>
 
 
-                    <!-- ADDRESS -->
+                    <!-- =================================================
+                         ADDRESS
+                         ================================================= -->
 
                     <div class="form-group full-width">
 
                         <label for="address">
-
                             Address *
-
                         </label>
 
 
@@ -606,14 +755,14 @@
                     </div>
 
 
-                    <!-- EDUCATION -->
+                    <!-- =================================================
+                         EDUCATION
+                         ================================================= -->
 
                     <div class="form-group full-width">
 
                         <label for="education">
-
                             Education *
-
                         </label>
 
 
@@ -627,14 +776,14 @@
                     </div>
 
 
-                    <!-- EXPERIENCE -->
+                    <!-- =================================================
+                         EXPERIENCE
+                         ================================================= -->
 
                     <div class="form-group full-width">
 
                         <label for="experience">
-
                             Work Experience *
-
                         </label>
 
 
@@ -655,9 +804,7 @@
                     <div class="form-group full-width">
 
                         <label for="skills">
-
                             Skills
-
                         </label>
 
 
@@ -668,52 +815,42 @@
                         ></textarea>
 
 
-                        <small
-                            style="
-                                display:block;
-                                margin-top:5px;
-                                color:var(--muted);
-                            "
-                        >
+                        <small class="form-help">
                             Enter one skill per line.
-
                         </small>
 
                     </div>
 
 
                     <!-- =================================================
-                         LAB 6 — RESUME REFERENCE
+                         LAB 6 — RESUME PDF UPLOAD
                          ================================================= -->
 
                     <div class="form-group full-width">
 
                         <label for="resumeFile">
-
-                            Resume Reference
-
+                            Resume (PDF)
                         </label>
 
 
                         <input
                             id="resumeFile"
-                            type="text"
-                            placeholder="Juan-Dela-Cruz-Resume.pdf"
-                            autocomplete="off"
+                            name="resumeFile"
+                            type="file"
+                            accept=".pdf,application/pdf"
                         >
 
 
-                        <small
-                            style="
-                                display:block;
-                                margin-top:5px;
-                                color:var(--muted);
-                            "
-                        >
-                            Enter the resume file name
-                            or storage reference.
-
+                        <small class="form-help">
+                            Upload a PDF resume.
+                            Maximum file size: 5 MB.
                         </small>
+
+
+                        <div
+                            id="currentResume"
+                            class="form-help"
+                        ></div>
 
                     </div>
 
@@ -721,7 +858,9 @@
                 </div>
 
 
-                <!-- FORM BUTTONS -->
+                <!-- =================================================
+                     FORM BUTTONS
+                     ================================================= -->
 
                 <div
                     class="button-row"
@@ -776,15 +915,15 @@
         >
 
 
-            <!-- HEADER -->
+            <!-- =================================================
+                 VIEW MODAL HEADER
+                 ================================================= -->
 
             <div class="modal-head">
 
                 <div>
 
-                    <p
-                        class="eyebrow"
-                    >
+                    <p class="eyebrow">
                         Applicant Profile
                     </p>
 
@@ -809,7 +948,9 @@
             </div>
 
 
-            <!-- PROFILE CONTENT -->
+            <!-- =================================================
+                 PROFILE CONTENT
+                 ================================================= -->
 
             <div
                 id="viewApplicantBody"
@@ -817,7 +958,9 @@
             ></div>
 
 
-            <!-- CLOSE BUTTON -->
+            <!-- =================================================
+                 CLOSE BUTTON
+                 ================================================= -->
 
             <div class="button-row">
 
@@ -848,13 +991,17 @@
 
 
     <!-- =================================================
-         PROJECT JS
+         PROJECT JAVASCRIPT
          ================================================= -->
 
     <script src="js/config.js"></script>
+
     <script src="js/supabase.js"></script>
+
     <script src="js/auth.js"></script>
+
     <script src="js/components.js"></script>
+
     <script src="js/applicants.js"></script>
 
 

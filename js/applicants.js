@@ -10,9 +10,15 @@ async function init() {
     if (!session) return;
 
     setupEvents();
+
     loadUserProfile().catch(console.warn);
+
     await loadApplicants();
 }
+
+/* =========================================================
+   EVENTS
+========================================================= */
 
 function setupEvents() {
     document.getElementById("openApplicantModal")
@@ -41,10 +47,44 @@ function setupEvents() {
 
     document.getElementById("closeViewApplicantBottom")
         ?.addEventListener("click", closeView);
+
+    document.getElementById("resumeFile")
+        ?.addEventListener("change", handleResumeSelection);
+
+    document.querySelectorAll(".modal-backdrop").forEach(modal => {
+        modal.addEventListener("click", event => {
+            if (event.target === modal) {
+                toggleModal(modal.id, false);
+            }
+        });
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key !== "Escape") return;
+
+        document.querySelectorAll(".modal-backdrop.open")
+            .forEach(modal => {
+                toggleModal(modal.id, false);
+            });
+    });
 }
+
+/* =========================================================
+   LOAD APPLICANTS
+========================================================= */
 
 async function loadApplicants() {
     const table = document.getElementById("applicantsTable");
+
+    if (!table) return;
+
+    table.innerHTML = `
+        <tr>
+            <td colspan="7" class="table-empty">
+                Loading applicants...
+            </td>
+        </tr>
+    `;
 
     try {
         const { data, error } = await window.rmsSupabase
@@ -68,10 +108,11 @@ async function loadApplicants() {
         if (error) throw error;
 
         applicants = data || [];
+
         renderApplicants();
 
     } catch (error) {
-        console.error(error);
+        console.error("Load applicants error:", error);
 
         table.innerHTML = `
             <tr>
@@ -83,27 +124,45 @@ async function loadApplicants() {
     }
 }
 
+/* =========================================================
+   RENDER APPLICANTS
+========================================================= */
+
 function renderApplicants() {
     const table = document.getElementById("applicantsTable");
 
-    const search = document.getElementById("applicantSearch")
-        ?.value.trim().toLowerCase() || "";
+    if (!table) return;
 
-    const status = document.getElementById("applicantStatusFilter")
-        ?.value || "";
+    const search =
+        document.getElementById("applicantSearch")
+            ?.value
+            .trim()
+            .toLowerCase() || "";
 
-    const filtered = applicants.filter(a => {
+    const status =
+        document.getElementById("applicantStatusFilter")
+            ?.value || "";
+
+    const filtered = applicants.filter(applicant => {
         const name =
-            `${a.first_name} ${a.last_name}`.toLowerCase();
+            `${applicant.first_name || ""} ${applicant.last_name || ""}`
+                .trim()
+                .toLowerCase();
+
+        const applicantNo =
+            String(applicant.applicant_no || "").toLowerCase();
+
+        const email =
+            String(applicant.email || "").toLowerCase();
 
         const matchesSearch =
             !search ||
-            a.applicant_no.toLowerCase().includes(search) ||
+            applicantNo.includes(search) ||
             name.includes(search) ||
-            a.email.toLowerCase().includes(search);
+            email.includes(search);
 
         const matchesStatus =
-            !status || a.status === status;
+            !status || applicant.status === status;
 
         return matchesSearch && matchesStatus;
     });
@@ -119,62 +178,75 @@ function renderApplicants() {
         return;
     }
 
-    table.innerHTML = filtered.map(a => `
-        <tr>
-            <td>
-                <strong>
-                    ${escapeHtml(a.applicant_no)}
-                </strong>
-            </td>
+    table.innerHTML = filtered.map(applicant => {
+        const fullName =
+            `${applicant.first_name || ""} ${applicant.last_name || ""}`
+                .trim();
 
-            <td>
-                ${escapeHtml(
-                    `${a.first_name} ${a.last_name}`
-                )}
-            </td>
+        return `
+            <tr>
+                <td>
+                    <strong>
+                        ${escapeHtml(applicant.applicant_no || "")}
+                    </strong>
+                </td>
 
-            <td>
-                ${escapeHtml(a.email)}
-            </td>
+                <td>
+                    ${escapeHtml(fullName)}
+                </td>
 
-            <td>
-                ${escapeHtml(a.contact_no)}
-            </td>
+                <td>
+                    ${escapeHtml(applicant.email || "")}
+                </td>
 
-            <td>
-                ${escapeHtml(a.education)}
-            </td>
+                <td>
+                    ${escapeHtml(applicant.contact_no || "")}
+                </td>
 
-            <td>
-                ${statusBadge(a.status)}
-            </td>
+                <td>
+                    ${escapeHtml(applicant.education || "")}
+                </td>
 
-            <td>
-                <div class="table-actions">
+                <td>
+                    ${statusBadge(applicant.status || "")}
+                </td>
 
-                    <button
-                        class="table-action"
-                        data-action="view"
-                        data-id="${a.applicant_id}">
-                        View
-                    </button>
+                <td>
+                    <div class="table-actions">
 
-                    <button
-                        class="table-action"
-                        data-action="edit"
-                        data-id="${a.applicant_id}">
-                        Edit
-                    </button>
+                        <button
+                            type="button"
+                            class="table-action"
+                            data-action="view"
+                            data-id="${applicant.applicant_id}"
+                        >
+                            View
+                        </button>
 
-                </div>
-            </td>
-        </tr>
-    `).join("");
+                        <button
+                            type="button"
+                            class="table-action"
+                            data-action="edit"
+                            data-id="${applicant.applicant_id}"
+                        >
+                            Edit
+                        </button>
+
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join("");
 }
 
+/* =========================================================
+   OPEN FORM
+========================================================= */
+
 function openForm(applicant = null) {
-    const form =
-        document.getElementById("applicantForm");
+    const form = document.getElementById("applicantForm");
+
+    if (!form) return;
 
     form.reset();
 
@@ -188,9 +260,19 @@ function openForm(applicant = null) {
             ? "Edit Applicant"
             : "Add Applicant";
 
-    document.getElementById(
-        "applicantFormError"
-    ).textContent = "";
+    const errorBox =
+        document.getElementById("applicantFormError");
+
+    if (errorBox) {
+        errorBox.textContent = "";
+    }
+
+    const currentResume =
+        document.getElementById("currentResume");
+
+    if (currentResume) {
+        currentResume.innerHTML = "";
+    }
 
     if (applicant) {
         setValue(
@@ -244,17 +326,23 @@ function openForm(applicant = null) {
         );
 
         setValue(
-            "resumeFile",
-            applicant.resume_file
-        );
-
-        setValue(
             "applicantStatus",
             applicant.status
         );
 
-    } else {
+        if (
+            currentResume &&
+            applicant.resume_file
+        ) {
+            currentResume.innerHTML = `
+                Current resume:
+                <strong>
+                    ${escapeHtml(applicant.resume_file)}
+                </strong>
+            `;
+        }
 
+    } else {
         setValue(
             "applicantStatus",
             "Active"
@@ -272,12 +360,61 @@ function openForm(applicant = null) {
     );
 }
 
+/* =========================================================
+   CLOSE FORM
+========================================================= */
+
 function closeForm() {
     toggleModal(
         "applicantModal",
         false
     );
 }
+
+/* =========================================================
+   RESUME SELECTION
+========================================================= */
+
+function handleResumeSelection() {
+    const input =
+        document.getElementById("resumeFile");
+
+    if (!input?.files?.length) {
+        return;
+    }
+
+    const file = input.files[0];
+
+    const errorBox =
+        document.getElementById(
+            "applicantFormError"
+        );
+
+    if (errorBox) {
+        errorBox.textContent = "";
+    }
+
+    const error =
+        validateResumeFile(file);
+
+    if (error) {
+        input.value = "";
+
+        if (errorBox) {
+            errorBox.textContent = error;
+        }
+
+        return;
+    }
+
+    showToast(
+        `Selected resume: ${file.name}`
+    );
+}
+
+/* =========================================================
+   SAVE APPLICANT
+========================================================= */
 
 async function saveApplicant(event) {
     event.preventDefault();
@@ -287,7 +424,9 @@ async function saveApplicant(event) {
             "applicantFormError"
         );
 
-    errorBox.textContent = "";
+    if (errorBox) {
+        errorBox.textContent = "";
+    }
 
     const applicant = {
         applicant_no:
@@ -317,9 +456,6 @@ async function saveApplicant(event) {
         skills:
             value("skills"),
 
-        resume_file:
-            value("resumeFile"),
-
         status:
             value("applicantStatus")
     };
@@ -328,41 +464,98 @@ async function saveApplicant(event) {
         validateApplicant(applicant);
 
     if (validationError) {
-        errorBox.textContent =
-            validationError;
+        if (errorBox) {
+            errorBox.textContent =
+                validationError;
+        }
+
         return;
     }
 
-    const duplicateQuery =
-        await window.rmsSupabase
-            .from("applicants")
-            .select("applicant_id")
-            .eq(
-                "applicant_no",
-                applicant.applicant_no
-            )
-            .maybeSingle();
+    const resumeInput =
+        document.getElementById("resumeFile");
 
-    if (duplicateQuery.error) {
+    const selectedResume =
+        resumeInput?.files?.[0] || null;
 
+    if (selectedResume) {
+        const resumeError =
+            validateResumeFile(selectedResume);
+
+        if (resumeError) {
+            if (errorBox) {
+                errorBox.textContent =
+                    resumeError;
+            }
+
+            return;
+        }
+
+        /*
+         * Instead of requiring Supabase Storage,
+         * save the actual selected filename into
+         * the resume_file database column.
+         */
+        applicant.resume_file =
+            selectedResume.name;
+
+    } else {
+        /*
+         * Keep the existing resume when editing.
+         */
+        const existing =
+            applicants.find(
+                a =>
+                    String(a.applicant_id) ===
+                    String(editingId)
+            );
+
+        applicant.resume_file =
+            existing?.resume_file || null;
+    }
+
+    /* =====================================================
+       DUPLICATE APPLICANT NUMBER
+    ===================================================== */
+
+    try {
+        const { data, error } =
+            await window.rmsSupabase
+                .from("applicants")
+                .select("applicant_id")
+                .eq(
+                    "applicant_no",
+                    applicant.applicant_no
+                )
+                .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        if (
+            data &&
+            String(data.applicant_id) !==
+            String(editingId)
+        ) {
+            if (errorBox) {
+                errorBox.textContent =
+                    "This applicant number already exists.";
+            }
+
+            return;
+        }
+
+    } catch (error) {
         console.error(
-            duplicateQuery.error
+            "Duplicate check error:",
+            error
         );
 
-        errorBox.textContent =
-            "Unable to check applicant number.";
-
-        return;
-    }
-
-    if (
-        duplicateQuery.data &&
-        duplicateQuery.data.applicant_id !==
-            editingId
-    ) {
-
-        errorBox.textContent =
-            "This applicant number already exists.";
+        if (errorBox) {
+            errorBox.textContent =
+                "Unable to check applicant number.";
+        }
 
         return;
     }
@@ -381,90 +574,99 @@ async function saveApplicant(event) {
     );
 
     try {
+        let result;
 
-        const result =
-            editingId
+        if (editingId) {
 
-                ? await window.rmsSupabase
+            result =
+                await window.rmsSupabase
                     .from("applicants")
                     .update(applicant)
                     .eq(
                         "applicant_id",
                         editingId
-                    )
+                    );
 
-                : await window.rmsSupabase
+        } else {
+
+            result =
+                await window.rmsSupabase
                     .from("applicants")
-                    .insert(applicant);
-
+                    .insert([applicant]);
+        }
 
         if (result.error) {
             throw result.error;
         }
 
-
         closeForm();
-
 
         showToast(
             editingId
-                ? "Applicant profile updated successfully."
+                ? "Applicant updated successfully."
                 : "Applicant registered successfully."
         );
 
-
         await loadApplicants();
 
-
     } catch (error) {
+        console.error(
+            "Save applicant error:",
+            error
+        );
 
-        console.error(error);
-
-        errorBox.textContent =
-            "Unable to save applicant.";
+        if (errorBox) {
+            errorBox.textContent =
+                "Unable to save applicant.";
+        }
 
     } finally {
-
         setButtonLoading(
             button,
             false
         );
-
     }
 }
 
-function validateApplicant(a) {
+/* =========================================================
+   APPLICANT VALIDATION
+========================================================= */
 
+function validateApplicant(applicant) {
     if (
-        !a.applicant_no ||
-        !a.first_name ||
-        !a.last_name ||
-        !a.email ||
-        !a.contact_no ||
-        !a.address ||
-        !a.education ||
-        !a.experience
+        !applicant.applicant_no ||
+        !applicant.first_name ||
+        !applicant.last_name ||
+        !applicant.email ||
+        !applicant.contact_no ||
+        !applicant.address ||
+        !applicant.education ||
+        !applicant.experience ||
+        !applicant.status
     ) {
         return "Please complete all required information.";
     }
 
     if (
-        !/^[A-Z0-9-]+$/
-            .test(a.applicant_no)
+        !/^[A-Z0-9-]+$/.test(
+            applicant.applicant_no
+        )
     ) {
         return "Applicant number may only contain letters, numbers, and hyphens.";
     }
 
     if (
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/
-            .test(a.email)
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+            applicant.email
+        )
     ) {
         return "Please enter a valid email address.";
     }
 
     if (
-        !/^(09\d{9}|\+639\d{9})$/
-            .test(a.contact_no)
+        !/^(09\d{9}|\+639\d{9})$/.test(
+            applicant.contact_no
+        )
     ) {
         return "Please enter a valid Philippine contact number.";
     }
@@ -472,15 +674,48 @@ function validateApplicant(a) {
     return "";
 }
 
-function handleAction(event) {
+/* =========================================================
+   RESUME VALIDATION
+========================================================= */
 
+function validateResumeFile(file) {
+    if (!file) {
+        return "";
+    }
+
+    const maxSize =
+        5 * 1024 * 1024;
+
+    const isPdf =
+        file.type === "application/pdf" ||
+        file.name
+            .toLowerCase()
+            .endsWith(".pdf");
+
+    if (!isPdf) {
+        return "Resume must be a PDF file.";
+    }
+
+    if (file.size > maxSize) {
+        return "Resume file must not exceed 5 MB.";
+    }
+
+    return "";
+}
+
+/* =========================================================
+   TABLE ACTIONS
+========================================================= */
+
+function handleAction(event) {
     const button =
         event.target.closest(
             "[data-action]"
         );
 
-    if (!button) return;
-
+    if (!button) {
+        return;
+    }
 
     const applicant =
         applicants.find(
@@ -489,196 +724,168 @@ function handleAction(event) {
                 String(button.dataset.id)
         );
 
-    if (!applicant) return;
-
-
-    if (
-        button.dataset.action ===
-        "edit"
-    ) {
-        openForm(applicant);
+    if (!applicant) {
+        return;
     }
 
+    if (
+        button.dataset.action === "edit"
+    ) {
+        openForm(applicant);
+        return;
+    }
 
     if (
-        button.dataset.action ===
-        "view"
+        button.dataset.action === "view"
     ) {
         openView(applicant);
     }
 }
 
-function openView(a) {
+/* =========================================================
+   VIEW APPLICANT
+========================================================= */
 
+function openView(applicant) {
     const name =
-        `${a.first_name} ${a.last_name}`;
+        `${applicant.first_name || ""} ${applicant.last_name || ""}`
+            .trim();
 
+    const title =
+        document.getElementById(
+            "viewApplicantTitle"
+        );
 
-    document.getElementById(
-        "viewApplicantTitle"
-    ).textContent =
-        name;
+    const body =
+        document.getElementById(
+            "viewApplicantBody"
+        );
 
+    if (!title || !body) {
+        return;
+    }
 
-    document.getElementById(
-        "viewApplicantBody"
-    ).innerHTML = `
+    title.textContent =
+        name || "Applicant Profile";
 
+    const resumeHtml =
+        applicant.resume_file
+            ? `
+                <span>
+                    ${escapeHtml(
+                        applicant.resume_file
+                    )}
+                </span>
+              `
+            : `
+                <span class="muted">
+                    No resume uploaded
+                </span>
+              `;
+
+    body.innerHTML = `
         <div class="profile-grid">
 
             <div class="profile-item">
-
-                <small>
-                    Applicant No.
-                </small>
-
+                <small>Applicant No.</small>
                 <div>
                     ${escapeHtml(
-                        a.applicant_no
+                        applicant.applicant_no || ""
                     )}
                 </div>
-
             </div>
 
-
             <div class="profile-item">
-
-                <small>
-                    Status
-                </small>
-
+                <small>Status</small>
                 <div>
                     ${statusBadge(
-                        a.status
+                        applicant.status || ""
                     )}
                 </div>
-
             </div>
 
-
             <div class="profile-item">
-
-                <small>
-                    Email
-                </small>
-
+                <small>First Name</small>
                 <div>
                     ${escapeHtml(
-                        a.email
+                        applicant.first_name || ""
                     )}
                 </div>
-
             </div>
 
-
             <div class="profile-item">
-
-                <small>
-                    Contact No.
-                </small>
-
+                <small>Last Name</small>
                 <div>
                     ${escapeHtml(
-                        a.contact_no
+                        applicant.last_name || ""
                     )}
                 </div>
-
             </div>
 
-
             <div class="profile-item">
-
-                <small>
-                    Address
-                </small>
-
+                <small>Email</small>
                 <div>
                     ${escapeHtml(
-                        a.address
+                        applicant.email || ""
                     )}
                 </div>
-
             </div>
 
-
             <div class="profile-item">
-
-                <small>
-                    Education
-                </small>
-
+                <small>Contact No.</small>
                 <div>
                     ${escapeHtml(
-                        a.education
+                        applicant.contact_no || ""
                     )}
                 </div>
-
             </div>
 
-
-            <div class="profile-item">
-
-                <small>
-                    Work Experience
-                </small>
-
+            <div class="profile-item profile-item-full">
+                <small>Address</small>
                 <div>
                     ${escapeHtml(
-                        a.experience
+                        applicant.address || ""
                     )}
                 </div>
-
             </div>
 
-
-            <div class="profile-item">
-
-                <small>
-                    Skills
-                </small>
-
+            <div class="profile-item profile-item-full">
+                <small>Education</small>
                 <div>
-                    ${formatSkills(
-                        a.skills
+                    ${escapeHtml(
+                        applicant.education || ""
                     )}
                 </div>
-
             </div>
 
-
-            <div
-                class="profile-item"
-                style="grid-column: 1 / -1;">
-
-                <small>
-                    Resume
-                </small>
-
+            <div class="profile-item profile-item-full">
+                <small>Work Experience</small>
                 <div>
-                    ${
-                        a.resume_file
-                            ? `
-                                <a
-                                    href="${escapeHtml(
-                                        a.resume_file
-                                    )}"
-                                    target="_blank"
-                                    rel="noopener noreferrer">
-
-                                    View Resume
-
-                                </a>
-                              `
-                            : "No resume reference added."
-                    }
+                    ${escapeHtml(
+                        applicant.experience || ""
+                    )}
                 </div>
+            </div>
 
+            <div class="profile-item profile-item-full">
+                <small>Skills</small>
+                <div>
+                    ${escapeHtml(
+                        applicant.skills ||
+                        "Not provided"
+                    )}
+                </div>
+            </div>
+
+            <div class="profile-item profile-item-full">
+                <small>Resume</small>
+                <div>
+                    ${resumeHtml}
+                </div>
             </div>
 
         </div>
-
     `;
-
 
     toggleModal(
         "viewApplicantModal",
@@ -686,24 +893,28 @@ function openView(a) {
     );
 }
 
-function closeView() {
+/* =========================================================
+   CLOSE VIEW
+========================================================= */
 
+function closeView() {
     toggleModal(
         "viewApplicantModal",
         false
     );
-
 }
 
-function toggleModal(
-    id,
-    open
-) {
+/* =========================================================
+   MODAL
+========================================================= */
 
+function toggleModal(id, open) {
     const modal =
         document.getElementById(id);
 
-    if (!modal) return;
+    if (!modal) {
+        return;
+    }
 
     modal.classList.toggle(
         "open",
@@ -716,72 +927,51 @@ function toggleModal(
     );
 }
 
+/* =========================================================
+   FORM HELPERS
+========================================================= */
+
 function value(id) {
-
-    return document
-        .getElementById(id)
-        .value
-        .trim();
-
-}
-
-function setValue(
-    id,
-    value
-) {
-
     const element =
         document.getElementById(id);
 
-    if (!element) return;
-
-    element.value =
-        value || "";
-
+    return element
+        ? element.value.trim()
+        : "";
 }
 
-function formatSkills(
-    skills
-) {
+function setValue(id, newValue) {
+    const element =
+        document.getElementById(id);
 
-    if (!skills) {
-        return "No skills listed.";
+    if (!element) {
+        return;
     }
 
-    return escapeHtml(
-        skills
-    )
-    .replaceAll(
-        "\n",
-        "<br>"
-    );
-
+    element.value =
+        newValue ?? "";
 }
 
-function nextApplicantNumber() {
+/* =========================================================
+   NEXT APPLICANT NUMBER
+========================================================= */
 
+function nextApplicantNumber() {
     const numbers =
-        applicants.map(
-            a =>
-                Number(
-                    a.applicant_no
-                        ?.match(/\d+$/)
-                        ?.[0] ||
-                    0
-                )
-        );
+        applicants.map(applicant => {
+
+            const match =
+                String(
+                    applicant.applicant_no || ""
+                ).match(/\d+$/);
+
+            return match
+                ? Number(match[0])
+                : 0;
+        });
 
     const next =
-        Math.max(
-            0,
-            ...numbers
-        ) + 1;
+        Math.max(0, ...numbers) + 1;
 
-    return `APP-${String(
-        next
-    ).padStart(
-        3,
-        "0"
-    )}`;
-
+    return `APP-${String(next).padStart(3, "0")}`;
 }
