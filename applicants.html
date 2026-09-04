@@ -1,92 +1,351 @@
 <!doctype html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Applicants — Recruitment Management System</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>
+        Applicants — Recruitment Management System
+    </title>
 
-    <link rel="stylesheet" href="css/frost-ui.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/responsive.css">
+
+    <!-- Google Font -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- Project CSS -->
+    <link
+        rel="stylesheet"
+        href="css/frost-ui.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/responsive.css"
+    >
+
+
+    <style>
+
+        /* ================================================
+           APPLICANT PROFILE
+           ================================================ */
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+
+        .profile-item {
+            padding: 13px;
+
+            border: 1px solid var(--line);
+
+            border-radius: 12px;
+
+            background:
+                rgba(255, 255, 255, 0.32);
+        }
+
+
+        .profile-item small {
+            display: block;
+
+            margin-bottom: 6px;
+
+            color: var(--muted);
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.07em;
+        }
+
+
+        .profile-item div {
+            color: #46576b;
+
+            font-size: 13px;
+
+            line-height: 1.55;
+
+            word-break: break-word;
+        }
+
+
+        .profile-item-full {
+            grid-column: 1 / -1;
+        }
+
+
+        /* ================================================
+           APPLICANT TABLE
+           ================================================ */
+
+        .applicant-name {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+
+        .applicant-name strong {
+            color: #26384d;
+
+            font-size: 13px;
+        }
+
+
+        .applicant-name span {
+            color: var(--muted);
+
+            font-size: 11px;
+        }
+
+
+        /* ================================================
+           MOBILE
+           ================================================ */
+
+        @media (max-width: 700px) {
+
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-item-full {
+                grid-column: auto;
+            }
+
+        }
+
+    </style>
+
 </head>
 
-<body data-active="Applicants" class="app-page">
 
-    <aside id="appSidebar" class="sidebar glass-panel"></aside>
+<body
+    data-active="Applicants"
+    class="app-page"
+>
+
+
+    <!-- =================================================
+         SIDEBAR
+         ================================================= -->
+
+    <aside
+        id="appSidebar"
+        class="sidebar glass-panel"
+    ></aside>
+
+
+    <!-- =================================================
+         MAIN APPLICATION
+         ================================================= -->
 
     <main class="app-main">
 
-        <header id="appTopbar" class="topbar glass-panel"></header>
+
+        <!-- TOP BAR -->
+
+        <header
+            id="appTopbar"
+            class="topbar glass-panel"
+        ></header>
+
+
+        <!-- =================================================
+             PAGE CONTENT
+             ================================================= -->
 
         <section class="page-content">
 
+
+            <!-- PAGE HEADER -->
+
             <div class="page-intro">
+
                 <div>
-                    <p class="eyebrow">Stage 4 · Applicant Management</p>
-                    <h2>Applicants</h2>
-                    <p>Register and manage applicant information.</p>
+
+                    <p class="eyebrow">
+                        Stage 4 · Applicant Management
+                    </p>
+
+                    <h2>
+                        Applicants
+                    </h2>
+
+                    <p>
+                        Register and manage centralized
+                        applicant profiles.
+                    </p>
+
                 </div>
+
 
                 <button
                     id="openApplicantModal"
                     class="btn btn-primary"
-                    type="button">
+                    type="button"
+                >
+
                     ＋ Add Applicant
+
                 </button>
+
             </div>
 
-            <section class="glass-panel section-card">
+
+            <!-- =================================================
+                 APPLICANT TABLE
+                 ================================================= -->
+
+            <section
+                class="glass-panel section-card"
+            >
+
+
+                <!-- TOOLBAR -->
 
                 <div class="toolbar">
 
+
+                    <!-- SEARCH -->
+
                     <div class="search-wrap">
-                        <span class="search-icon">⌕</span>
+
+                        <span
+                            class="search-icon"
+                            aria-hidden="true"
+                        >
+                            ⌕
+                        </span>
+
+
                         <input
                             id="applicantSearch"
                             type="search"
                             placeholder="Search applicant number, name, or email"
-                            autocomplete="off">
+                            autocomplete="off"
+                        >
+
                     </div>
+
+
+                    <!-- STATUS FILTER -->
 
                     <select
                         id="applicantStatusFilter"
-                        class="select-control">
+                        class="select-control"
+                    >
 
-                        <option value="">All statuses</option>
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="">
+                            All statuses
+                        </option>
+
+                        <option value="Active">
+                            Active
+                        </option>
+
+                        <option value="Inactive">
+                            Inactive
+                        </option>
 
                     </select>
 
                 </div>
+
+
+                <!-- TABLE -->
 
                 <div class="table-wrap">
 
                     <table>
 
                         <thead>
+
                             <tr>
-                                <th>Applicant No.</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Contact</th>
-                                <th>Education</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+
+                                <th>
+                                    Applicant No.
+                                </th>
+
+                                <th>
+                                    Name
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Contact
+                                </th>
+
+                                <th>
+                                    Education
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Actions
+                                </th>
+
                             </tr>
+
                         </thead>
 
+
                         <tbody id="applicantsTable">
+
                             <tr>
-                                <td colspan="7" class="table-empty">
+
+                                <td
+                                    colspan="7"
+                                    class="table-empty"
+                                >
+
                                     Loading applicants...
+
                                 </td>
+
                             </tr>
+
                         </tbody>
 
                     </table>
@@ -99,165 +358,395 @@
 
     </main>
 
-    <div id="toastRoot" class="toast-root"></div>
+
+    <!-- =================================================
+         TOAST
+         ================================================= -->
+
+    <div
+        id="toastRoot"
+        class="toast-root"
+    ></div>
 
 
-    <!-- ADD / EDIT MODAL -->
+    <!-- =================================================
+         ADD / EDIT APPLICANT MODAL
+         ================================================= -->
 
     <div
         id="applicantModal"
         class="modal-backdrop"
-        aria-hidden="true">
+        aria-hidden="true"
+    >
 
         <div
             class="modal glass-panel"
             role="dialog"
-            aria-modal="true">
+            aria-modal="true"
+            aria-labelledby="applicantModalTitle"
+        >
+
+
+            <!-- MODAL HEADER -->
 
             <div class="modal-head">
 
                 <div>
-                    <p class="eyebrow">Applicant Registration</p>
-                    <h3 id="applicantModalTitle">Add Applicant</h3>
+
+                    <p class="eyebrow">
+                        Applicant Profile
+                    </p>
+
+                    <h3 id="applicantModalTitle">
+                        Add Applicant
+                    </h3>
+
                 </div>
+
 
                 <button
                     id="closeApplicantModal"
                     class="icon-button"
-                    type="button">
+                    type="button"
+                    aria-label="Close"
+                >
+
                     ×
+
                 </button>
 
             </div>
 
+
+            <!-- FORM ERROR -->
+
             <div
                 id="applicantFormError"
                 class="form-error"
-                role="alert">
-            </div>
+                role="alert"
+            ></div>
 
-            <form id="applicantForm" novalidate>
+
+            <!-- FORM -->
+
+            <form
+                id="applicantForm"
+                novalidate
+            >
+
+
+                <!-- Hidden applicant ID -->
 
                 <input
                     type="hidden"
-                    id="applicantId">
+                    id="applicantId"
+                >
+
 
                 <div class="form-grid">
 
+
+                    <!-- APPLICANT NUMBER -->
+
                     <div class="form-group">
+
                         <label for="applicantNo">
+
                             Applicant No. *
+
                         </label>
+
+
                         <input
                             id="applicantNo"
                             type="text"
                             placeholder="APP-001"
-                            required>
+                            autocomplete="off"
+                            required
+                        >
+
                     </div>
 
+
+                    <!-- FIRST NAME -->
+
                     <div class="form-group">
+
                         <label for="firstName">
+
                             First Name *
+
                         </label>
+
+
                         <input
                             id="firstName"
                             type="text"
                             placeholder="Juan"
-                            required>
+                            autocomplete="given-name"
+                            required
+                        >
+
                     </div>
 
+
+                    <!-- LAST NAME -->
+
                     <div class="form-group">
+
                         <label for="lastName">
+
                             Last Name *
+
                         </label>
+
+
                         <input
                             id="lastName"
                             type="text"
                             placeholder="Dela Cruz"
-                            required>
+                            autocomplete="family-name"
+                            required
+                        >
+
                     </div>
 
+
+                    <!-- EMAIL -->
+
                     <div class="form-group">
+
                         <label for="email">
+
                             Email *
+
                         </label>
+
+
                         <input
                             id="email"
                             type="email"
                             placeholder="juan@email.com"
-                            required>
+                            autocomplete="email"
+                            required
+                        >
+
                     </div>
 
+
+                    <!-- CONTACT -->
+
                     <div class="form-group">
+
                         <label for="contactNo">
+
                             Contact No. *
+
                         </label>
+
+
                         <input
                             id="contactNo"
                             type="tel"
                             placeholder="09123456789"
-                            required>
+                            autocomplete="tel"
+                            inputmode="tel"
+                            required
+                        >
+
                     </div>
+
+
+                    <!-- STATUS -->
 
                     <div class="form-group">
+
                         <label for="applicantStatus">
+
                             Status
+
                         </label>
-                        <select id="applicantStatus">
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
+
+
+                        <select
+                            id="applicantStatus"
+                        >
+
+                            <option value="Active">
+                                Active
+                            </option>
+
+                            <option value="Inactive">
+                                Inactive
+                            </option>
+
                         </select>
+
                     </div>
 
+
+                    <!-- ADDRESS -->
+
                     <div class="form-group full-width">
+
                         <label for="address">
+
                             Address *
+
                         </label>
+
+
                         <textarea
                             id="address"
                             rows="2"
                             placeholder="Bayombong, Nueva Vizcaya"
-                            required></textarea>
+                            required
+                        ></textarea>
+
                     </div>
 
+
+                    <!-- EDUCATION -->
+
                     <div class="form-group full-width">
+
                         <label for="education">
+
                             Education *
+
                         </label>
+
+
                         <textarea
                             id="education"
                             rows="2"
                             placeholder="BS Information Technology"
-                            required></textarea>
+                            required
+                        ></textarea>
+
                     </div>
 
+
+                    <!-- EXPERIENCE -->
+
                     <div class="form-group full-width">
+
                         <label for="experience">
+
                             Work Experience *
+
                         </label>
+
+
                         <textarea
                             id="experience"
                             rows="2"
                             placeholder="2 years Software Development"
-                            required></textarea>
+                            required
+                        ></textarea>
+
                     </div>
+
+
+                    <!-- =================================================
+                         LAB 6 — SKILLS
+                         ================================================= -->
+
+                    <div class="form-group full-width">
+
+                        <label for="skills">
+
+                            Skills
+
+                        </label>
+
+
+                        <textarea
+                            id="skills"
+                            rows="3"
+                            placeholder="Python&#10;PHP&#10;MySQL&#10;JavaScript"
+                        ></textarea>
+
+
+                        <small
+                            style="
+                                display:block;
+                                margin-top:5px;
+                                color:var(--muted);
+                            "
+                        >
+                            Enter one skill per line.
+
+                        </small>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         LAB 6 — RESUME REFERENCE
+                         ================================================= -->
+
+                    <div class="form-group full-width">
+
+                        <label for="resumeFile">
+
+                            Resume Reference
+
+                        </label>
+
+
+                        <input
+                            id="resumeFile"
+                            type="text"
+                            placeholder="Juan-Dela-Cruz-Resume.pdf"
+                            autocomplete="off"
+                        >
+
+
+                        <small
+                            style="
+                                display:block;
+                                margin-top:5px;
+                                color:var(--muted);
+                            "
+                        >
+                            Enter the resume file name
+                            or storage reference.
+
+                        </small>
+
+                    </div>
+
 
                 </div>
 
-                <div class="button-row">
+
+                <!-- FORM BUTTONS -->
+
+                <div
+                    class="button-row"
+                    style="margin-top:18px;"
+                >
 
                     <button
                         id="cancelApplicantModal"
                         class="btn btn-secondary"
-                        type="button">
+                        type="button"
+                    >
+
                         Cancel
+
                     </button>
+
 
                     <button
                         id="saveApplicantButton"
                         class="btn btn-primary"
-                        type="submit">
+                        type="submit"
+                    >
+
                         Save Applicant
+
                     </button>
 
                 </div>
@@ -269,43 +758,77 @@
     </div>
 
 
-    <!-- VIEW MODAL -->
+    <!-- =================================================
+         VIEW APPLICANT PROFILE
+         ================================================= -->
 
     <div
         id="viewApplicantModal"
         class="modal-backdrop"
-        aria-hidden="true">
+        aria-hidden="true"
+    >
 
         <div
             class="modal glass-panel"
             role="dialog"
-            aria-modal="true">
+            aria-modal="true"
+            aria-labelledby="viewApplicantTitle"
+        >
+
+
+            <!-- HEADER -->
 
             <div class="modal-head">
 
                 <div>
-                    <p class="eyebrow">Applicant Profile</p>
-                    <h3 id="viewApplicantTitle">Applicant</h3>
+
+                    <p
+                        class="eyebrow"
+                    >
+                        Applicant Profile
+                    </p>
+
+                    <h3 id="viewApplicantTitle">
+                        Applicant
+                    </h3>
+
                 </div>
+
 
                 <button
                     id="closeViewApplicant"
                     class="icon-button"
-                    type="button">
+                    type="button"
+                    aria-label="Close"
+                >
+
                     ×
+
                 </button>
 
             </div>
 
-            <div id="viewApplicantBody"></div>
+
+            <!-- PROFILE CONTENT -->
+
+            <div
+                id="viewApplicantBody"
+                class="profile-grid"
+            ></div>
+
+
+            <!-- CLOSE BUTTON -->
 
             <div class="button-row">
 
                 <button
                     id="closeViewApplicantBottom"
                     class="btn btn-secondary"
-                    type="button">
+                    type="button"
+                >
+
                     Close
+
                 </button>
 
             </div>
@@ -315,14 +838,26 @@
     </div>
 
 
-    <!-- SUPABASE + PROJECT JS -->
+    <!-- =================================================
+         SUPABASE
+         ================================================= -->
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- =================================================
+         PROJECT JS
+         ================================================= -->
+
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/components.js"></script>
     <script src="js/applicants.js"></script>
 
+
 </body>
+
 </html>
