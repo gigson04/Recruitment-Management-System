@@ -459,29 +459,65 @@ tbody tr:hover {
 
 .table-actions {
     display: flex;
-    gap: 6px;
+    align-items: center;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
-.table-action {
-    border: 1px solid var(--line);
-    background: rgba(255, 255, 255, 0.65);
-    color: var(--text);
-    padding: 7px 9px;
+.table-action,
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 47px;
+    height: 30px;
+    padding: 0 10px;
+
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 9px;
-    font: 600 10px var(--font);
+
+    background: rgba(18, 23, 27, 0.82);
+
+    color: rgba(255, 255, 255, 0.80);
+
+    font: 600 12px var(--font);
+    line-height: 1;
+
     cursor: pointer;
+    white-space: nowrap;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
 }
 
-.table-action:hover {
-    background: #fff;
+.table-action:hover,
+.action-btn:hover {
+    background: rgba(31, 37, 42, 0.95);
+    border-color: rgba(255, 255, 255, 0.10);
+    color: #fff;
+    transform: translateY(-1px);
 }
 
-.table-action.danger {
-    color: var(--danger);
+.table-action:active,
+.action-btn:active {
+    transform: translateY(0);
 }
 
+.table-action.danger,
+.action-btn.delete {
+    color: rgba(255, 255, 255, 0.80);
+}
 
+.table-action.danger:hover,
+.action-btn.delete:hover {
+    background: rgba(45, 28, 28, 0.95);
+    border-color: rgba(255, 90, 90, 0.18);
+    color: #ff9a9a;
+}
 /* =========================================================
    STATUS BADGES
    ========================================================= */
@@ -1175,4 +1211,250 @@ textarea {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
     }
+}
+
+/* =========================================================
+   CUSTOM DELETE CONFIRMATION
+   ========================================================= */
+
+.delete-confirm-modal {
+    width: min(560px, 100%);
+    max-width: 560px;
+}
+
+.modal-eyebrow {
+    margin-bottom: 7px;
+    color: #3d9df5;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+.delete-confirm-content {
+    padding: 6px 0 20px;
+}
+
+.delete-confirm-content p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.delete-confirm-actions {
+    margin-top: 4px;
+}
+
+.btn.danger {
+    border: 1px solid rgba(255, 95, 95, 0.35);
+    background: rgba(190, 55, 55, 0.16);
+    color: #ff8d8d;
+}
+
+.btn.danger:hover {
+    background: rgba(210, 65, 65, 0.24);
+    border-color: rgba(255, 110, 110, 0.5);
+}
+
+.btn.danger:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+
+    .delete-confirm-modal {
+        width: 100%;
+    }
+
+    .delete-confirm-actions {
+        flex-direction: column-reverse;
+    }
+
+    .delete-confirm-actions .btn {
+        width: 100%;
+    }
+}
+
+/* =========================================================
+   JOB POSTINGS — MATCH APPLICATION BUTTON STYLE
+   ========================================================= */
+
+.table-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+}
+
+.action-btn {
+    appearance: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    min-height: 30px;
+    padding: 6px 10px;
+    border-radius: 9px;
+    background: #15191d;
+    color: #c9d0d8;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: none;
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.action-btn:hover {
+    background: #1c2126;
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+
+/* VIEW */
+
+.action-btn.view {
+    background: #15191d;
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #c9d0d8;
+}
+
+.action-btn.view:hover {
+    background: #1c2126;
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+}
+
+
+/* EDIT */
+
+.action-btn.edit {
+    background: #15191d;
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #c9d0d8;
+}
+
+.action-btn.edit:hover {
+    background: #1c2126;
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+}
+
+
+/* DELETE */
+
+.action-btn.delete {
+    background: #15191d;
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #c9d0d8;
+}
+
+.action-btn.delete:hover {
+    background: #1c2126;
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   APPLICATION DETAILS MODAL
+   ========================================================= */
+
+#viewApplicationModal .modal {
+    width: min(820px, 100%);
+    max-width: 820px;
+    max-height: 88vh;
+    padding: 20px;
+}
+
+#viewApplicationModal #viewApplicationBody {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+}
+
+#viewApplicationModal #viewApplicationBody .profile-item {
+    min-width: 0;
+    padding: 13px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #15191d;
+    box-sizing: border-box;
+}
+
+#viewApplicationModal #viewApplicationBody .profile-item small {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+
+#viewApplicationModal #viewApplicationBody .profile-item > div {
+    min-width: 0;
+    color: #c9d0d8;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+#viewApplicationModal #viewApplicationBody .profile-item-full {
+    grid-column: 1 / -1;
+}
+
+#viewApplicationModal #viewApplicationBody .profile-item-full > div {
+    white-space: pre-wrap;
+}
+
+#viewApplicationModal .modal-head {
+    margin-bottom: 14px;
+}
+
+#viewApplicationModal .modal-head h3 {
+    margin-top: 2px;
+    font-size: 22px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    #viewApplicationModal .modal {
+        width: 100%;
+        max-width: 100%;
+        padding: 16px;
+    }
+
+    #viewApplicationModal #viewApplicationBody {
+        grid-template-columns: 1fr;
+    }
+
+    #viewApplicationModal
+    #viewApplicationBody
+    .profile-item-full {
+        grid-column: auto;
+    }
+
+    .action-btn {
+        min-height: 29px;
+        padding: 6px 9px;
+        font-size: 10px;
+    }
+
 }

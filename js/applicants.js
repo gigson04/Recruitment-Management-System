@@ -7,6 +7,7 @@ async function init() {
     renderShell({ active: "Applicants" });
 
     const session = await requireAuth();
+
     if (!session) return;
 
     setupEvents();
@@ -18,7 +19,7 @@ async function init() {
 
 /* =========================================================
    EVENTS
-========================================================= */
+   ========================================================= */
 
 function setupEvents() {
     document.getElementById("openApplicantModal")
@@ -71,7 +72,7 @@ function setupEvents() {
 
 /* =========================================================
    LOAD APPLICANTS
-========================================================= */
+   ========================================================= */
 
 async function loadApplicants() {
     const table = document.getElementById("applicantsTable");
@@ -126,7 +127,7 @@ async function loadApplicants() {
 
 /* =========================================================
    RENDER APPLICANTS
-========================================================= */
+   ========================================================= */
 
 function renderApplicants() {
     const table = document.getElementById("applicantsTable");
@@ -162,7 +163,8 @@ function renderApplicants() {
             email.includes(search);
 
         const matchesStatus =
-            !status || applicant.status === status;
+            !status ||
+            applicant.status === status;
 
         return matchesSearch && matchesStatus;
     });
@@ -175,6 +177,7 @@ function renderApplicants() {
                 </td>
             </tr>
         `;
+
         return;
     }
 
@@ -241,7 +244,7 @@ function renderApplicants() {
 
 /* =========================================================
    OPEN FORM
-========================================================= */
+   ========================================================= */
 
 function openForm(applicant = null) {
     const form = document.getElementById("applicantForm");
@@ -253,12 +256,15 @@ function openForm(applicant = null) {
     editingId =
         applicant?.applicant_id || null;
 
-    document.getElementById(
-        "applicantModalTitle"
-    ).textContent =
-        applicant
-            ? "Edit Applicant"
-            : "Add Applicant";
+    const title =
+        document.getElementById("applicantModalTitle");
+
+    if (title) {
+        title.textContent =
+            applicant
+                ? "Edit Applicant"
+                : "Add Applicant";
+    }
 
     const errorBox =
         document.getElementById("applicantFormError");
@@ -275,6 +281,7 @@ function openForm(applicant = null) {
     }
 
     if (applicant) {
+
         setValue(
             "applicantId",
             applicant.applicant_id
@@ -343,6 +350,7 @@ function openForm(applicant = null) {
         }
 
     } else {
+
         setValue(
             "applicantStatus",
             "Active"
@@ -362,7 +370,7 @@ function openForm(applicant = null) {
 
 /* =========================================================
    CLOSE FORM
-========================================================= */
+   ========================================================= */
 
 function closeForm() {
     toggleModal(
@@ -373,7 +381,7 @@ function closeForm() {
 
 /* =========================================================
    RESUME SELECTION
-========================================================= */
+   ========================================================= */
 
 function handleResumeSelection() {
     const input =
@@ -386,9 +394,7 @@ function handleResumeSelection() {
     const file = input.files[0];
 
     const errorBox =
-        document.getElementById(
-            "applicantFormError"
-        );
+        document.getElementById("applicantFormError");
 
     if (errorBox) {
         errorBox.textContent = "";
@@ -414,15 +420,13 @@ function handleResumeSelection() {
 
 /* =========================================================
    SAVE APPLICANT
-========================================================= */
+   ========================================================= */
 
 async function saveApplicant(event) {
     event.preventDefault();
 
     const errorBox =
-        document.getElementById(
-            "applicantFormError"
-        );
+        document.getElementById("applicantFormError");
 
     if (errorBox) {
         errorBox.textContent = "";
@@ -464,6 +468,7 @@ async function saveApplicant(event) {
         validateApplicant(applicant);
 
     if (validationError) {
+
         if (errorBox) {
             errorBox.textContent =
                 validationError;
@@ -479,10 +484,12 @@ async function saveApplicant(event) {
         resumeInput?.files?.[0] || null;
 
     if (selectedResume) {
+
         const resumeError =
             validateResumeFile(selectedResume);
 
         if (resumeError) {
+
             if (errorBox) {
                 errorBox.textContent =
                     resumeError;
@@ -492,17 +499,20 @@ async function saveApplicant(event) {
         }
 
         /*
-         * Instead of requiring Supabase Storage,
-         * save the actual selected filename into
-         * the resume_file database column.
+         * Lab 6:
+         * Store the selected resume filename.
+         * No resume preview is used.
          */
+
         applicant.resume_file =
             selectedResume.name;
 
     } else {
+
         /*
          * Keep the existing resume when editing.
          */
+
         const existing =
             applicants.find(
                 a =>
@@ -516,9 +526,10 @@ async function saveApplicant(event) {
 
     /* =====================================================
        DUPLICATE APPLICANT NUMBER
-    ===================================================== */
+       ===================================================== */
 
     try {
+
         const { data, error } =
             await window.rmsSupabase
                 .from("applicants")
@@ -538,6 +549,7 @@ async function saveApplicant(event) {
             String(data.applicant_id) !==
             String(editingId)
         ) {
+
             if (errorBox) {
                 errorBox.textContent =
                     "This applicant number already exists.";
@@ -547,6 +559,7 @@ async function saveApplicant(event) {
         }
 
     } catch (error) {
+
         console.error(
             "Duplicate check error:",
             error
@@ -574,6 +587,7 @@ async function saveApplicant(event) {
     );
 
     try {
+
         let result;
 
         if (editingId) {
@@ -610,6 +624,7 @@ async function saveApplicant(event) {
         await loadApplicants();
 
     } catch (error) {
+
         console.error(
             "Save applicant error:",
             error
@@ -621,6 +636,7 @@ async function saveApplicant(event) {
         }
 
     } finally {
+
         setButtonLoading(
             button,
             false
@@ -630,9 +646,10 @@ async function saveApplicant(event) {
 
 /* =========================================================
    APPLICANT VALIDATION
-========================================================= */
+   ========================================================= */
 
 function validateApplicant(applicant) {
+
     if (
         !applicant.applicant_no ||
         !applicant.first_name ||
@@ -676,9 +693,10 @@ function validateApplicant(applicant) {
 
 /* =========================================================
    RESUME VALIDATION
-========================================================= */
+   ========================================================= */
 
 function validateResumeFile(file) {
+
     if (!file) {
         return "";
     }
@@ -705,9 +723,10 @@ function validateResumeFile(file) {
 
 /* =========================================================
    TABLE ACTIONS
-========================================================= */
+   ========================================================= */
 
 function handleAction(event) {
+
     const button =
         event.target.closest(
             "[data-action]"
@@ -744,9 +763,10 @@ function handleAction(event) {
 
 /* =========================================================
    VIEW APPLICANT
-========================================================= */
+   ========================================================= */
 
 function openView(applicant) {
+
     const name =
         `${applicant.first_name || ""} ${applicant.last_name || ""}`
             .trim();
@@ -772,118 +792,132 @@ function openView(applicant) {
         applicant.resume_file
             ? `
                 <span>
-                    ${escapeHtml(
-                        applicant.resume_file
-                    )}
+                    ${escapeHtml(applicant.resume_file)}
                 </span>
-              `
+            `
             : `
                 <span class="muted">
                     No resume uploaded
                 </span>
-              `;
+            `;
+
+    /*
+     * IMPORTANT:
+     * viewApplicantBody already has class="profile-grid"
+     * in applicants.html.
+     *
+     * Therefore, do NOT create another profile-grid here.
+     */
 
     body.innerHTML = `
-        <div class="profile-grid">
 
-            <div class="profile-item">
-                <small>Applicant No.</small>
-                <div>
-                    ${escapeHtml(
-                        applicant.applicant_no || ""
-                    )}
-                </div>
+        <div class="profile-item">
+            <small>Applicant No.</small>
+
+            <div>
+                ${escapeHtml(
+                    applicant.applicant_no || ""
+                )}
             </div>
+        </div>
 
-            <div class="profile-item">
-                <small>Status</small>
-                <div>
-                    ${statusBadge(
-                        applicant.status || ""
-                    )}
-                </div>
+        <div class="profile-item">
+            <small>Status</small>
+
+            <div>
+                ${statusBadge(
+                    applicant.status || ""
+                )}
             </div>
+        </div>
 
-            <div class="profile-item">
-                <small>First Name</small>
-                <div>
-                    ${escapeHtml(
-                        applicant.first_name || ""
-                    )}
-                </div>
+        <div class="profile-item">
+            <small>First Name</small>
+
+            <div>
+                ${escapeHtml(
+                    applicant.first_name || ""
+                )}
             </div>
+        </div>
 
-            <div class="profile-item">
-                <small>Last Name</small>
-                <div>
-                    ${escapeHtml(
-                        applicant.last_name || ""
-                    )}
-                </div>
+        <div class="profile-item">
+            <small>Last Name</small>
+
+            <div>
+                ${escapeHtml(
+                    applicant.last_name || ""
+                )}
             </div>
+        </div>
 
-            <div class="profile-item">
-                <small>Email</small>
-                <div>
-                    ${escapeHtml(
-                        applicant.email || ""
-                    )}
-                </div>
+        <div class="profile-item">
+            <small>Email</small>
+
+            <div>
+                ${escapeHtml(
+                    applicant.email || ""
+                )}
             </div>
+        </div>
 
-            <div class="profile-item">
-                <small>Contact No.</small>
-                <div>
-                    ${escapeHtml(
-                        applicant.contact_no || ""
-                    )}
-                </div>
+        <div class="profile-item">
+            <small>Contact No.</small>
+
+            <div>
+                ${escapeHtml(
+                    applicant.contact_no || ""
+                )}
             </div>
+        </div>
 
-            <div class="profile-item profile-item-full">
-                <small>Address</small>
-                <div>
-                    ${escapeHtml(
-                        applicant.address || ""
-                    )}
-                </div>
+        <div class="profile-item profile-item-full">
+            <small>Address</small>
+
+            <div>
+                ${escapeHtml(
+                    applicant.address || ""
+                )}
             </div>
+        </div>
 
-            <div class="profile-item profile-item-full">
-                <small>Education</small>
-                <div>
-                    ${escapeHtml(
-                        applicant.education || ""
-                    )}
-                </div>
+        <div class="profile-item profile-item-full">
+            <small>Education</small>
+
+            <div>
+                ${escapeHtml(
+                    applicant.education || ""
+                )}
             </div>
+        </div>
 
-            <div class="profile-item profile-item-full">
-                <small>Work Experience</small>
-                <div>
-                    ${escapeHtml(
-                        applicant.experience || ""
-                    )}
-                </div>
+        <div class="profile-item profile-item-full">
+            <small>Work Experience</small>
+
+            <div>
+                ${escapeHtml(
+                    applicant.experience || ""
+                )}
             </div>
+        </div>
 
-            <div class="profile-item profile-item-full">
-                <small>Skills</small>
-                <div>
-                    ${escapeHtml(
-                        applicant.skills ||
-                        "Not provided"
-                    )}
-                </div>
+        <div class="profile-item profile-item-full">
+            <small>Skills</small>
+
+            <div>
+                ${escapeHtml(
+                    applicant.skills ||
+                    "Not provided"
+                )}
             </div>
+        </div>
 
-            <div class="profile-item profile-item-full">
-                <small>Resume</small>
-                <div>
-                    ${resumeHtml}
-                </div>
+        <div class="profile-item profile-item-full">
+            <small>Resume</small>
+
+            <div>
+                ${resumeHtml}
             </div>
-
         </div>
     `;
 
@@ -895,7 +929,7 @@ function openView(applicant) {
 
 /* =========================================================
    CLOSE VIEW
-========================================================= */
+   ========================================================= */
 
 function closeView() {
     toggleModal(
@@ -906,9 +940,10 @@ function closeView() {
 
 /* =========================================================
    MODAL
-========================================================= */
+   ========================================================= */
 
 function toggleModal(id, open) {
+
     const modal =
         document.getElementById(id);
 
@@ -929,9 +964,10 @@ function toggleModal(id, open) {
 
 /* =========================================================
    FORM HELPERS
-========================================================= */
+   ========================================================= */
 
 function value(id) {
+
     const element =
         document.getElementById(id);
 
@@ -941,6 +977,7 @@ function value(id) {
 }
 
 function setValue(id, newValue) {
+
     const element =
         document.getElementById(id);
 
@@ -954,9 +991,10 @@ function setValue(id, newValue) {
 
 /* =========================================================
    NEXT APPLICANT NUMBER
-========================================================= */
+   ========================================================= */
 
 function nextApplicantNumber() {
+
     const numbers =
         applicants.map(applicant => {
 
