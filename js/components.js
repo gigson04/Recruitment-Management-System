@@ -4,7 +4,6 @@
    RESPONSIVE VERSION
    ========================================================= */
 
-
 const RMS_COMPONENTS = {
 
     navItems: [
@@ -82,7 +81,6 @@ function renderShell({
     active = ''
 } = {}) {
 
-
     /* -----------------------------------------------------
        SIDEBAR
        ----------------------------------------------------- */
@@ -91,7 +89,6 @@ function renderShell({
         document.querySelector(
             '#appSidebar'
         );
-
 
     if (sidebar) {
 
@@ -165,7 +162,6 @@ function renderShell({
 
             <div class="sidebar-bottom">
 
-
                 <div class="user-mini">
 
                     <div
@@ -175,7 +171,6 @@ function renderShell({
                         U
                     </div>
 
-
                     <div class="user-mini-text">
 
                         <strong
@@ -183,7 +178,6 @@ function renderShell({
                         >
                             User
                         </strong>
-
 
                         <span
                             id="sidebarRole"
@@ -231,7 +225,6 @@ function renderShell({
             '#appTopbar'
         );
 
-
     if (topbar) {
 
         topbar.innerHTML = `
@@ -274,25 +267,12 @@ function renderShell({
 
             <div class="topbar-actions">
 
-
-                <div class="status-pill">
-
-                    <span
-                        class="status-dot"
-                    ></span>
-
-                    Supabase Connected
-
-                </div>
-
-
                 <div
                     class="avatar avatar-top"
                     id="topbarAvatar"
                 >
                     U
                 </div>
-
 
             </div>
 
@@ -309,7 +289,6 @@ function renderShell({
         document.querySelector(
             '#mobileSidebarOverlay'
         );
-
 
     if (!overlay) {
 
@@ -344,7 +323,6 @@ function renderShell({
         document.querySelector(
             '#mobileMenuButton'
         );
-
 
     if (menuButton) {
 
@@ -403,7 +381,6 @@ function renderShell({
             '#logoutButton'
         );
 
-
     logout?.addEventListener(
         'click',
         async () => {
@@ -451,18 +428,15 @@ function toggleMobileSidebar() {
             '#appSidebar'
         );
 
-
     const overlay =
         document.querySelector(
             '#mobileSidebarOverlay'
         );
 
-
     const button =
         document.querySelector(
             '#mobileMenuButton'
         );
-
 
     if (!sidebar) {
         return;
@@ -472,6 +446,9 @@ function toggleMobileSidebar() {
     const isOpen =
         sidebar.classList.contains(
             'mobile-open'
+        ) ||
+        sidebar.classList.contains(
+            'sidebar-open'
         );
 
 
@@ -481,29 +458,45 @@ function toggleMobileSidebar() {
 
     } else {
 
+        /* Support both versions of the responsive CSS */
         sidebar.classList.add(
             'mobile-open'
         );
 
-
-        overlay?.classList.add(
-            'visible'
+        sidebar.classList.add(
+            'sidebar-open'
         );
 
 
-        overlay?.setAttribute(
-            'aria-hidden',
-            'false'
-        );
+        if (overlay) {
 
+            overlay.classList.add(
+                'visible'
+            );
 
-        button?.setAttribute(
-            'aria-expanded',
-            'true'
-        );
+            overlay.classList.add(
+                'show'
+            );
+
+            overlay.setAttribute(
+                'aria-hidden',
+                'false'
+            );
+
+        }
 
 
         if (button) {
+
+            button.setAttribute(
+                'aria-expanded',
+                'true'
+            );
+
+            button.setAttribute(
+                'aria-label',
+                'Close navigation menu'
+            );
 
             button.textContent =
                 '×';
@@ -526,12 +519,10 @@ function closeMobileSidebar() {
             '#appSidebar'
         );
 
-
     const overlay =
         document.querySelector(
             '#mobileSidebarOverlay'
         );
-
 
     const button =
         document.querySelector(
@@ -539,29 +530,48 @@ function closeMobileSidebar() {
         );
 
 
-    sidebar?.classList.remove(
-        'mobile-open'
-    );
+    if (sidebar) {
+
+        sidebar.classList.remove(
+            'mobile-open'
+        );
+
+        sidebar.classList.remove(
+            'sidebar-open'
+        );
+
+    }
 
 
-    overlay?.classList.remove(
-        'visible'
-    );
+    if (overlay) {
 
+        overlay.classList.remove(
+            'visible'
+        );
 
-    overlay?.setAttribute(
-        'aria-hidden',
-        'true'
-    );
+        overlay.classList.remove(
+            'show'
+        );
 
+        overlay.setAttribute(
+            'aria-hidden',
+            'true'
+        );
 
-    button?.setAttribute(
-        'aria-expanded',
-        'false'
-    );
+    }
 
 
     if (button) {
+
+        button.setAttribute(
+            'aria-expanded',
+            'false'
+        );
+
+        button.setAttribute(
+            'aria-label',
+            'Open navigation menu'
+        );
 
         button.textContent =
             '☰';
@@ -572,21 +582,17 @@ function closeMobileSidebar() {
 
 
 /* =========================================================
-   CLOSE MENU WHEN SCREEN BECOMES DESKTOP
+   DESKTOP / TABLET RESIZE
    ========================================================= */
 
 window.addEventListener(
     'resize',
     () => {
 
-        if (
-            window.innerWidth >
-            900
-        ) {
-
-            closeMobileSidebar();
-
-        }
+        /*
+         * Do not force the sidebar closed on resize.
+         * The menu remains usable across screen sizes.
+         */
 
     }
 );
@@ -700,6 +706,9 @@ function setButtonLoading(
         button.textContent =
             button.dataset.originalText ||
             button.textContent;
+
+
+        delete button.dataset.originalText;
 
     }
 
@@ -874,18 +883,14 @@ async function loadUserProfile() {
             error: profileError
         } =
             await window.rmsSupabase
-
                 .from('users')
-
                 .select(
                     'username, role, status'
                 )
-
                 .eq(
                     'user_id',
                     user.id
                 )
-
                 .maybeSingle();
 
 

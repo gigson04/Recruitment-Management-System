@@ -63,3 +63,300 @@
         </main>
         <div id="toastRoot" class="toast-root"></div>
 
+        <!-- =================================================
+     ADD / EDIT JOB POSTING MODAL
+     ================================================= -->
+
+<div
+    id="jobPostingModal"
+    class="modal-backdrop"
+    aria-hidden="true"
+>
+    <div
+        class="modal glass-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="jobModalTitle"
+    >
+
+        <div class="modal-head">
+
+            <div>
+                <p class="eyebrow">Vacancy management</p>
+
+                <h3 id="jobModalTitle">
+                    Add Job Posting
+                </h3>
+            </div>
+
+            <button
+                type="button"
+                class="icon-button"
+                id="closeJobModal"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="jobPostingForm" novalidate>
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="jobCode">
+                        Job Code *
+                    </label>
+
+                    <input
+                        id="jobCode"
+                        type="text"
+                        placeholder="JOB-001"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="jobTitle">
+                        Position *
+                    </label>
+
+                    <input
+                        id="jobTitle"
+                        type="text"
+                        placeholder="Software Developer"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="department">
+                        Department *
+                    </label>
+
+                    <input
+                        id="department"
+                        type="text"
+                        placeholder="IT Department"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="employmentType">
+                        Employment Type *
+                    </label>
+
+                    <select
+                        id="employmentType"
+                        required
+                    >
+                        <option value="">
+                            Select employment type
+                        </option>
+
+                        <option value="Full-time">
+                            Full-time
+                        </option>
+
+                        <option value="Part-time">
+                            Part-time
+                        </option>
+
+                        <option value="Contract">
+                            Contract
+                        </option>
+
+                        <option value="Temporary">
+                            Temporary
+                        </option>
+
+                    </select>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="vacancies">
+                        Vacancies *
+                    </label>
+
+                    <input
+                        id="vacancies"
+                        type="number"
+                        min="1"
+                        placeholder="1"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="jobStatus">
+                        Status *
+                    </label>
+
+                    <select
+                        id="jobStatus"
+                        required
+                    >
+                        <option value="Open">
+                            Open
+                        </option>
+
+                        <option value="Closed">
+                            Closed
+                        </option>
+
+                    </select>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="postingDate">
+                        Posting Date *
+                    </label>
+
+                    <input
+                        id="postingDate"
+                        type="date"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="closingDate">
+                        Closing Date *
+                    </label>
+
+                    <input
+                        id="closingDate"
+                        type="date"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group full-field">
+                    <label for="jobDescription">
+                        Job Description *
+                    </label>
+
+                    <textarea
+                        id="jobDescription"
+                        rows="4"
+                        placeholder="Describe the position..."
+                        required
+                    ></textarea>
+                </div>
+
+
+                <div class="form-group full-field">
+                    <label for="qualifications">
+                        Qualifications *
+                    </label>
+
+                    <textarea
+                        id="qualifications"
+                        rows="4"
+                        placeholder="Enter required qualifications..."
+                        required
+                    ></textarea>
+                </div>
+
+            </div>
+
+
+            <div class="button-row">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    id="cancelJobModal"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Create Job Posting
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+<!-- =================================================
+     VIEW JOB POSTING MODAL
+     ================================================= -->
+
+<div
+    id="viewJobModal"
+    class="modal-backdrop"
+    aria-hidden="true"
+>
+    <div
+        class="modal glass-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="viewJobModalTitle"
+    >
+
+        <div class="modal-head">
+
+            <div>
+                <p class="eyebrow">Vacancy management</p>
+
+                <h3 id="viewJobModalTitle">
+                    Job Posting Details
+                </h3>
+            </div>
+
+            <button
+                type="button"
+                class="icon-button"
+                id="closeViewJobModal"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div
+            id="viewJobBody"
+            class="profile-grid"
+        ></div>
+
+        <div class="button-row">
+
+            <button
+                type="button"
+                class="btn btn-secondary"
+                id="closeViewJob"
+            >
+                Close
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script src="js/config.js"></script>
+        <script src="js/supabase.js"></script>
+        <script src="js/auth.js"></script>
+        <script src="js/components.js"></script>
+        <script src="js/job-postings.js"></script>
+    </body>
+</html>

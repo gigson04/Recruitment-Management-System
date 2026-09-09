@@ -1,43 +1,1549 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Screening — Recruitment Management System</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="css/frost-ui.css">
-        <link rel="stylesheet" href="css/style.css">
-        <link rel="stylesheet" href="css/responsive.css">
-    </head>
-    <body data-active="Screening" class="app-page">
-        <aside id="appSidebar" class="sidebar glass-panel"></aside>
-        <main class="app-main">
-            <header id="appTopbar" class="topbar glass-panel"></header>
-            <section class="page-content">
-                <div class="page-intro">
-                    <div>
-                        <p class="eyebrow">Laboratory module</p>
-                        <h2>Screening</h2>
-                        <p>This module is wired into the same Supabase-backed application and ready for the next laboratory activity.</p>
-                    </div>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Screening — Recruitment Management System
+    </title>
+
+
+    <!-- =================================================
+         GOOGLE FONT
+         ================================================= -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =================================================
+         PROJECT CSS
+         ================================================= -->
+
+    <link
+        rel="stylesheet"
+        href="css/frost-ui.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/responsive.css"
+    >
+
+
+    <!-- =================================================
+         SCREENING PAGE CSS
+         ================================================= -->
+
+    <style>
+
+        /* =================================================
+           SCREENING SUMMARY
+           ================================================= */
+
+        .screening-summary {
+            display: grid;
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .screening-stat {
+            padding: 15px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background:
+                rgba(255, 255, 255, 0.30);
+        }
+
+        .screening-stat small {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .screening-stat strong {
+            display: block;
+            color: #26384d;
+            font-size: 22px;
+            line-height: 1.1;
+        }
+
+        .screening-stat span {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+
+        /* =================================================
+           CRITERION
+           ================================================= */
+
+        .criterion-name {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .criterion-name strong {
+            color: #26384d;
+            font-size: 13px;
+        }
+
+        .criterion-name span {
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        .weight-value {
+            color: #405268;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .criterion-active {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 8px;
+            border-radius: 999px;
+            background:
+                rgba(37, 134, 90, 0.10);
+            color: var(--success);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .criterion-inactive {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 8px;
+            border-radius: 999px;
+            background:
+                rgba(99, 115, 130, 0.10);
+            color: #627083;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+
+        /* =================================================
+           WEIGHT INDICATOR
+           ================================================= */
+
+        .weight-indicator {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background:
+                rgba(255, 255, 255, 0.28);
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .weight-indicator-text {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .weight-indicator-text strong {
+            color: #26384d;
+            font-size: 13px;
+        }
+
+        .weight-indicator-text span {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .weight-total {
+            min-width: 76px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            background:
+                rgba(99, 115, 130, 0.10);
+            color: #627083;
+        }
+
+        .weight-total.valid {
+            background:
+                rgba(37, 134, 90, 0.10);
+            color: var(--success);
+        }
+
+        .weight-total.invalid {
+            background:
+                rgba(181, 71, 71, 0.10);
+            color: #b54747;
+        }
+
+
+        /* =================================================
+           EVALUATION
+           ================================================= */
+
+        .evaluation-card {
+            margin-top: 16px;
+        }
+
+        .evaluation-header {
+            margin-bottom: 14px;
+        }
+
+        .evaluation-header h3 {
+            margin: 0;
+            color: #26384d;
+            font-size: 16px;
+        }
+
+        .evaluation-header p {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+
+        /* =================================================
+           APPLICATION SELECTOR
+           ================================================= */
+
+        .evaluation-selector {
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background:
+                rgba(255, 255, 255, 0.28);
+        }
+
+        .application-info {
+            display: grid;
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .application-info-item {
+            padding: 11px 12px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background:
+                rgba(255, 255, 255, 0.25);
+        }
+
+        .application-info-item small {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .application-info-item strong {
+            color: #405268;
+            font-size: 12px;
+        }
+
+
+        /* =================================================
+           EVALUATION TABLE
+           ================================================= */
+
+        .evaluation-table {
+            width: 100%;
+            margin-top: 16px;
+            border-collapse: collapse;
+        }
+
+        .evaluation-table th,
+        .evaluation-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        .evaluation-table th {
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .score-input {
+            width: 90px;
+            padding: 8px 10px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background:
+                rgba(255, 255, 255, 0.45);
+            color: #405268;
+            font-family: inherit;
+            font-size: 12px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .score-input:focus {
+            border-color: var(--primary);
+        }
+
+        .score-range {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+
+        /* =================================================
+           SCORE RESULT
+           ================================================= */
+
+        .score-result {
+            margin-top: 16px;
+            padding: 15px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background:
+                rgba(255, 255, 255, 0.28);
+
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .score-result-item {
+            padding: 12px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background:
+                rgba(255, 255, 255, 0.25);
+        }
+
+        .score-result-item small {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .score-result-item strong {
+            color: #26384d;
+            font-size: 20px;
+        }
+
+        .evaluation-result-qualified {
+            color: var(--success) !important;
+        }
+
+        .evaluation-result-rejected {
+            color: #b54747 !important;
+        }
+
+
+        /* =================================================
+           REMARKS
+           ================================================= */
+
+        .evaluation-remarks {
+            margin-top: 14px;
+        }
+
+
+        /* =================================================
+           FORM ERROR
+           ================================================= */
+
+        .screening-form-error {
+            margin-bottom: 12px;
+            color: #b54747;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+
+        /* =================================================
+           SCREENING FORM MODAL
+           ================================================= */
+
+        .screening-modal-body {
+            max-height: 78vh;
+            overflow-y: auto;
+        }
+
+        .screening-form-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .screening-form-full {
+            grid-column: 1 / -1;
+        }
+
+        .screening-form-help {
+            display: block;
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.45;
+        }
+
+
+        /* =================================================
+           SCREENING HISTORY
+           ================================================= */
+
+        .history-applicant {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .history-applicant strong {
+            color: #26384d;
+            font-size: 13px;
+        }
+
+        .history-applicant span {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .history-score {
+            color: #405268;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .history-qualified {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 8px;
+            border-radius: 999px;
+            background:
+                rgba(37, 134, 90, 0.10);
+            color: var(--success);
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .history-not-qualified {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 8px;
+            border-radius: 999px;
+            background:
+                rgba(181, 71, 71, 0.10);
+            color: #b54747;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .history-details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-detail-item {
+            padding: 11px 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background:
+                rgba(255, 255, 255, 0.25);
+        }
+
+        .history-detail-item small {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .history-detail-item div {
+            color: #405268;
+            font-size: 13px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+
+        /* =================================================
+           MOBILE
+           ================================================= */
+
+        @media (max-width: 900px) {
+
+            .application-info {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .screening-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .screening-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .screening-form-full {
+                grid-column: auto;
+            }
+
+            .weight-indicator {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .score-result {
+                grid-template-columns: 1fr;
+            }
+
+            .evaluation-table {
+                min-width: 620px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body
+    data-active="Screening"
+    class="app-page"
+>
+
+
+    <!-- =================================================
+         SIDEBAR
+         ================================================= -->
+
+    <aside
+        id="appSidebar"
+        class="sidebar glass-panel"
+    ></aside>
+
+
+    <!-- =================================================
+         MAIN
+         ================================================= -->
+
+    <main class="app-main">
+
+
+        <!-- =================================================
+             TOPBAR
+             ================================================= -->
+
+        <header
+            id="appTopbar"
+            class="topbar glass-panel"
+        ></header>
+
+
+        <!-- =================================================
+             PAGE CONTENT
+             ================================================= -->
+
+        <section class="page-content">
+
+
+            <!-- =================================================
+                 PAGE HEADER
+                 ================================================= -->
+
+            <div class="page-intro">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Stage 6 · Applicant Screening
+                    </p>
+
+                    <h2>
+                        Screening
+                    </h2>
+
+                    <p>
+                        Configure screening criteria and
+                        evaluate applicants.
+                    </p>
+
                 </div>
-                <section class="glass-panel section-card">
-                    <div class="empty-state">
-                        <div class="empty-icon">◌</div>
-                        <h3>Screening module</h3>
-                        <p>The navigation and database architecture are already in place. Build this module here in the next laboratory without creating a new project or database.</p>
-                    </div>
-                </section>
+
+            </div>
+
+
+            <!-- =================================================
+                 SUMMARY
+                 ================================================= -->
+
+            <section class="screening-summary">
+
+                <div class="screening-stat glass-panel">
+
+                    <small>
+                        Total Criteria
+                    </small>
+
+                    <strong id="totalCriteria">
+                        0
+                    </strong>
+
+                    <span>
+                        Configured screening criteria
+                    </span>
+
+                </div>
+
+
+                <div class="screening-stat glass-panel">
+
+                    <small>
+                        Active Criteria
+                    </small>
+
+                    <strong id="activeCriteria">
+                        0
+                    </strong>
+
+                    <span>
+                        Criteria currently in use
+                    </span>
+
+                </div>
+
+
+                <div class="screening-stat glass-panel">
+
+                    <small>
+                        Total Weight
+                    </small>
+
+                    <strong id="criteriaWeight">
+                        0%
+                    </strong>
+
+                    <span>
+                        Active criteria weight
+                    </span>
+
+                </div>
+
             </section>
-        </main>
-        <div id="toastRoot" class="toast-root"></div>
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-        <script src="js/config.js"></script>
-        <script src="js/supabase.js"></script>
-        <script src="js/auth.js"></script>
-        <script src="js/components.js"></script>
-        <script src="js/app.js"></script>
-    </body>
+
+
+            <!-- =================================================
+                 LAB 10 — SCREENING CRITERIA
+                 ================================================= -->
+
+            <section
+                class="glass-panel section-card"
+            >
+
+                <div class="section-header">
+
+                    <div>
+
+                        <h3>
+                            Screening Criteria
+                        </h3>
+
+                        <p>
+                            Configure the criteria used for
+                            applicant screening.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        id="openCriterionModal"
+                        class="btn btn-primary"
+                        type="button"
+                    >
+                        ＋ Add Criterion
+                    </button>
+
+                </div>
+
+
+                <div class="toolbar">
+
+                    <div class="search-wrap">
+
+                        <span
+                            class="search-icon"
+                            aria-hidden="true"
+                        >
+                            ⌕
+                        </span>
+
+                        <input
+                            id="criterionSearch"
+                            type="search"
+                            placeholder="Search criterion or description"
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <select
+                        id="criterionStatusFilter"
+                        class="select-control"
+                    >
+
+                        <option value="">
+                            All statuses
+                        </option>
+
+                        <option value="Active">
+                            Active
+                        </option>
+
+                        <option value="Inactive">
+                            Inactive
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="weight-indicator">
+
+                    <div class="weight-indicator-text">
+
+                        <strong>
+                            Screening Weight
+                        </strong>
+
+                        <span>
+                            Active criteria should total 100%.
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="weightTotal"
+                        class="weight-total"
+                    >
+                        0%
+                    </div>
+
+                </div>
+
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Criterion
+                                </th>
+
+                                <th>
+                                    Weight
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="criteriaTable">
+
+                            <tr>
+
+                                <td
+                                    colspan="4"
+                                    class="table-empty"
+                                >
+                                    Loading screening criteria...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 LAB 11 — SCREENING EVALUATION
+                 ================================================= -->
+
+            <section
+                class="glass-panel section-card evaluation-card"
+            >
+
+                <div class="evaluation-header">
+
+                    <h3>
+                        Screening Evaluation
+                    </h3>
+
+                    <p>
+                        Evaluate an applicant using the active
+                        screening criteria.
+                    </p>
+
+                </div>
+
+
+                <div
+                    class="screening-form-error"
+                    role="alert"
+                >
+                    <span id="evaluationError"></span>
+                </div>
+
+
+                <!-- APPLICATION SELECTOR -->
+
+                <div class="evaluation-selector">
+
+                    <div class="form-group">
+
+                        <label for="evaluationApplication">
+                            Application *
+                        </label>
+
+                        <select
+                            id="evaluationApplication"
+                            required
+                        >
+
+                            <option value="">
+                                Select application
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div
+                        id="applicationInfo"
+                        class="application-info"
+                        hidden
+                    >
+
+                        <div class="application-info-item">
+
+                            <small>
+                                Applicant
+                            </small>
+
+                            <strong
+                                id="evaluationApplicant"
+                            >
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div class="application-info-item">
+
+                            <small>
+                                Position
+                            </small>
+
+                            <strong
+                                id="evaluationPosition"
+                            >
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div class="application-info-item">
+
+                            <small>
+                                Application Status
+                            </small>
+
+                            <strong
+                                id="evaluationStatus"
+                            >
+                                —
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- EVALUATION CONTENT -->
+
+                <div
+                    id="evaluationSection"
+                    hidden
+                >
+
+                    <div class="table-wrap">
+
+                        <table class="evaluation-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Criterion
+                                    </th>
+
+                                    <th>
+                                        Maximum
+                                    </th>
+
+                                    <th>
+                                        Score
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody
+                                id="evaluationCriteriaTable"
+                            ></tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    <!-- SCORE -->
+
+                    <div class="score-result">
+
+                        <div class="score-result-item">
+
+                            <small>
+                                Screening Score
+                            </small>
+
+                            <strong
+                                id="evaluationScore"
+                            >
+                                0 / 100
+                            </strong>
+
+                        </div>
+
+
+                        <div class="score-result-item">
+
+                            <small>
+                                Result
+                            </small>
+
+                            <strong
+                                id="evaluationResult"
+                            >
+                                —
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- REMARKS -->
+
+                    <div
+                        class="form-group evaluation-remarks"
+                    >
+
+                        <label for="evaluationRemarks">
+                            Remarks
+                        </label>
+
+                        <textarea
+                            id="evaluationRemarks"
+                            rows="3"
+                            placeholder="Add screening remarks or notes."
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- ACTIONS -->
+
+                    <div
+                        class="button-row"
+                        style="margin-top:18px;"
+                    >
+
+                        <button
+                            id="resetEvaluation"
+                            class="btn btn-secondary"
+                            type="button"
+                        >
+                            Reset
+                        </button>
+
+
+                        <button
+                            id="saveEvaluation"
+                            class="btn btn-primary"
+                            type="button"
+                        >
+                            Save Screening
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 LAB 12 — SCREENING HISTORY
+                 ================================================= -->
+
+            <section
+                class="glass-panel section-card evaluation-card"
+            >
+
+                <div class="evaluation-header">
+
+                    <h3>
+                        Screening History
+                    </h3>
+
+                    <p>
+                        Review previous applicant screening
+                        decisions.
+                    </p>
+
+                </div>
+
+
+                <!-- HISTORY TOOLBAR -->
+
+                <div class="toolbar">
+
+                    <div class="search-wrap">
+
+                        <span
+                            class="search-icon"
+                            aria-hidden="true"
+                        >
+                            ⌕
+                        </span>
+
+                        <input
+                            id="screeningHistorySearch"
+                            type="search"
+                            placeholder="Search applicant, position, or score"
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <select
+                        id="screeningHistoryResultFilter"
+                        class="select-control"
+                    >
+
+                        <option value="">
+                            All results
+                        </option>
+
+                        <option value="Qualified">
+                            Qualified
+                        </option>
+
+                        <option value="Not Qualified">
+                            Not Qualified
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- HISTORY TABLE -->
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Applicant
+                                </th>
+
+                                <th>
+                                    Position
+                                </th>
+
+                                <th>
+                                    Score
+                                </th>
+
+                                <th>
+                                    Result
+                                </th>
+
+                                <th>
+                                    Screening Date
+                                </th>
+
+                                <th>
+                                    Screened By
+                                </th>
+
+                                <th>
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="screeningHistoryTable"
+                        >
+
+                            <tr>
+
+                                <td
+                                    colspan="7"
+                                    class="table-empty"
+                                >
+                                    Loading screening history...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+
+    <!-- =================================================
+         TOAST
+         ================================================= -->
+
+    <div
+        id="toastRoot"
+        class="toast-root"
+    ></div>
+
+
+    <!-- =================================================
+         LAB 10 — ADD / EDIT CRITERION MODAL
+         ================================================= -->
+
+    <div
+        id="criterionModal"
+        class="modal-backdrop"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal glass-panel screening-modal-body"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="criterionModalTitle"
+        >
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Applicant Screening
+                    </p>
+
+                    <h3 id="criterionModalTitle">
+                        Add Criterion
+                    </h3>
+
+                </div>
+
+
+                <button
+                    id="closeCriterionModal"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div
+                id="criterionFormError"
+                class="screening-form-error"
+                role="alert"
+            ></div>
+
+
+            <form
+                id="criterionForm"
+                novalidate
+            >
+
+                <input
+                    type="hidden"
+                    id="criterionId"
+                >
+
+
+                <div class="screening-form-grid">
+
+
+                    <div
+                        class="form-group screening-form-full"
+                    >
+
+                        <label for="criterionName">
+                            Criterion Name *
+                        </label>
+
+                        <input
+                            id="criterionName"
+                            type="text"
+                            placeholder="Technical Skills"
+                            autocomplete="off"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div
+                        class="form-group screening-form-full"
+                    >
+
+                        <label for="criterionDescription">
+                            Description
+                        </label>
+
+                        <textarea
+                            id="criterionDescription"
+                            rows="3"
+                            placeholder="Describe the criterion."
+                        ></textarea>
+
+                        <small class="screening-form-help">
+                            Explain what recruiters should evaluate.
+                        </small>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="criterionWeight">
+                            Weight (%) *
+                        </label>
+
+                        <input
+                            id="criterionWeight"
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            placeholder="20"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="criterionStatus">
+                            Status
+                        </label>
+
+                        <select id="criterionStatus">
+
+                            <option value="Active">
+                                Active
+                            </option>
+
+                            <option value="Inactive">
+                                Inactive
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="button-row"
+                    style="margin-top:18px;"
+                >
+
+                    <button
+                        id="cancelCriterionModal"
+                        class="btn btn-secondary"
+                        type="button"
+                    >
+                        Cancel
+                    </button>
+
+
+                    <button
+                        id="saveCriterionButton"
+                        class="btn btn-primary"
+                        type="submit"
+                    >
+                        Save Criterion
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         LAB 10 — DELETE CRITERION MODAL
+         ================================================= -->
+
+    <div
+        id="deleteCriterionModal"
+        class="modal-backdrop"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal glass-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="deleteCriterionTitle"
+        >
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Applicant Screening
+                    </p>
+
+                    <h3 id="deleteCriterionTitle">
+                        Delete Criterion
+                    </h3>
+
+                </div>
+
+
+                <button
+                    id="closeDeleteCriterion"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div
+                style="
+                    padding:4px 0 10px;
+                "
+            >
+
+                <p
+                    id="deleteCriterionMessage"
+                    style="
+                        margin:0;
+                        color:var(--muted);
+                        font-size:13px;
+                        line-height:1.6;
+                    "
+                >
+                    Are you sure you want to delete this criterion?
+                </p>
+
+
+                <div
+                    id="deleteCriterionWarning"
+                    style="
+                        display:none;
+                        margin-top:12px;
+                        padding:11px 12px;
+                        border:1px solid var(--line);
+                        border-radius:10px;
+                        background:rgba(181,71,71,0.06);
+                        color:#b54747;
+                        font-size:11px;
+                        line-height:1.5;
+                    "
+                ></div>
+
+            </div>
+
+
+            <div
+                class="button-row"
+                style="
+                    margin-top:10px;
+                    justify-content:flex-end;
+                "
+            >
+
+                <button
+                    id="cancelDeleteCriterion"
+                    class="btn btn-secondary"
+                    type="button"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    id="confirmDeleteCriterion"
+                    class="btn btn-primary"
+                    type="button"
+                    style="
+                        background:#b54747;
+                        border-color:#b54747;
+                    "
+                >
+                    Delete Criterion
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         SUPABASE
+         ================================================= -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- =================================================
+         PROJECT JAVASCRIPT
+         ================================================= -->
+
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/screening.js"></script>
+
+</body>
+
 </html>

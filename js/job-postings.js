@@ -1,298 +1,123 @@
 /* =========================================================
-   RECRUITMENT MANAGEMENT SYSTEM
-   LABORATORY ACTIVITY 4
-   OPEN POSITIONS
-   FAST SUPABASE VERSION
+   RMS - JOB POSTINGS
+   Job Posting Management
    ========================================================= */
 
-let positions = [];
-let selectedPosition = null;
+let jobPostings = [];
+let editingJobId = null;
+let pendingDeleteJob = null;
 
-document.addEventListener("DOMContentLoaded", initOpenPositions);
 
+/* =========================================================
+   DOM READY
+   ========================================================= */
 
-async function initOpenPositions() {
+document.addEventListener("DOMContentLoaded", async () => {
     try {
-        /*
-         * Make the common UI appear immediately.
-         */
-        renderShell({
-            active: "Open Positions"
-        });
-
-        /*
-         * Bind the controls immediately.
-         */
-        bindPositionEvents();
-
-        /*
-         * Check authentication.
-         * We only use getSession here because it is fast
-         * and does not require an additional user lookup.
-         */
-        const {
-            data: sessionData,
-            error: sessionError
-        } = await withTimeout(
-            window.rmsSupabase.auth.getSession(),
-            8000,
-            "Authentication request timed out."
-        );
-
-        if (sessionError) {
-            throw sessionError;
+        if (typeof renderShell === "function") {
+            renderShell({
+                active: "Job Postings"
+            });
         }
 
-        if (!sessionData?.session) {
-            window.location.href = "login.html";
+        const session = await requireAuth();
+
+        if (!session) {
             return;
         }
 
-        /*
-         * Load profile and positions at the SAME TIME.
-         */
-        const profilePromise = loadUserProfileFast();
-        const positionsPromise = loadOpenPositions();
+        setupEvents();
+        createDeleteConfirmModal();
 
-        await Promise.allSettled([
-            profilePromise,
-            positionsPromise
-        ]);
+        await loadJobPostings();
 
     } catch (error) {
-
-        console.error(
-            "Open Positions initialization error:",
-            error
-        );
+        console.error("Job Postings initialization error:", error);
 
         showToast(
-            error.message ||
-            "Unable to load Open Positions.",
+            "Unable to load Job Postings.",
             "error"
         );
     }
-}
+});
 
 
 /* =========================================================
-   EVENT HANDLERS
+   EVENT SETUP
    ========================================================= */
 
-function bindPositionEvents() {
+function setupEvents() {
+
+    // Add Job Posting
+    document
+        .getElementById("openAddModal")
+        ?.addEventListener("click", () => {
+            openAddModal();
+        });
+
+
+    // Search
+    document
+        .getElementById("jobSearch")
+        ?.addEventListener("input", () => {
+            renderJobPostings();
+        });
+
+
+    // Status Filter
+    document
+        .getElementById("statusFilter")
+        ?.addEventListener("change", () => {
+            renderJobPostings();
+        });
+
+
+    // Close Add/Edit Modal
+    document
+        .getElementById("closeJobModal")
+        ?.addEventListener("click", () => {
+            closeJobModal();
+        });
+
 
     document
-        .getElementById("positionSearch")
-        ?.addEventListener(
-            "input",
-            renderPositions
-        );
+        .getElementById("cancelJobModal")
+        ?.addEventListener("click", () => {
+            closeJobModal();
+        });
+
+
+    // Job Form
+    document
+        .getElementById("jobPostingForm")
+        ?.addEventListener("submit", handleJobSubmit);
+
+
+    // View Modal Close
+    document
+        .getElementById("closeViewJobModal")
+        ?.addEventListener("click", () => {
+            closeViewJobModal();
+        });
+
 
     document
-        .getElementById("departmentFilter")
-        ?.addEventListener(
-            "change",
-            renderPositions
-        );
-
-    document
-        .getElementById("employmentFilter")
-        ?.addEventListener(
-            "change",
-            renderPositions
-        );
-
-    document
-        .getElementById("positionStatusFilter")
-        ?.addEventListener(
-            "change",
-            renderPositions
-        );
-
-    document
-        .getElementById("positionsGrid")
-        ?.addEventListener(
-            "click",
-            handlePositionClick
-        );
-
-    document
-        .getElementById("closeDetails")
-        ?.addEventListener(
-            "click",
-            closeDetails
-        );
-
-    document
-        .getElementById("closeDetailsBottom")
-        ?.addEventListener(
-            "click",
-            closeDetails
-        );
-
-    document
-        .getElementById("detailsModal")
-        ?.addEventListener(
-            "click",
-            event => {
-                if (
-                    event.target.id ===
-                    "detailsModal"
-                ) {
-                    closeDetails();
-                }
-            }
-        );
-
-    document
-        .getElementById("applyFromDetails")
-        ?.addEventListener(
-            "click",
-            () => {
-
-                if (selectedPosition) {
-                    selectJobForApplication(
-                        selectedPosition
-                    );
-                }
-
-            }
-        );
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key === "Escape"
-            ) {
-                closeDetails();
-            }
-
-        }
-    );
-}
+        .getElementById("closeViewJob")
+        ?.addEventListener("click", () => {
+            closeViewJobModal();
+        });
 
 
-/* =========================================================
-   LOAD USER PROFILE
-   ========================================================= */
-
-async function loadUserProfileFast() {
-
-    try {
-
-        const {
-            data
-        } = await withTimeout(
-            window.rmsSupabase.auth.getUser(),
-            8000,
-            "User profile request timed out."
-        );
-
-        const user =
-            data?.user;
-
-        if (!user) {
-            return null;
+    // Escape key
+    document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") {
+            return;
         }
 
-
-        /*
-         * Only request fields actually needed
-         * by the sidebar.
-         */
-        const {
-            data: profile,
-            error
-        } = await withTimeout(
-            window.rmsSupabase
-                .from("users")
-                .select(
-                    "username, role, status"
-                )
-                .eq(
-                    "user_id",
-                    user.id
-                )
-                .maybeSingle(),
-
-            8000,
-
-            "User profile database request timed out."
-        );
-
-
-        if (error) {
-            console.warn(
-                "Profile request:",
-                error.message
-            );
-        }
-
-
-        const username =
-            profile?.username ||
-            user.email
-                ?.split("@")[0] ||
-            "User";
-
-        const role =
-            profile?.role ||
-            "User";
-
-
-        document
-            .querySelectorAll(
-                "#sidebarUsername"
-            )
-            .forEach(
-                element => {
-                    element.textContent =
-                        username;
-                }
-            );
-
-
-        document
-            .querySelectorAll(
-                "#sidebarRole"
-            )
-            .forEach(
-                element => {
-                    element.textContent =
-                        role;
-                }
-            );
-
-
-        document
-            .querySelectorAll(
-                "#sidebarAvatar, #topbarAvatar"
-            )
-            .forEach(
-                element => {
-
-                    element.textContent =
-                        username
-                            .charAt(0)
-                            .toUpperCase();
-
-                }
-            );
-
-
-        return profile;
-
-    } catch (error) {
-
-        console.warn(
-            "Could not load user profile:",
-            error
-        );
-
-        return null;
-    }
+        closeJobModal();
+        closeViewJobModal();
+        closeDeleteConfirm();
+    });
 }
 
 
@@ -300,83 +125,1127 @@ async function loadUserProfileFast() {
    LOAD JOB POSTINGS
    ========================================================= */
 
-async function loadOpenPositions() {
+async function loadJobPostings() {
 
-    const grid =
-        document.getElementById(
-            "positionsGrid"
+    const tableBody = document.getElementById("jobsTable");
+
+    if (tableBody) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="9" class="table-empty">
+                    Loading job postings...
+                </td>
+            </tr>
+        `;
+    }
+
+    try {
+
+        const {
+            data,
+            error
+        } = await window.rmsSupabase
+            .from("job_postings")
+            .select(`
+                job_id,
+                job_code,
+                job_title,
+                department,
+                description,
+                qualifications,
+                employment_type,
+                posting_date,
+                closing_date,
+                vacancies,
+                status,
+                created_at,
+                updated_at
+            `)
+            .order("created_at", {
+                ascending: false
+            });
+
+        if (error) {
+            throw error;
+        }
+
+        jobPostings = Array.isArray(data)
+            ? data
+            : [];
+
+        renderJobPostings();
+
+    } catch (error) {
+
+        console.error(
+            "Error loading job postings:",
+            error
         );
 
-    if (!grid) {
+        if (tableBody) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="table-empty">
+                        Failed to load job postings.
+                    </td>
+                </tr>
+            `;
+        }
+
+        showToast(
+            "Failed to load job postings.",
+            "error"
+        );
+    }
+}
+
+
+/* =========================================================
+   RENDER JOB POSTINGS
+   ========================================================= */
+
+function renderJobPostings() {
+
+    const tableBody =
+        document.getElementById("jobsTable");
+
+    if (!tableBody) {
         return;
     }
 
 
-    grid.innerHTML = `
-        <div
-            class="glass-panel position-card"
-            style="
-                grid-column:1/-1;
-                text-align:center;
-                justify-content:center;
-                min-height:180px;
-            ">
+    const searchInput =
+        document.getElementById("jobSearch");
 
-            <div class="table-empty">
-                Loading available positions...
-            </div>
+    const statusFilter =
+        document.getElementById("statusFilter");
 
-        </div>
+
+    const search =
+        String(searchInput?.value || "")
+            .trim()
+            .toLowerCase();
+
+    const selectedStatus =
+        String(statusFilter?.value || "All")
+            .trim()
+            .toLowerCase();
+
+
+    let filteredJobs = [...jobPostings];
+
+
+    // Search filter
+    if (search) {
+
+        filteredJobs = filteredJobs.filter(job => {
+
+            const searchableText = [
+                job.job_code,
+                job.job_title,
+                job.department,
+                job.employment_type,
+                job.description,
+                job.qualifications
+            ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase();
+
+            return searchableText.includes(search);
+        });
+    }
+
+
+    // Status filter
+    if (selectedStatus && selectedStatus !== "all") {
+
+        filteredJobs = filteredJobs.filter(job => {
+
+            const status =
+                normalizeStatus(job.status);
+
+            return status.toLowerCase() === selectedStatus;
+        });
+    }
+
+
+    if (filteredJobs.length === 0) {
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="9" class="table-empty">
+                    No job postings found.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    tableBody.innerHTML = filteredJobs
+        .map(job => createJobRow(job))
+        .join("");
+}
+
+
+/* =========================================================
+   CREATE TABLE ROW
+   ========================================================= */
+
+function createJobRow(job) {
+
+    const status =
+        normalizeStatus(job.status);
+
+    const statusClass =
+        status.toLowerCase() === "open"
+            ? "status-open"
+            : "status-closed";
+
+
+    return `
+        <tr>
+
+            <td>
+                ${escapeHtml(job.job_code || "—")}
+            </td>
+
+            <td>
+                <strong>
+                    ${escapeHtml(job.job_title || "—")}
+                </strong>
+            </td>
+
+            <td>
+                ${escapeHtml(job.department || "—")}
+            </td>
+
+            <td>
+                ${escapeHtml(job.employment_type || "—")}
+            </td>
+
+            <td>
+                ${escapeHtml(
+                    String(job.vacancies ?? "—")
+                )}
+            </td>
+
+            <td>
+                ${formatDate(job.posting_date)}
+            </td>
+
+            <td>
+                ${formatDate(job.closing_date)}
+            </td>
+
+            <td>
+                <span class="status-badge ${statusClass}">
+                    ${escapeHtml(status)}
+                </span>
+            </td>
+
+            <td>
+                <div class="table-actions">
+
+                    <button
+                        type="button"
+                        class="action-btn view"
+                        onclick="viewJobPosting('${escapeJs(job.job_id)}')"
+                        title="View"
+                    >
+                        View
+                    </button>
+
+                    <button
+                        type="button"
+                        class="action-btn edit"
+                        onclick="editJobPosting('${escapeJs(job.job_id)}')"
+                        title="Edit"
+                    >
+                        Edit
+                    </button>
+
+                    <button
+                        type="button"
+                        class="action-btn delete"
+                        onclick="deleteJobPosting('${escapeJs(job.job_id)}')"
+                        title="Delete"
+                    >
+                        Delete
+                    </button>
+
+                </div>
+            </td>
+
+        </tr>
     `;
+}
+
+
+/* =========================================================
+   ADD MODAL
+   ========================================================= */
+
+function openAddModal() {
+
+    editingJobId = null;
+
+    const form =
+        document.getElementById("jobPostingForm");
+
+    if (form) {
+        form.reset();
+    }
+
+
+    // Set default status
+    const statusField =
+        document.getElementById("jobStatus");
+
+    if (statusField) {
+        statusField.value = "Open";
+    }
+
+
+    // Set current date
+    const postingDate =
+        document.getElementById("postingDate");
+
+    if (postingDate && !postingDate.value) {
+
+        const today =
+            new Date();
+
+        postingDate.value =
+            toInputDate(today);
+    }
+
+
+    setModalTitle(
+        "Add Job Posting"
+    );
+
+    showJobModal();
+}
+
+
+/* =========================================================
+   EDIT JOB POSTING
+   ========================================================= */
+
+function editJobPosting(jobId) {
+
+    const job =
+        jobPostings.find(
+            item =>
+                String(item.job_id) === String(jobId)
+        );
+
+    if (!job) {
+
+        showToast(
+            "Job posting not found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    editingJobId = job.job_id;
+
+
+    setFieldValue(
+        "jobCode",
+        job.job_code
+    );
+
+    setFieldValue(
+        "jobTitle",
+        job.job_title
+    );
+
+    setFieldValue(
+        "department",
+        job.department
+    );
+
+    setFieldValue(
+        "employmentType",
+        job.employment_type
+    );
+
+    setFieldValue(
+        "vacancies",
+        job.vacancies
+    );
+
+    setFieldValue(
+        "postingDate",
+        toInputDate(job.posting_date)
+    );
+
+    setFieldValue(
+        "closingDate",
+        toInputDate(job.closing_date)
+    );
+
+    setFieldValue(
+        "jobStatus",
+        normalizeStatus(job.status)
+    );
+
+    setFieldValue(
+        "jobDescription",
+        job.description
+    );
+
+    setFieldValue(
+        "qualifications",
+        job.qualifications
+    );
+
+
+    setModalTitle(
+        "Edit Job Posting"
+    );
+
+    showJobModal();
+}
+
+
+/* =========================================================
+   JOB FORM SUBMIT
+   ========================================================= */
+
+async function handleJobSubmit(event) {
+
+    event.preventDefault();
+
+
+    const jobCode =
+        getFieldValue("jobCode");
+
+    const jobTitle =
+        getFieldValue("jobTitle");
+
+    const department =
+        getFieldValue("department");
+
+    const employmentType =
+        getFieldValue("employmentType");
+
+    const vacancies =
+        Number(
+            getFieldValue("vacancies")
+        );
+
+    const postingDate =
+        getFieldValue("postingDate");
+
+    const closingDate =
+        getFieldValue("closingDate");
+
+    const status =
+        normalizeStatus(
+            getFieldValue("jobStatus")
+        );
+
+    const description =
+        getFieldValue("jobDescription");
+
+    const qualifications =
+        getFieldValue("qualifications");
+
+
+    // =========================================
+    // VALIDATION
+    // =========================================
+
+    if (!jobCode) {
+        showToast(
+            "Please enter the Job Code.",
+            "error"
+        );
+        return;
+    }
+
+
+    if (!jobTitle) {
+        showToast(
+            "Please enter the Position.",
+            "error"
+        );
+        return;
+    }
+
+
+    if (!department) {
+        showToast(
+            "Please enter the Department.",
+            "error"
+        );
+        return;
+    }
+
+
+    if (!employmentType) {
+        showToast(
+            "Please select the Employment Type.",
+            "error"
+        );
+        return;
+    }
+
+
+    if (!Number.isInteger(vacancies) ||
+        vacancies < 1) {
+
+        showToast(
+            "Vacancies must be at least 1.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (!postingDate) {
+
+        showToast(
+            "Please select the Posting Date.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (!closingDate) {
+
+        showToast(
+            "Please select the Closing Date.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (closingDate < postingDate) {
+
+        showToast(
+            "Closing Date cannot be earlier than Posting Date.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (!description) {
+
+        showToast(
+            "Please enter the Job Description.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (!qualifications) {
+
+        showToast(
+            "Please enter the Qualifications.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    // =========================================
+    // DATA
+    // =========================================
+
+    const jobData = {
+        job_code: jobCode,
+        job_title: jobTitle,
+        department: department,
+        employment_type: employmentType,
+        vacancies: vacancies,
+        posting_date: postingDate,
+        closing_date: closingDate,
+        status: status,
+        description: description,
+        qualifications: qualifications
+    };
+
+
+    const submitButton =
+        document.querySelector(
+            '#jobPostingForm button[type="submit"]'
+        );
+
+
+    const originalButtonText =
+        submitButton?.textContent;
+
+
+    if (submitButton) {
+
+        submitButton.disabled = true;
+
+        submitButton.textContent =
+            editingJobId
+                ? "Saving..."
+                : "Creating...";
+    }
 
 
     try {
 
-        console.time(
-            "Supabase job_postings"
+        let result;
+
+
+        if (editingJobId) {
+
+            result =
+                await window.rmsSupabase
+                    .from("job_postings")
+                    .update(jobData)
+                    .eq(
+                        "job_id",
+                        editingJobId
+                    );
+
+        } else {
+
+            result =
+                await window.rmsSupabase
+                    .from("job_postings")
+                    .insert([
+                        jobData
+                    ]);
+        }
+
+
+        if (result.error) {
+            throw result.error;
+        }
+
+
+        closeJobModal();
+
+
+        showToast(
+            editingJobId
+                ? "Job posting updated successfully."
+                : "Job posting created successfully.",
+            "success"
         );
 
 
-        /*
-         * Only retrieve columns that
-         * Laboratory Activity 4 needs.
-         */
-        const {
-            data,
+        editingJobId = null;
+
+
+        await loadJobPostings();
+
+
+    } catch (error) {
+
+        console.error(
+            "Save job posting error:",
             error
-        } = await withTimeout(
+        );
 
-            window.rmsSupabase
-                .from("job_postings")
-                .select(`
-                    job_id,
-                    job_code,
-                    job_title,
-                    department,
-                    description,
-                    qualifications,
-                    employment_type,
-                    posting_date,
-                    closing_date,
-                    vacancies,
-                    status
-                `)
-                .order(
-                    "posting_date",
-                    {
-                        ascending: false
-                    }
-                ),
+        // Show the actual Supabase error
+        const message =
+            error?.message ||
+            "Failed to save job posting.";
 
-            8000,
+        showToast(
+            message,
+            "error"
+        );
 
-            "Supabase job request timed out."
+    } finally {
+
+        if (submitButton) {
+
+            submitButton.disabled =
+                false;
+
+            submitButton.textContent =
+                originalButtonText ||
+                "Create Job Posting";
+        }
+    }
+}
+
+
+/* =========================================================
+   VIEW JOB POSTING
+   ========================================================= */
+
+function viewJobPosting(jobId) {
+
+    const job =
+        jobPostings.find(
+            item =>
+                String(item.job_id) === String(jobId)
         );
 
 
-        console.timeEnd(
-            "Supabase job_postings"
+    if (!job) {
+
+        showToast(
+            "Job posting not found.",
+            "error"
         );
+
+        return;
+    }
+
+
+    const body =
+        document.getElementById(
+            "viewJobBody"
+        );
+
+
+    if (!body) {
+        return;
+    }
+
+
+    body.innerHTML = `
+
+        <div class="profile-item">
+            <span class="profile-label">
+                Job Code
+            </span>
+
+            <strong>
+                ${escapeHtml(job.job_code || "—")}
+            </strong>
+        </div>
+
+
+        <div class="profile-item">
+            <span class="profile-label">
+                Position
+            </span>
+
+            <strong>
+                ${escapeHtml(job.job_title || "—")}
+            </strong>
+        </div>
+
+
+        <div class="profile-item">
+            <span class="profile-label">
+                Department
+            </span>
+
+            <strong>
+                ${escapeHtml(job.department || "—")}
+            </strong>
+        </div>
+
+
+        <div class="profile-item">
+            <span class="profile-label">
+                Employment Type
+            </span>
+
+            <strong>
+                ${escapeHtml(job.employment_type || "—")}
+            </strong>
+        </div>
+
+
+        <div class="profile-item">
+            <span class="profile-label">
+                Vacancies
+            </span>
+
+            <strong>
+                ${escapeHtml(
+                    String(job.vacancies ?? "—")
+                )}
+            </strong>
+        </div>
+
+
+        <div class="profile-item">
+            <span class="profile-label">
+                Status
+            </span>
+
+            <strong>
+                ${escapeHtml(
+                    normalizeStatus(job.status)
+                )}
+            </strong>
+        </div>
+
+
+        <div class="profile-item">
+            <span class="profile-label">
+                Posting Date
+            </span>
+
+            <strong>
+                ${formatDate(job.posting_date)}
+            </strong>
+        </div>
+
+
+        <div class="profile-item">
+            <span class="profile-label">
+                Closing Date
+            </span>
+
+            <strong>
+                ${formatDate(job.closing_date)}
+            </strong>
+        </div>
+
+
+        <div class="profile-item profile-item-full">
+            <span class="profile-label">
+                Job Description
+            </span>
+
+            <div>
+                ${escapeHtml(
+                    job.description || "—"
+                ).replace(/\n/g, "<br>")}
+            </div>
+        </div>
+
+
+        <div class="profile-item profile-item-full">
+            <span class="profile-label">
+                Qualifications
+            </span>
+
+            <div>
+                ${escapeHtml(
+                    job.qualifications || "—"
+                ).replace(/\n/g, "<br>")}
+            </div>
+        </div>
+
+    `;
+
+
+    showViewJobModal();
+}
+
+
+/* =========================================================
+   DELETE CONFIRMATION
+   ========================================================= */
+
+function createDeleteConfirmModal() {
+
+    // Prevent duplicate creation
+    if (
+        document.getElementById(
+            "deleteConfirmModal"
+        )
+    ) {
+        setupDeleteConfirmEvents();
+        return;
+    }
+
+
+    const modal =
+        document.createElement("div");
+
+
+    modal.id =
+        "deleteConfirmModal";
+
+    modal.className =
+        "modal-backdrop";
+
+    modal.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    modal.innerHTML = `
+
+        <div
+            class="modal glass-panel delete-confirm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="deleteConfirmTitle"
+        >
+
+            <div class="modal-head">
+
+                <div>
+
+                    <div class="modal-eyebrow">
+                        VACANCY MANAGEMENT
+                    </div>
+
+                    <h2 id="deleteConfirmTitle">
+                        Delete Job Posting
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="icon-button"
+                    id="closeDeleteConfirm"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="delete-confirm-content">
+
+                <p id="deleteConfirmMessage">
+                    Are you sure you want to delete this job posting?
+                </p>
+
+            </div>
+
+
+            <div class="button-row delete-confirm-actions">
+
+                <button
+                    type="button"
+                    class="btn secondary"
+                    id="cancelDeleteConfirm"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn danger"
+                    id="confirmDeleteJob"
+                >
+                    Delete Job Posting
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(modal);
+
+    setupDeleteConfirmEvents();
+}
+
+
+/* =========================================================
+   DELETE CONFIRM EVENTS
+   ========================================================= */
+
+function setupDeleteConfirmEvents() {
+
+    document
+        .getElementById("closeDeleteConfirm")
+        ?.addEventListener(
+            "click",
+            closeDeleteConfirm
+        );
+
+
+    document
+        .getElementById("cancelDeleteConfirm")
+        ?.addEventListener(
+            "click",
+            closeDeleteConfirm
+        );
+
+
+    document
+        .getElementById("confirmDeleteJob")
+        ?.addEventListener(
+            "click",
+            confirmDeleteJob
+        );
+
+
+    const modal =
+        document.getElementById(
+            "deleteConfirmModal"
+        );
+
+
+    modal?.addEventListener(
+        "click",
+        (event) => {
+
+            if (
+                event.target === modal
+            ) {
+                closeDeleteConfirm();
+            }
+        }
+    );
+}
+
+
+/* =========================================================
+   OPEN DELETE CONFIRM
+   ========================================================= */
+
+function deleteJobPosting(jobId) {
+
+    const job =
+        jobPostings.find(
+            item =>
+                String(item.job_id) === String(jobId)
+        );
+
+
+    if (!job) {
+
+        showToast(
+            "Job posting not found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    pendingDeleteJob = job;
+
+
+    const message =
+        document.getElementById(
+            "deleteConfirmMessage"
+        );
+
+
+    if (message) {
+
+        message.textContent =
+            `Are you sure you want to delete "${job.job_title} (${job.job_code})"?`;
+    }
+
+
+    const modal =
+        document.getElementById(
+            "deleteConfirmModal"
+        );
+
+
+    if (modal) {
+
+        modal.classList.add("open");
+
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+    }
+}
+
+
+/* =========================================================
+   CLOSE DELETE CONFIRM
+   ========================================================= */
+
+function closeDeleteConfirm() {
+
+    pendingDeleteJob = null;
+
+
+    const modal =
+        document.getElementById(
+            "deleteConfirmModal"
+        );
+
+
+    if (modal) {
+
+        modal.classList.remove("open");
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+    }
+}
+
+
+/* =========================================================
+   CONFIRM DELETE
+   ========================================================= */
+
+async function confirmDeleteJob() {
+
+    if (!pendingDeleteJob) {
+
+        closeDeleteConfirm();
+
+        return;
+    }
+
+
+    const job =
+        pendingDeleteJob;
+
+
+    const jobId =
+        job.job_id;
+
+
+    const confirmButton =
+        document.getElementById(
+            "confirmDeleteJob"
+        );
+
+
+    const originalText =
+        confirmButton?.textContent;
+
+
+    if (confirmButton) {
+
+        confirmButton.disabled =
+            true;
+
+        confirmButton.textContent =
+            "Deleting...";
+    }
+
+
+    try {
+
+        const {
+            error
+        } = await window.rmsSupabase
+            .from("job_postings")
+            .delete()
+            .eq(
+                "job_id",
+                jobId
+            );
 
 
         if (error) {
@@ -384,671 +1253,81 @@ async function loadOpenPositions() {
         }
 
 
-        positions =
-            Array.isArray(data)
-                ? data
-                : [];
+        closeDeleteConfirm();
 
 
-        populateDepartmentFilter();
+        showToast(
+            "Job posting deleted successfully.",
+            "success"
+        );
 
-        renderPositions();
+
+        await loadJobPostings();
 
 
     } catch (error) {
 
         console.error(
-            "Job posting load error:",
+            "Delete job posting error:",
             error
         );
 
 
-        grid.innerHTML = `
-            <div
-                class="glass-panel position-card"
-                style="
-                    grid-column:1/-1;
-                    text-align:center;
-                    justify-content:center;
-                    min-height:180px;
-                ">
-
-                <h3>
-                    Unable to load positions
-                </h3>
-
-                <p
-                    style="
-                        color:var(--muted);
-                        font-size:13px;
-                    ">
-
-                    ${escapeHtml(
-                        error.message ||
-                        "Please try again."
-                    )}
-
-                </p>
-
-                <button
-                    class="btn btn-secondary"
-                    type="button"
-                    onclick="loadOpenPositions()">
-
-                    Try Again
-
-                </button>
-
-            </div>
-        `;
+        let message =
+            "Failed to delete job posting.";
 
 
-        const counter =
-            document.getElementById(
-                "positionCount"
-            );
+        // Foreign key protection
+        if (
+            error?.code === "23503" ||
+            String(error?.message || "")
+                .toLowerCase()
+                .includes("foreign key")
+        ) {
 
-        if (counter) {
-            counter.textContent =
-                "Unable to load positions.";
+            message =
+                "This job posting cannot be deleted because it is already being used by another record.";
         }
 
+
+        showToast(
+            message,
+            "error"
+        );
+
+    } finally {
+
+        if (confirmButton) {
+
+            confirmButton.disabled =
+                false;
+
+            confirmButton.textContent =
+                originalText ||
+                "Delete Job Posting";
+        }
     }
 }
 
 
 /* =========================================================
-   FILTER OPTIONS
+   MODAL HELPERS
    ========================================================= */
 
-function populateDepartmentFilter() {
-
-    const select =
-        document.getElementById(
-            "departmentFilter"
-        );
-
-    if (!select) {
-        return;
-    }
-
-
-    const current =
-        select.value;
-
-
-    const departments =
-        [
-            ...new Set(
-                positions
-                    .map(
-                        job =>
-                            job.department
-                    )
-                    .filter(Boolean)
-            )
-        ]
-        .sort(
-            (a, b) =>
-                a.localeCompare(b)
-        );
-
-
-    select.innerHTML =
-        `
-        <option value="">
-            All departments
-        </option>
-        `
-
-        +
-
-        departments
-            .map(
-                department => `
-                    <option value="${escapeHtml(
-                        department
-                    )}">
-                        ${escapeHtml(
-                            department
-                        )}
-                    </option>
-                `
-            )
-            .join("");
-
-
-    if (
-        departments.includes(
-            current
-        )
-    ) {
-        select.value =
-            current;
-    }
-}
-
-
-/* =========================================================
-   RENDER POSITIONS
-   ========================================================= */
-
-function renderPositions() {
-
-    const grid =
-        document.getElementById(
-            "positionsGrid"
-        );
-
-    if (!grid) {
-        return;
-    }
-
-
-    const query =
-        document.getElementById(
-            "positionSearch"
-        )
-        ?.value
-        .trim()
-        .toLowerCase()
-        || "";
-
-
-    const department =
-        document.getElementById(
-            "departmentFilter"
-        )
-        ?.value
-        || "";
-
-
-    const employment =
-        document.getElementById(
-            "employmentFilter"
-        )
-        ?.value
-        || "";
-
-
-    const status =
-        document.getElementById(
-            "positionStatusFilter"
-        )
-        ?.value
-        ?? "Open";
-
-
-    const filtered =
-        positions.filter(
-            job => {
-
-                const haystack =
-                    `
-                    ${job.job_code || ""}
-                    ${job.job_title || ""}
-                    ${job.department || ""}
-                    `
-                    .toLowerCase();
-
-
-                return (
-
-                    (
-                        !query ||
-                        haystack.includes(
-                            query
-                        )
-                    )
-
-                    &&
-
-                    (
-                        !department ||
-                        job.department ===
-                            department
-                    )
-
-                    &&
-
-                    (
-                        !employment ||
-                        job.employment_type ===
-                            employment
-                    )
-
-                    &&
-
-                    (
-                        !status ||
-                        job.status ===
-                            status
-                    )
-
-                );
-
-            }
-        );
-
-
-    const counter =
-        document.getElementById(
-            "positionCount"
-        );
-
-
-    if (counter) {
-
-        counter.textContent =
-            `${filtered.length} position${
-                filtered.length === 1
-                    ? ""
-                    : "s"
-            } shown`;
-
-    }
-
-
-    if (!filtered.length) {
-
-        grid.innerHTML = `
-            <div
-                class="glass-panel position-card"
-                style="
-                    grid-column:1/-1;
-                    text-align:center;
-                    justify-content:center;
-                    min-height:220px;
-                ">
-
-                <h3>
-                    No positions found
-                </h3>
-
-                <p
-                    style="
-                        color:var(--muted);
-                        font-size:13px;
-                    ">
-
-                    Try changing your
-                    search or filters.
-
-                </p>
-
-            </div>
-        `;
-
-        return;
-    }
-
-
-    grid.innerHTML =
-        filtered
-            .map(
-                createPositionCard
-            )
-            .join("");
-}
-
-
-/* =========================================================
-   POSITION CARD
-   ========================================================= */
-
-function createPositionCard(job) {
-
-    return `
-        <article
-            class="glass-panel position-card">
-
-            <div class="position-top">
-
-                <div>
-
-                    <div class="job-code">
-                        ${escapeHtml(
-                            job.job_code
-                        )}
-                    </div>
-
-                    <h3>
-                        ${escapeHtml(
-                            job.job_title
-                        )}
-                    </h3>
-
-                </div>
-
-                ${statusBadge(
-                    job.status
-                )}
-
-            </div>
-
-
-            <div class="position-meta">
-
-                <span>
-                    ◈
-                    ${escapeHtml(
-                        job.department
-                    )}
-                </span>
-
-                <span>
-                    ◷
-                    ${escapeHtml(
-                        job.employment_type
-                    )}
-                </span>
-
-                <span>
-                    ▣
-                    ${job.vacancies}
-                    ${
-                        Number(
-                            job.vacancies
-                        ) === 1
-                            ? "Vacancy"
-                            : "Vacancies"
-                    }
-                </span>
-
-                <span>
-                    ⌁
-                    Closing Date:
-                    ${formatDate(
-                        job.closing_date
-                    )}
-                </span>
-
-            </div>
-
-
-            <p
-                class="position-summary">
-
-                ${escapeHtml(
-                    shorten(
-                        job.description ||
-                        "No job description provided.",
-                        130
-                    )
-                )}
-
-            </p>
-
-
-            <div class="position-actions">
-
-                <button
-                    class="btn btn-secondary"
-                    data-action="details"
-                    data-id="${job.job_id}">
-
-                    View Details
-
-                </button>
-
-
-                ${
-                    job.status === "Open"
-                        ? `
-                            <button
-                                class="btn btn-primary"
-                                data-action="apply"
-                                data-id="${job.job_id}">
-
-                                Apply
-
-                            </button>
-                          `
-                        : ""
-                }
-
-            </div>
-
-        </article>
-    `;
-}
-
-
-/* =========================================================
-   POSITION ACTIONS
-   ========================================================= */
-
-function handlePositionClick(event) {
-
-    const button =
-        event.target.closest(
-            "[data-action]"
-        );
-
-    if (!button) {
-        return;
-    }
-
-
-    const job =
-        positions.find(
-            item =>
-                String(
-                    item.job_id
-                ) ===
-                String(
-                    button.dataset.id
-                )
-        );
-
-
-    if (!job) {
-        return;
-    }
-
-
-    if (
-        button.dataset.action ===
-        "details"
-    ) {
-
-        openDetails(job);
-
-    }
-
-
-    if (
-        button.dataset.action ===
-        "apply"
-    ) {
-
-        selectJobForApplication(
-            job
-        );
-
-    }
-}
-
-
-/* =========================================================
-   DETAILS MODAL
-   ========================================================= */
-
-function openDetails(job) {
-
-    selectedPosition =
-        job;
-
-
-    document.getElementById(
-        "detailsCode"
-    ).textContent =
-        job.job_code;
-
-
-    document.getElementById(
-        "detailsTitle"
-    ).textContent =
-        job.job_title;
-
-
-    document.getElementById(
-        "detailsBody"
-    ).innerHTML = `
-
-        <div class="details-grid">
-
-            <div class="detail-block">
-                <small>
-                    Department
-                </small>
-
-                <strong>
-                    ${escapeHtml(
-                        job.department
-                    )}
-                </strong>
-            </div>
-
-
-            <div class="detail-block">
-                <small>
-                    Employment Type
-                </small>
-
-                <strong>
-                    ${escapeHtml(
-                        job.employment_type
-                    )}
-                </strong>
-            </div>
-
-
-            <div class="detail-block">
-                <small>
-                    Vacancies
-                </small>
-
-                <strong>
-                    ${job.vacancies}
-                </strong>
-            </div>
-
-
-            <div class="detail-block">
-                <small>
-                    Status
-                </small>
-
-                <strong>
-                    ${statusBadge(
-                        job.status
-                    )}
-                </strong>
-            </div>
-
-
-            <div class="detail-block">
-                <small>
-                    Posting Date
-                </small>
-
-                <strong>
-                    ${formatDate(
-                        job.posting_date
-                    )}
-                </strong>
-            </div>
-
-
-            <div class="detail-block">
-                <small>
-                    Closing Date
-                </small>
-
-                <strong>
-                    ${formatDate(
-                        job.closing_date
-                    )}
-                </strong>
-            </div>
-
-
-            <div
-                class="
-                    detail-block
-                    detail-full
-                ">
-
-                <small>
-                    Job Description
-                </small>
-
-                <div
-                    class="modal-description">
-
-                    ${escapeHtml(
-                        job.description ||
-                        "No job description provided."
-                    )}
-
-                </div>
-
-            </div>
-
-
-            <div
-                class="
-                    detail-block
-                    detail-full
-                ">
-
-                <small>
-                    Qualifications
-                </small>
-
-                <div
-                    class="modal-description">
-
-                    ${escapeHtml(
-                        job.qualifications ||
-                        "No qualifications provided."
-                    )}
-
-                </div>
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    const applyButton =
-        document.getElementById(
-            "applyFromDetails"
-        );
-
-
-    if (applyButton) {
-
-        applyButton.style.display =
-            job.status === "Open"
-                ? "inline-flex"
-                : "none";
-
-    }
-
+function showJobModal() {
 
     const modal =
         document.getElementById(
-            "detailsModal"
+            "jobPostingModal"
         );
 
 
-    modal.classList.add(
-        "open"
-    );
+    if (!modal) {
+        return;
+    }
+
+
+    modal.classList.add("open");
 
     modal.setAttribute(
         "aria-hidden",
@@ -1057,20 +1336,64 @@ function openDetails(job) {
 }
 
 
-function closeDetails() {
+function closeJobModal() {
 
     const modal =
         document.getElementById(
-            "detailsModal"
+            "jobPostingModal"
         );
+
 
     if (!modal) {
         return;
     }
 
-    modal.classList.remove(
-        "open"
+
+    modal.classList.remove("open");
+
+    modal.setAttribute(
+        "aria-hidden",
+        "true"
     );
+}
+
+
+function showViewJobModal() {
+
+    const modal =
+        document.getElementById(
+            "viewJobModal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.classList.add("open");
+
+    modal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+}
+
+
+function closeViewJobModal() {
+
+    const modal =
+        document.getElementById(
+            "viewJobModal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.classList.remove("open");
 
     modal.setAttribute(
         "aria-hidden",
@@ -1080,114 +1403,302 @@ function closeDetails() {
 
 
 /* =========================================================
-   APPLY / SELECT JOB
+   MODAL TITLE
    ========================================================= */
 
-function selectJobForApplication(job) {
+function setModalTitle(title) {
 
-    if (
-        job.status !==
-        "Open"
-    ) {
-
-        showToast(
-            "Only open positions can be selected.",
-            "error"
+    const titleElement =
+        document.getElementById(
+            "jobModalTitle"
         );
 
+
+    if (titleElement) {
+        titleElement.textContent =
+            title;
+    }
+
+
+    const submitButton =
+        document.querySelector(
+            '#jobPostingForm button[type="submit"]'
+        );
+
+
+    if (submitButton) {
+
+        submitButton.textContent =
+            title.startsWith("Edit")
+                ? "Save Changes"
+                : "Create Job Posting";
+    }
+}
+
+
+/* =========================================================
+   FORM HELPERS
+   ========================================================= */
+
+function getFieldValue(id) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (!element) {
+        return "";
+    }
+
+
+    return String(
+        element.value || ""
+    ).trim();
+}
+
+
+function setFieldValue(id, value) {
+
+    const element =
+        document.getElementById(id);
+
+
+    if (!element) {
         return;
     }
 
 
-    localStorage.setItem(
-        "rms_selected_job",
-        JSON.stringify({
-            job_id:
-                job.job_id,
-
-            job_code:
-                job.job_code,
-
-            job_title:
-                job.job_title,
-
-            department:
-                job.department,
-
-            selected_at:
-                new Date()
-                    .toISOString()
-        })
-    );
+    element.value =
+        value ?? "";
+}
 
 
-    closeDetails();
+/* =========================================================
+   STATUS NORMALIZATION
+   ========================================================= */
+
+function normalizeStatus(status) {
+
+    const value =
+        String(status || "")
+            .trim()
+            .toLowerCase();
 
 
-    showToast(
-        `${job.job_title} selected.`
+    if (
+        value === "active" ||
+        value === "open"
+    ) {
+        return "Open";
+    }
+
+
+    if (
+        value === "inactive" ||
+        value === "closed"
+    ) {
+        return "Closed";
+    }
+
+
+    if (!value) {
+        return "Open";
+    }
+
+
+    return (
+        value.charAt(0).toUpperCase() +
+        value.slice(1)
     );
 }
 
 
 /* =========================================================
-   HELPERS
+   DATE HELPERS
    ========================================================= */
 
-function shorten(
-    value,
-    max
-) {
+function formatDate(value) {
 
-    const text =
-        String(
-            value || ""
-        ).trim();
-
-
-    if (
-        text.length <= max
-    ) {
-        return text;
+    if (!value) {
+        return "—";
     }
 
 
-    return (
-        text.slice(
-            0,
-            max - 1
-        ) + "…"
+    const date =
+        new Date(value);
+
+
+    if (Number.isNaN(date.getTime())) {
+        return escapeHtml(
+            String(value)
+        );
+    }
+
+
+    return date.toLocaleDateString(
+        "en-US",
+        {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+        }
     );
 }
 
 
-function withTimeout(
-    promise,
-    milliseconds,
-    message
+function toInputDate(value) {
+
+    if (!value) {
+        return "";
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+
+    const year =
+        date.getFullYear();
+
+
+    const month =
+        String(
+            date.getMonth() + 1
+        ).padStart(2, "0");
+
+
+    const day =
+        String(
+            date.getDate()
+        ).padStart(2, "0");
+
+
+    return `${year}-${month}-${day}`;
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+function showToast(
+    message,
+    type = "info"
 ) {
 
-    const timeout =
-        new Promise(
-            (_, reject) => {
-
-                setTimeout(
-                    () => {
-                        reject(
-                            new Error(
-                                message
-                            )
-                        );
-                    },
-                    milliseconds
-                );
-
-            }
+    const root =
+        document.getElementById(
+            "toastRoot"
         );
 
 
-    return Promise.race([
-        promise,
-        timeout
-    ]);
+    if (!root) {
+        return;
+    }
+
+
+    const toast =
+        document.createElement("div");
+
+
+    toast.className =
+        `toast toast-${type}`;
+
+
+    toast.textContent =
+        message;
+
+
+    root.appendChild(toast);
+
+
+    requestAnimationFrame(() => {
+
+        toast.classList.add(
+            "show"
+        );
+
+    });
+
+
+    setTimeout(() => {
+
+        toast.classList.remove(
+            "show"
+        );
+
+
+        setTimeout(() => {
+
+            toast.remove();
+
+        }, 250);
+
+
+    }, 3500);
 }
+
+
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
+
+function escapeHtml(value) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   ESCAPE JS
+   ========================================================= */
+
+function escapeJs(value) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'");
+}
+
+
+/* =========================================================
+   EXPORT
+   ========================================================= */
+
+window.loadJobPostings =
+    loadJobPostings;
+
+window.renderJobPostings =
+    renderJobPostings;
+
+window.openAddModal =
+    openAddModal;
+
+window.editJobPosting =
+    editJobPosting;
+
+window.viewJobPosting =
+    viewJobPosting;
+
+window.deleteJobPosting =
+    deleteJobPosting;
+
+window.closeDeleteConfirm =
+    closeDeleteConfirm;
+
+window.confirmDeleteJob =
+    confirmDeleteJob;

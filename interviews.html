@@ -1,43 +1,1107 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Interviews — Recruitment Management System</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="css/frost-ui.css">
-        <link rel="stylesheet" href="css/style.css">
-        <link rel="stylesheet" href="css/responsive.css">
-    </head>
-    <body data-active="Interviews" class="app-page">
-        <aside id="appSidebar" class="sidebar glass-panel"></aside>
-        <main class="app-main">
-            <header id="appTopbar" class="topbar glass-panel"></header>
-            <section class="page-content">
-                <div class="page-intro">
-                    <div>
-                        <p class="eyebrow">Laboratory module</p>
-                        <h2>Interviews</h2>
-                        <p>This module is wired into the same Supabase-backed application and ready for the next laboratory activity.</p>
-                    </div>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Interviews — Recruitment Management System
+    </title>
+
+
+    <!-- =================================================
+         GOOGLE FONT
+         ================================================= -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =================================================
+         PROJECT CSS
+         ================================================= -->
+
+    <link
+        rel="stylesheet"
+        href="css/frost-ui.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/responsive.css"
+    >
+
+
+    <!-- =================================================
+         INTERVIEW PAGE CSS
+         ================================================= -->
+
+    <style>
+
+        /* =================================================
+           SUMMARY
+           ================================================= */
+
+        .interview-summary {
+            display: grid;
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .interview-stat {
+            padding: 15px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background:
+                rgba(255, 255, 255, 0.30);
+        }
+
+        .interview-stat small {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .interview-stat strong {
+            display: block;
+            color: #c9d0d8;
+            font-size: 22px;
+            line-height: 1.1;
+        }
+
+        .interview-stat span {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+
+        /* =================================================
+           TABLE META
+           ================================================= */
+
+        .interview-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .interview-meta strong {
+            color: #c9d0d8;
+            font-size: 12px;
+        }
+
+        .interview-meta span {
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+
+        /* =================================================
+           STATUS
+           ================================================= */
+
+        .interview-status-scheduled {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 8px;
+            border-radius: 999px;
+            background:
+                rgba(53, 95, 138, 0.14);
+            border: 1px solid
+                rgba(53, 95, 138, 0.25);
+            color: #9fc6ee;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .interview-status-cancelled {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 8px;
+            border-radius: 999px;
+            background:
+                rgba(181, 71, 71, 0.10);
+            border: 1px solid
+                rgba(181, 71, 71, 0.22);
+            color: #e59a9a;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .interview-status-completed {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 8px;
+            border-radius: 999px;
+            background:
+                rgba(37, 134, 90, 0.10);
+            border: 1px solid
+                rgba(37, 134, 90, 0.20);
+            color: #75d3a5;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+
+        /* =================================================
+           MODAL
+           ================================================= */
+
+        .interview-modal {
+            width: min(760px, 100%);
+            max-width: 760px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+
+        /* =================================================
+           FORM
+           ================================================= */
+
+        .interview-form-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .interview-form-full {
+            grid-column: 1 / -1;
+        }
+
+        .interview-help {
+            display: block;
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.45;
+        }
+
+
+        /* =================================================
+           SELECTED APPLICATION
+           ================================================= */
+
+        .interview-application-info {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .interview-info-item {
+            padding: 11px 12px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background:
+                rgba(255, 255, 255, 0.22);
+        }
+
+        .interview-info-item small {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .interview-info-item strong {
+            color: #c9d0d8;
+            font-size: 12px;
+        }
+
+
+        /* =================================================
+           DETAILS MODAL
+           ================================================= */
+
+        .interview-details-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .interview-detail-item {
+            min-width: 0;
+            padding: 13px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background:
+                #15191d;
+        }
+
+        .interview-detail-item-full {
+            grid-column: 1 / -1;
+        }
+
+        .interview-detail-item small {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .interview-detail-item div {
+            color: #c9d0d8;
+            font-size: 13px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+
+        /* =================================================
+           ERROR
+           ================================================= */
+
+        .interview-form-error {
+            min-height: 18px;
+            margin-bottom: 10px;
+            color: #d88282;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+
+        /* =================================================
+           DELETE / CANCEL MODAL
+           ================================================= */
+
+        .interview-confirm-modal {
+            width: min(520px, 100%);
+            max-width: 520px;
+        }
+
+        .interview-confirm-message {
+            padding: 5px 0 10px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+
+        /* =================================================
+           MOBILE
+           ================================================= */
+
+        @media (max-width: 900px) {
+
+            .interview-application-info {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .interview-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .interview-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .interview-form-full {
+                grid-column: auto;
+            }
+
+            .interview-details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .interview-detail-item-full {
+                grid-column: auto;
+            }
+
+            .table-wrap table {
+                min-width: 850px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body
+    data-active="Interviews"
+    class="app-page"
+>
+
+
+    <!-- =================================================
+         SIDEBAR
+         ================================================= -->
+
+    <aside
+        id="appSidebar"
+        class="sidebar glass-panel"
+    ></aside>
+
+
+    <!-- =================================================
+         MAIN
+         ================================================= -->
+
+    <main class="app-main">
+
+
+        <!-- =================================================
+             TOPBAR
+             ================================================= -->
+
+        <header
+            id="appTopbar"
+            class="topbar glass-panel"
+        ></header>
+
+
+        <!-- =================================================
+             PAGE CONTENT
+             ================================================= -->
+
+        <section class="page-content">
+
+
+            <!-- =================================================
+                 PAGE HEADER
+                 ================================================= -->
+
+            <div class="page-intro">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Stage 7 · Interview Management
+                    </p>
+
+                    <h2>
+                        Interviews
+                    </h2>
+
+                    <p>
+                        Schedule and manage applicant interviews.
+                    </p>
+
                 </div>
-                <section class="glass-panel section-card">
-                    <div class="empty-state">
-                        <div class="empty-icon">◌</div>
-                        <h3>Interviews module</h3>
-                        <p>The navigation and database architecture are already in place. Build this module here in the next laboratory without creating a new project or database.</p>
-                    </div>
-                </section>
+
+
+                <button
+                    id="openInterviewModal"
+                    class="btn btn-primary"
+                    type="button"
+                >
+                    ＋ Schedule Interview
+                </button>
+
+            </div>
+
+
+            <!-- =================================================
+                 SUMMARY
+                 ================================================= -->
+
+            <section class="interview-summary">
+
+                <div
+                    class="interview-stat glass-panel"
+                >
+
+                    <small>
+                        Total Interviews
+                    </small>
+
+                    <strong id="totalInterviews">
+                        0
+                    </strong>
+
+                    <span>
+                        Interview records
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="interview-stat glass-panel"
+                >
+
+                    <small>
+                        Scheduled
+                    </small>
+
+                    <strong id="scheduledInterviews">
+                        0
+                    </strong>
+
+                    <span>
+                        Upcoming scheduled interviews
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="interview-stat glass-panel"
+                >
+
+                    <small>
+                        Cancelled
+                    </small>
+
+                    <strong id="cancelledInterviews">
+                        0
+                    </strong>
+
+                    <span>
+                        Cancelled interview schedules
+                    </span>
+
+                </div>
+
             </section>
-        </main>
-        <div id="toastRoot" class="toast-root"></div>
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-        <script src="js/config.js"></script>
-        <script src="js/supabase.js"></script>
-        <script src="js/auth.js"></script>
-        <script src="js/components.js"></script>
-        <script src="js/app.js"></script>
-    </body>
+
+
+            <!-- =================================================
+                 INTERVIEW TABLE
+                 ================================================= -->
+
+            <section
+                class="glass-panel section-card"
+            >
+
+                <div class="toolbar">
+
+                    <div class="search-wrap">
+
+                        <span
+                            class="search-icon"
+                            aria-hidden="true"
+                        >
+                            ⌕
+                        </span>
+
+                        <input
+                            id="interviewSearch"
+                            type="search"
+                            placeholder="Search applicant, position, interviewer, or venue"
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <select
+                        id="interviewStatusFilter"
+                        class="select-control"
+                    >
+
+                        <option value="">
+                            All statuses
+                        </option>
+
+                        <option value="Scheduled">
+                            Scheduled
+                        </option>
+
+                        <option value="Cancelled">
+                            Cancelled
+                        </option>
+
+                        <option value="Completed">
+                            Completed
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Applicant
+                                </th>
+
+                                <th>
+                                    Position
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Time
+                                </th>
+
+                                <th>
+                                    Interviewer
+                                </th>
+
+                                <th>
+                                    Venue
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Actions
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="interviewsTable"
+                        >
+
+                            <tr>
+
+                                <td
+                                    colspan="8"
+                                    class="table-empty"
+                                >
+                                    Loading interviews...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+
+    <!-- =================================================
+         TOAST
+         ================================================= -->
+
+    <div
+        id="toastRoot"
+        class="toast-root"
+    ></div>
+
+
+    <!-- =================================================
+         SCHEDULE / RESCHEDULE MODAL
+         ================================================= -->
+
+    <div
+        id="interviewModal"
+        class="modal-backdrop"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal glass-panel interview-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="interviewModalTitle"
+        >
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Interview Schedule
+                    </p>
+
+                    <h3 id="interviewModalTitle">
+                        Schedule Interview
+                    </h3>
+
+                </div>
+
+
+                <button
+                    id="closeInterviewModal"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div
+                id="interviewFormError"
+                class="interview-form-error"
+                role="alert"
+            ></div>
+
+
+            <form
+                id="interviewForm"
+                novalidate
+            >
+
+                <input
+                    type="hidden"
+                    id="interviewId"
+                >
+
+
+                <div
+                    class="interview-form-grid"
+                >
+
+
+                    <!-- APPLICATION -->
+
+                    <div
+                        class="form-group interview-form-full"
+                    >
+
+                        <label
+                            for="interviewApplication"
+                        >
+                            Qualified Application *
+                        </label>
+
+                        <select
+                            id="interviewApplication"
+                            required
+                        >
+
+                            <option value="">
+                                Select qualified application
+                            </option>
+
+                        </select>
+
+                        <small class="interview-help">
+                            Only qualified applications can be scheduled.
+                        </small>
+
+                    </div>
+
+
+                    <!-- APPLICATION INFO -->
+
+                    <div
+                        id="selectedInterviewApplication"
+                        class="interview-application-info interview-form-full"
+                        hidden
+                    >
+
+                        <div
+                            class="interview-info-item"
+                        >
+
+                            <small>
+                                Applicant
+                            </small>
+
+                            <strong
+                                id="interviewApplicant"
+                            >
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div
+                            class="interview-info-item"
+                        >
+
+                            <small>
+                                Position
+                            </small>
+
+                            <strong
+                                id="interviewPosition"
+                            >
+                                —
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DATE -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="interviewDate"
+                        >
+                            Date *
+                        </label>
+
+                        <input
+                            id="interviewDate"
+                            type="date"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- TIME -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="interviewTime"
+                        >
+                            Time *
+                        </label>
+
+                        <input
+                            id="interviewTime"
+                            type="time"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- INTERVIEWER -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="interviewer"
+                        >
+                            Interviewer *
+                        </label>
+
+                        <input
+                            id="interviewer"
+                            type="text"
+                            placeholder="Maria Santos"
+                            autocomplete="off"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- VENUE -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="interviewVenue"
+                        >
+                            Venue *
+                        </label>
+
+                        <input
+                            id="interviewVenue"
+                            type="text"
+                            placeholder="HR Office"
+                            autocomplete="off"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- STATUS -->
+
+                    <div class="form-group">
+
+                        <label
+                            for="interviewStatus"
+                        >
+                            Status
+                        </label>
+
+                        <select
+                            id="interviewStatus"
+                        >
+
+                            <option value="Scheduled">
+                                Scheduled
+                            </option>
+
+                            <option value="Cancelled">
+                                Cancelled
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                </div>
+
+
+                <div
+                    class="button-row"
+                    style="margin-top:18px;"
+                >
+
+                    <button
+                        id="cancelInterviewModal"
+                        class="btn btn-secondary"
+                        type="button"
+                    >
+                        Cancel
+                    </button>
+
+
+                    <button
+                        id="saveInterviewButton"
+                        class="btn btn-primary"
+                        type="submit"
+                    >
+                        Schedule Interview
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         VIEW INTERVIEW MODAL
+         ================================================= -->
+
+    <div
+        id="viewInterviewModal"
+        class="modal-backdrop"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal glass-panel interview-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="viewInterviewTitle"
+        >
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Interview Schedule
+                    </p>
+
+                    <h3 id="viewInterviewTitle">
+                        Interview Details
+                    </h3>
+
+                </div>
+
+
+                <button
+                    id="closeViewInterview"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div
+                id="viewInterviewBody"
+                class="interview-details-grid"
+            ></div>
+
+
+            <div
+                class="button-row"
+                style="margin-top:18px;"
+            >
+
+                <button
+                    id="closeViewInterviewBottom"
+                    class="btn btn-secondary"
+                    type="button"
+                >
+                    Close
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         CANCEL CONFIRMATION MODAL
+         ================================================= -->
+
+    <div
+        id="cancelConfirmModal"
+        class="modal-backdrop"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal glass-panel interview-confirm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cancelConfirmTitle"
+        >
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Interview Schedule
+                    </p>
+
+                    <h3 id="cancelConfirmTitle">
+                        Cancel Interview
+                    </h3>
+
+                </div>
+
+
+                <button
+                    id="closeCancelConfirm"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div
+                id="cancelConfirmMessage"
+                class="interview-confirm-message"
+            >
+                Are you sure you want to cancel this interview?
+            </div>
+
+
+            <div
+                class="button-row"
+                style="
+                    margin-top:10px;
+                    justify-content:flex-end;
+                "
+            >
+
+                <button
+                    id="cancelCancelConfirm"
+                    class="btn btn-secondary"
+                    type="button"
+                >
+                    Keep Schedule
+                </button>
+
+
+                <button
+                    id="confirmCancelInterview"
+                    class="btn btn-primary"
+                    type="button"
+                    style="
+                        background:#15191d;
+                        border-color:rgba(181,71,71,0.35);
+                        color:#e59a9a;
+                    "
+                >
+                    Cancel Interview
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         SUPABASE
+         ================================================= -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- =================================================
+         PROJECT JAVASCRIPT
+         ================================================= -->
+
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/interviews.js"></script>
+
+</body>
+
 </html>
