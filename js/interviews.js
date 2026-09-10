@@ -54,10 +54,8 @@ async function initInterviews() {
         );
     });
 
-    await Promise.all([
-        loadApplications(),
-        loadInterviews()
-    ]);
+  await loadApplications();
+await loadInterviews();
 }
 
 
@@ -761,10 +759,6 @@ function handleApplicationSelection() {
     }
 
 }
-/* =========================================================
-   LOAD INTERVIEWS
-   ========================================================= */
-
 async function loadInterviews() {
 
     const table =
@@ -790,70 +784,77 @@ async function loadInterviews() {
     try {
 
         if (!window.rmsSupabase) {
-
             throw new Error(
                 "Supabase client is not initialized."
             );
-
         }
 
+        /*
+         * IMPORTANT:
+         * Load ONLY the interviews table.
+         * Do not use the broken nested relationship query.
+         */
         const {
             data,
             error
-        } = await window.rmsSupabase
-            .from("interviews")
-            .select(`
-                interview_id,
-                application_id,
-                interview_date,
-                interview_time,
-                interviewer,
-                venue,
-                status,
-                score,
-                result,
-                remarks,
-                created_at,
-                updated_at,
-                applications (
-                    application_id,
-                    applicant_id,
-                    job_id,
-                    status,
-                    applicants (
-                        applicant_no,
-                        first_name,
-                        last_name,
-                        email
-                    ),
-                    job_postings (
-                        job_code,
-                        job_title,
-                        department
-                    )
+        } =
+            await window.rmsSupabase
+                .from("interviews")
+                .select("*")
+                .order(
+                    "interview_date",
+                    {
+                        ascending: true
+                    }
                 )
-            `)
-            .order(
-                "interview_date",
-                {
-                    ascending: true
-                }
-            )
-            .order(
-                "interview_time",
-                {
-                    ascending: true
-                }
-            );
+                .order(
+                    "interview_time",
+                    {
+                        ascending: true
+                    }
+                );
 
         if (error) {
             throw error;
         }
 
-        interviews =
+        const rows =
             Array.isArray(data)
                 ? data
                 : [];
+
+        /*
+         * Connect each interview with the
+         * application that was already loaded.
+         */
+        interviews =
+            rows.map(
+                interview => {
+
+                    const application =
+                        applications.find(
+                            item =>
+                                String(
+                                    item.application_id
+                                ) ===
+                                String(
+                                    interview.application_id
+                                )
+                        );
+
+                    return {
+                        ...interview,
+                        applications:
+                            application || null
+                    };
+
+                }
+            );
+
+        console.log(
+            "INTERVIEWS LOADED:",
+            interviews
+        );
 
         renderInterviews();
 
@@ -3442,5 +3443,127 @@ async function submitInterview(event) {
 }
 
 /* =========================================================
-   RE-INITIALIZE EVENTS SAFELY
+   FINAL INTERVIEW LOADING FIX
    ========================================================= */
+
+async function loadInterviews() {
+
+    const table =
+        document.getElementById("interviewsTable");
+
+    if (!table) {
+        return;
+    }
+
+    table.innerHTML = `
+        <tr>
+            <td colspan="7" class="table-empty">
+                Loading interviews...
+            </td>
+        </tr>
+    `;
+
+    try {
+
+        if (!window.rmsSupabase) {
+            throw new Error(
+                "Supabase client is not initialized."
+            );
+        }
+
+        /*
+         * Make sure applications are loaded first.
+         */
+        if (
+            !Array.isArray(applications) ||
+            applications.length === 0
+        ) {
+            await loadApplications();
+        }
+
+        /*
+         * Get interviews directly.
+         *
+         * IMPORTANT:
+         * No nested applications/applicants/job_postings
+         * query here.
+         */
+        const {
+            data,
+            error
+        } = await window.rmsSupabase
+            .from("interviews")
+            .select("*")
+            .order(
+                "interview_date",
+                {
+                    ascending: true
+                }
+            )
+            .order(
+                "interview_time",
+                {
+                    ascending: true
+                }
+            );
+
+        if (error) {
+            throw error;
+        }
+
+        /*
+         * Attach the application information
+         * that is already in the applications array.
+         */
+        interviews =
+            (Array.isArray(data) ? data : [])
+                .map(interview => {
+
+                    const application =
+                        applications.find(
+                            item =>
+                                String(
+                                    item.application_id
+                                ) ===
+                                String(
+                                    interview.application_id
+                                )
+                        );
+
+                    return {
+                        ...interview,
+                        applications:
+                            application || null
+                    };
+
+                });
+
+        console.log(
+            "FINAL INTERVIEWS DATA:",
+            interviews
+        );
+
+        /*
+         * Render the table.
+         */
+        renderInterviews();
+
+    } catch (error) {
+
+        console.error(
+            "FINAL LOAD INTERVIEWS ERROR:",
+            error
+        );
+
+        interviews = [];
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="7" class="table-empty">
+                    Unable to load interviews.
+                </td>
+            </tr>
+        `;
+
+    }
+}
