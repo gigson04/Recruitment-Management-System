@@ -3386,3 +3386,126 @@ function escapeScreeningHtml(
             "&#039;"
         );
 }
+
+/* =========================================================
+   DELETE CRITERION MODAL BUTTON FIX
+   ========================================================= */
+
+function setupDeleteCriterionModalEvents() {
+
+    const modal =
+        document.getElementById(
+            "deleteCriterionModal"
+        );
+
+    if (!modal) {
+        return;
+    }
+
+    /*
+     * Prevent this listener from being added twice.
+     */
+    if (
+        modal.dataset.deleteEventsBound ===
+        "true"
+    ) {
+        return;
+    }
+
+    modal.dataset.deleteEventsBound =
+        "true";
+
+
+    modal.addEventListener(
+        "click",
+        async event => {
+
+            const button =
+                event.target.closest(
+                    "button"
+                );
+
+            if (!button) {
+                return;
+            }
+
+            /*
+             * DELETE CRITERION
+             */
+            if (
+                button.id ===
+                    "confirmDeleteCriterion" ||
+                button.textContent
+                    .trim()
+                    .toLowerCase() ===
+                    "delete criterion"
+            ) {
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                await confirmDeleteCriterion();
+
+                return;
+            }
+
+
+            /*
+             * CLOSE / CANCEL
+             */
+            const isCloseButton =
+                button.classList.contains(
+                    "icon-button"
+                ) ||
+                button.id
+                    .toLowerCase()
+                    .includes(
+                        "closedeletecriterion"
+                    ) ||
+                button.getAttribute(
+                    "aria-label"
+                ) === "Close";
+
+
+            const isCancelButton =
+                button.textContent
+                    .trim()
+                    .toLowerCase() ===
+                    "cancel";
+
+
+            if (
+                isCloseButton ||
+                isCancelButton
+            ) {
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                closeDeleteCriterion();
+
+            }
+
+        }
+    );
+}
+
+
+/*
+ * Bind after the DOM exists.
+ */
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        setupDeleteCriterionModalEvents
+    );
+
+} else {
+
+    setupDeleteCriterionModalEvents();
+
+}

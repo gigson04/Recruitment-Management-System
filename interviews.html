@@ -1102,6 +1102,92 @@
     <script src="js/components.js"></script>
     <script src="js/interviews.js"></script>
 
+
+    <script>
+document.addEventListener(
+    "click",
+    async function (event) {
+
+        const button = event.target.closest(
+            '#interviewsTable button[data-action="cancel"]'
+        );
+
+        if (!button) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        const interviewId =
+            button.dataset.id;
+
+        if (!interviewId) {
+            alert("Interview ID is missing.");
+            return;
+        }
+
+        const confirmed = confirm(
+            "Are you sure you want to cancel this interview?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            button.disabled = true;
+            button.textContent = "Cancelling...";
+
+            if (!window.rmsSupabase) {
+                throw new Error(
+                    "Supabase client is not initialized."
+                );
+            }
+
+            const { error } =
+                await window.rmsSupabase
+                    .from("interviews")
+                    .update({
+                        status: "Cancelled"
+                    })
+                    .eq(
+                        "interview_id",
+                        interviewId
+                    );
+
+            if (error) {
+                throw error;
+            }
+
+            alert(
+                "Interview cancelled successfully."
+            );
+
+            location.reload();
+
+        } catch (error) {
+
+            console.error(
+                "Cancel interview error:",
+                error
+            );
+
+            alert(
+                error.message ||
+                "Unable to cancel interview."
+            );
+
+            button.disabled = false;
+            button.textContent = "Cancel";
+        }
+
+    },
+    true
+);
+</script>
+
 </body>
 
 </html>

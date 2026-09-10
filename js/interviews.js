@@ -1,204 +1,145 @@
 /* =========================================================
-   RECRUITMENT MANAGEMENT SYSTEM
-   LABORATORY ACTIVITY 13
+   RECRUITMENT MANAGEMENT SYSTEM - LAB 13
    INTERVIEW SCHEDULING
+   Clean replacement for js/interviews.js
    ========================================================= */
 
 let interviews = [];
 let applications = [];
 let editingInterviewId = null;
+let pendingCancelInterviewId = null;
 
+const $ = id => document.getElementById(id);
 
-/* =========================================================
-   INITIALIZE
-   ========================================================= */
+/* -------------------- INITIALIZE -------------------- */
 
 document.addEventListener("DOMContentLoaded", initInterviews);
 
 async function initInterviews() {
+    if (typeof renderShell === "function") {
+        renderShell({
+            active: "Interviews"
+        });
+    }
 
-    renderShell({
-        active: "Interviews"
-    });
-
-    /*
-     * Attach UI events before authentication.
-     * This allows the Schedule Interview button
-     * to remain responsive even if authentication
-     * or Supabase has a temporary problem.
-     */
-    setupInterviewEvents();
-
-    let session = null;
+    bindInterviewEvents();
+    addRescheduledFilterOption();
 
     try {
-        session = await requireAuth();
+        const session =
+            typeof requireAuth === "function"
+                ? await requireAuth()
+                : true;
+
+        if (!session) {
+            return;
+        }
+
+        if (typeof loadUserProfile === "function") {
+            loadUserProfile().catch(console.warn);
+        }
+
+        await loadApplications();
+        await loadInterviews();
+
     } catch (error) {
         console.error(
-            "Authentication error:",
+            "Interview initialization error:",
             error
         );
-    }
 
-    if (!session) {
-        console.warn(
-            "No authenticated session detected."
+        showToast(
+            error?.message ||
+            "Unable to load interview page.",
+            "error"
         );
-        return;
     }
-
-    loadUserProfile().catch(error => {
-        console.warn(
-            "Unable to load user profile:",
-            error
-        );
-    });
-
-  await loadApplications();
-await loadInterviews();
 }
 
+/* -------------------- EVENTS -------------------- */
 
-/* =========================================================
-   EVENTS
-   ========================================================= */
+function bindInterviewEvents() {
 
-function setupInterviewEvents() {
-
-    /*
-     * OPEN SCHEDULE INTERVIEW MODAL
-     */
-    document
-        .getElementById(
-            "openInterviewModal"
-        )
+    $("openInterviewModal")
         ?.addEventListener(
             "click",
             openInterviewModalForm
         );
 
-
-    /*
-     * CLOSE SCHEDULE INTERVIEW MODAL
-     */
-    document
-        .getElementById(
-            "closeInterviewModal"
-        )
+    $("closeInterviewModal")
         ?.addEventListener(
             "click",
             closeScheduleInterviewForm
         );
 
-
-    /*
-     * CANCEL SCHEDULE INTERVIEW
-     */
-    document
-        .getElementById(
-            "cancelInterviewModal"
-        )
+    $("cancelInterviewModal")
         ?.addEventListener(
             "click",
             closeScheduleInterviewForm
         );
 
-
-    /*
-     * SUBMIT INTERVIEW FORM
-     */
-    document
-        .getElementById(
-            "interviewForm"
-        )
+    $("interviewForm")
         ?.addEventListener(
             "submit",
             submitInterview
         );
 
-
-    /*
-     * SEARCH
-     */
-    document
-        .getElementById(
-            "interviewSearch"
-        )
+    $("interviewSearch")
         ?.addEventListener(
             "input",
             renderInterviews
         );
 
-
-    /*
-     * STATUS FILTER
-     */
-    document
-        .getElementById(
-            "interviewStatusFilter"
-        )
+    $("interviewStatusFilter")
         ?.addEventListener(
             "change",
             renderInterviews
         );
 
-
-    /*
-     * TABLE ACTIONS
-     */
-    document
-        .getElementById(
-            "interviewsTable"
-        )
-        ?.addEventListener(
-            "click",
-            handleInterviewAction
-        );
-
-
-    /*
-     * APPLICATION SELECTION
-     */
-    document
-        .getElementById(
-            "interviewApplication"
-        )
+    $("interviewApplication")
         ?.addEventListener(
             "change",
             handleApplicationSelection
         );
 
-
-    /*
-     * VIEW INTERVIEW MODAL
-     */
-    document
-        .getElementById(
-            "closeViewInterview"
-        )
+    $("closeViewInterview")
         ?.addEventListener(
             "click",
             closeViewInterview
         );
 
-
-    document
-        .getElementById(
-            "closeViewInterviewBottom"
-        )
+    $("closeViewInterviewBottom")
         ?.addEventListener(
             "click",
             closeViewInterview
         );
 
+    $("closeCancelConfirm")
+        ?.addEventListener(
+            "click",
+            closeCancelConfirm
+        );
 
-    /*
-     * CLOSE MODALS WHEN CLICKING BACKDROP
-     */
+    $("cancelCancelConfirm")
+        ?.addEventListener(
+            "click",
+            closeCancelConfirm
+        );
+
+    $("confirmCancelInterview")
+        ?.addEventListener(
+            "click",
+            confirmCancelInterview
+        );
+
+    $("interviewsTable")
+        ?.addEventListener(
+            "click",
+            handleInterviewAction
+        );
+
     document
-        .querySelectorAll(
-            ".modal-backdrop"
-        )
+        .querySelectorAll(".modal-backdrop")
         .forEach(modal => {
 
             modal.addEventListener(
@@ -221,83 +162,96 @@ function setupInterviewEvents() {
 
         });
 
-
-    /*
-     * CLOSE MODALS WITH ESCAPE KEY
-     */
     document.addEventListener(
         "keydown",
         event => {
 
             if (
-                event.key !== "Escape"
+                event.key === "Escape"
             ) {
-                return;
+
+                document
+                    .querySelectorAll(
+                        ".modal-backdrop.open"
+                    )
+                    .forEach(modal => {
+
+                        toggleModal(
+                            modal.id,
+                            false
+                        );
+
+                    });
+
             }
-
-            document
-                .querySelectorAll(
-                    ".modal-backdrop.open"
-                )
-                .forEach(modal => {
-
-                    toggleModal(
-                        modal.id,
-                        false
-                    );
-
-                });
 
         }
     );
 }
 
+function addRescheduledFilterOption() {
 
-/* =========================================================
-   LOAD QUALIFIED APPLICATIONS
-   ========================================================= */
+    const filter =
+        $("interviewStatusFilter");
+
+    if (!filter) {
+        return;
+    }
+
+    if (
+        filter.querySelector(
+            'option[value="Rescheduled"]'
+        )
+    ) {
+        return;
+    }
+
+    const option =
+        document.createElement(
+            "option"
+        );
+
+    option.value =
+        "Rescheduled";
+
+    option.textContent =
+        "Rescheduled";
+
+    filter.appendChild(
+        option
+    );
+}
+
+/* -------------------- APPLICATIONS -------------------- */
 
 async function loadApplications() {
 
     const select =
-        document.getElementById(
-            "interviewApplication"
-        );
+        $("interviewApplication");
 
     if (!select) {
         return;
     }
 
+    if (!window.rmsSupabase) {
+
+        throw new Error(
+            "Supabase client is not initialized."
+        );
+
+    }
+
     try {
 
-        if (!window.rmsSupabase) {
-
-            throw new Error(
-                "Supabase client is not initialized."
-            );
-
-        }
-
-        /*
-         * First get the applications only.
-         * This avoids the relational SELECT failing
-         * before the dropdown can be populated.
-         */
         const {
-            data: applicationRows,
-            error: applicationError
+            data: rows,
+            error
         } =
             await window.rmsSupabase
                 .from("applications")
-                .select(`
-                    application_id,
-                    applicant_id,
-                    job_id,
-                    application_date,
-                    status,
-                    created_at,
-                    updated_at
-                `)
+                .select(
+                    "application_id, applicant_id, job_id, application_date, status, created_at"
+                )
                 .in(
                     "status",
                     [
@@ -312,27 +266,22 @@ async function loadApplications() {
                     }
                 );
 
-        if (applicationError) {
-            throw applicationError;
+        if (error) {
+            throw error;
         }
 
-        const rows =
-            Array.isArray(
-                applicationRows
-            )
-                ? applicationRows
+        const apps =
+            Array.isArray(rows)
+                ? rows
                 : [];
 
-        /*
-         * Get applicant IDs and job IDs.
-         */
         const applicantIds =
             [
                 ...new Set(
-                    rows
+                    apps
                         .map(
-                            row =>
-                                row.applicant_id
+                            item =>
+                                item.applicant_id
                         )
                         .filter(Boolean)
                 )
@@ -341,125 +290,99 @@ async function loadApplications() {
         const jobIds =
             [
                 ...new Set(
-                    rows
+                    apps
                         .map(
-                            row =>
-                                row.job_id
+                            item =>
+                                item.job_id
                         )
                         .filter(Boolean)
                 )
             ];
 
-        /*
-         * Load applicants.
-         */
-        let applicantRows = [];
+        const [
+            applicantResult,
+            jobResult
+        ] =
+            await Promise.all([
+
+                applicantIds.length
+                    ? window.rmsSupabase
+                        .from("applicants")
+                        .select(
+                            "applicant_id, applicant_no, first_name, last_name, email"
+                        )
+                        .in(
+                            "applicant_id",
+                            applicantIds
+                        )
+                    : Promise.resolve({
+                        data: [],
+                        error: null
+                    }),
+
+                jobIds.length
+                    ? window.rmsSupabase
+                        .from("job_postings")
+                        .select(
+                            "job_id, job_code, job_title, department, closing_date"
+                        )
+                        .in(
+                            "job_id",
+                            jobIds
+                        )
+                    : Promise.resolve({
+                        data: [],
+                        error: null
+                    })
+
+            ]);
 
         if (
-            applicantIds.length
+            applicantResult.error
         ) {
-
-            const {
-                data,
-                error
-            } =
-                await window.rmsSupabase
-                    .from("applicants")
-                    .select(`
-                        applicant_id,
-                        applicant_no,
-                        first_name,
-                        last_name,
-                        email
-                    `)
-                    .in(
-                        "applicant_id",
-                        applicantIds
-                    );
-
-            if (error) {
-                throw error;
-            }
-
-            applicantRows =
-                Array.isArray(data)
-                    ? data
-                    : [];
-
+            throw applicantResult.error;
         }
-
-        /*
-         * Load jobs.
-         */
-        let jobRows = [];
 
         if (
-            jobIds.length
+            jobResult.error
         ) {
-
-            const {
-                data,
-                error
-            } =
-                await window.rmsSupabase
-                    .from("job_postings")
-                    .select(`
-                        job_id,
-                        job_code,
-                        job_title,
-                        department,
-                        closing_date
-                    `)
-                    .in(
-                        "job_id",
-                        jobIds
-                    );
-
-            if (error) {
-                throw error;
-            }
-
-            jobRows =
-                Array.isArray(data)
-                    ? data
-                    : [];
-
+            throw jobResult.error;
         }
 
-        /*
-         * Create lookup maps.
-         */
         const applicantMap =
             new Map(
-                applicantRows.map(
-                    applicant => [
+                (
+                    applicantResult.data ||
+                    []
+                ).map(
+                    item => [
                         String(
-                            applicant.applicant_id
+                            item.applicant_id
                         ),
-                        applicant
+                        item
                     ]
                 )
             );
 
         const jobMap =
             new Map(
-                jobRows.map(
-                    job => [
+                (
+                    jobResult.data ||
+                    []
+                ).map(
+                    item => [
                         String(
-                            job.job_id
+                            item.job_id
                         ),
-                        job
+                        item
                     ]
                 )
             );
 
-        /*
-         * Build the same structure used
-         * everywhere else in the page.
-         */
         applications =
-            rows.map(
+            apps.map(
                 application => ({
+
                     ...application,
 
                     applicants:
@@ -475,6 +398,7 @@ async function loadApplications() {
                                 application.job_id
                             )
                         ) || null
+
                 })
             );
 
@@ -495,26 +419,20 @@ async function loadApplications() {
             </option>
         `;
 
+        throw error;
     }
-
 }
-/* =========================================================
-   RENDER APPLICATION OPTIONS
-   ========================================================= */
 
-function renderApplicationOptions() {
+function renderApplicationOptions(
+    selectedValue = ""
+) {
 
     const select =
-        document.getElementById(
-            "interviewApplication"
-        );
+        $("interviewApplication");
 
     if (!select) {
         return;
     }
-
-    const currentValue =
-        select.value;
 
     select.innerHTML = `
         <option value="">
@@ -522,40 +440,44 @@ function renderApplicationOptions() {
         </option>
     `;
 
-    applications
-        .filter(application => {
+    applications.forEach(
+        application => {
 
             const status =
                 normalizeStatus(
                     application.status
                 );
 
-            return (
-                status === "QUALIFIED" ||
-                status === "FOR INTERVIEW"
-            );
-
-        })
-        .forEach(application => {
+            if (
+                status !== "QUALIFIED" &&
+                status !== "FOR INTERVIEW"
+            ) {
+                return;
+            }
 
             const applicant =
-                application.applicants;
+                application.applicants ||
+                {};
 
             const job =
-                application.job_postings;
+                application.job_postings ||
+                {};
 
             const applicantName =
-                `${applicant?.first_name || ""} ${
-                    applicant?.last_name || ""
-                }`.trim();
+                `${applicant.first_name || ""} ${
+                    applicant.last_name || ""
+                }`
+                    .trim() ||
+                "Unknown Applicant";
 
             const jobTitle =
-                job?.job_title ||
+                job.job_title ||
                 "Unknown Position";
 
             const jobCode =
-                job?.job_code ||
-                "";
+                job.job_code
+                    ? ` (${job.job_code})`
+                    : "";
 
             const option =
                 document.createElement(
@@ -566,214 +488,126 @@ function renderApplicationOptions() {
                 application.application_id;
 
             option.textContent =
-                `${applicantName} — ${jobTitle} ${
-                    jobCode
-                        ? `(${jobCode})`
-                        : ""
-                }`;
+                `${applicantName} — ${
+                    jobTitle
+                }${jobCode}`;
 
             select.appendChild(
                 option
             );
 
-        });
+        }
+    );
 
-    /*
-     * Keep previously selected value
-     * if it still exists.
-     */
-    if (
-        currentValue &&
-        [...select.options].some(
-            option =>
-                String(option.value) ===
-                String(currentValue)
-        )
-    ) {
+    if (selectedValue) {
 
         select.value =
-            currentValue;
+            selectedValue;
 
     }
-
 }
-
-
-/* =========================================================
-   HANDLE APPLICATION SELECTION
-   ========================================================= */
 
 function handleApplicationSelection() {
 
     const select =
-        document.getElementById(
-            "interviewApplication"
-        );
+        $("interviewApplication");
 
-    const applicantElement =
-        document.getElementById(
-            "interviewApplicant"
-        );
-
-    const positionElement =
-        document.getElementById(
-            "interviewPosition"
-        );
-
-    const infoElement =
-        document.getElementById(
-            "selectedInterviewApplication"
-        );
+    const info =
+        $("selectedInterviewApplication");
 
     if (!select) {
-        console.error(
-            "interviewApplication element not found."
-        );
         return;
     }
 
-    const selectedOption =
-        select.options[
-            select.selectedIndex
-        ];
-
-    const applicationId =
-        String(
-            select.value || ""
-        ).trim();
-
-    console.log(
-        "Selected application ID:",
-        applicationId
-    );
-
-    console.log(
-        "Selected option:",
-        selectedOption?.textContent
-    );
-
-    /*
-     * Nothing selected.
-     */
-    if (!applicationId) {
-
-        if (applicantElement) {
-            applicantElement.textContent =
-                "—";
-        }
-
-        if (positionElement) {
-            positionElement.textContent =
-                "—";
-        }
-
-        if (infoElement) {
-            infoElement.hidden =
-                true;
-
-            infoElement.style.removeProperty(
-                "display"
-            );
-        }
-
-        return;
-    }
-
-    /*
-     * Find the application.
-     */
     const application =
         applications.find(
             item =>
                 String(
                     item.application_id
-                ).trim() ===
-                applicationId
+                ) ===
+                String(
+                    select.value
+                )
         );
 
-    console.log(
-        "Matched application:",
-        application
-    );
+    if (!application) {
 
-    /*
-     * Pull the applicant and job data.
-     */
+        if ($("interviewApplicant")) {
+            $("interviewApplicant")
+                .textContent =
+                "—";
+        }
+
+        if ($("interviewPosition")) {
+            $("interviewPosition")
+                .textContent =
+                "—";
+        }
+
+        if (info) {
+            info.hidden = true;
+        }
+
+        return;
+    }
+
     const applicant =
-        application?.applicants || {};
+        application.applicants ||
+        {};
 
     const job =
-        application?.job_postings || {};
+        application.job_postings ||
+        {};
 
-    const applicantName =
-        `${applicant.first_name || ""} ${
-            applicant.last_name || ""
-        }`.trim();
+    if ($("interviewApplicant")) {
 
-    const positionName =
-        job.job_title || "";
-
-    console.log(
-        "Applicant:",
-        applicantName
-    );
-
-    console.log(
-        "Position:",
-        positionName
-    );
-
-    /*
-     * Update Applicant.
-     */
-    if (applicantElement) {
-
-        applicantElement.textContent =
-            applicantName ||
+        $("interviewApplicant")
+            .textContent =
+            `${applicant.first_name || ""} ${
+                applicant.last_name || ""
+            }`
+                .trim() ||
             "—";
 
     }
 
-    /*
-     * Update Position.
-     */
-    if (positionElement) {
+    if ($("interviewPosition")) {
 
-        positionElement.textContent =
-            positionName ||
+        $("interviewPosition")
+            .textContent =
+            job.job_title ||
             "—";
 
     }
 
-    /*
-     * Make the application-info panel visible.
-     */
-    if (infoElement) {
-
-        infoElement.hidden =
-            false;
-
-        infoElement.style.display =
-            "grid";
-
+    if (info) {
+        info.hidden = false;
     }
-
 }
+
+/* -------------------- INTERVIEWS -------------------- */
+
 async function loadInterviews() {
 
     const table =
-        document.getElementById(
-            "interviewsTable"
-        );
+        $("interviewsTable");
 
     if (!table) {
         return;
     }
 
+    if (!window.rmsSupabase) {
+
+        throw new Error(
+            "Supabase client is not initialized."
+        );
+
+    }
+
     table.innerHTML = `
         <tr>
             <td
-                colspan="7"
+                colspan="8"
                 class="table-empty"
             >
                 Loading interviews...
@@ -783,17 +617,6 @@ async function loadInterviews() {
 
     try {
 
-        if (!window.rmsSupabase) {
-            throw new Error(
-                "Supabase client is not initialized."
-            );
-        }
-
-        /*
-         * IMPORTANT:
-         * Load ONLY the interviews table.
-         * Do not use the broken nested relationship query.
-         */
         const {
             data,
             error
@@ -823,38 +646,25 @@ async function loadInterviews() {
                 ? data
                 : [];
 
-        /*
-         * Connect each interview with the
-         * application that was already loaded.
-         */
         interviews =
             rows.map(
-                interview => {
+                interview => ({
 
-                    const application =
+                    ...interview,
+
+                    applications:
                         applications.find(
-                            item =>
+                            application =>
                                 String(
-                                    item.application_id
+                                    application.application_id
                                 ) ===
                                 String(
                                     interview.application_id
                                 )
-                        );
+                        ) || null
 
-                    return {
-                        ...interview,
-                        applications:
-                            application || null
-                    };
-
-                }
+                })
             );
-
-        console.log(
-            "INTERVIEWS LOADED:",
-            interviews
-        );
 
         renderInterviews();
 
@@ -867,10 +677,12 @@ async function loadInterviews() {
 
         interviews = [];
 
+        updateCounters();
+
         table.innerHTML = `
             <tr>
                 <td
-                    colspan="7"
+                    colspan="8"
                     class="table-empty"
                 >
                     Unable to load interviews.
@@ -878,76 +690,75 @@ async function loadInterviews() {
             </tr>
         `;
 
+        throw error;
     }
-
 }
-
-/* =========================================================
-   RENDER INTERVIEWS
-   ========================================================= */
 
 function renderInterviews() {
 
     const table =
-        document.getElementById(
-            "interviewsTable"
-        );
+        $("interviewsTable");
 
     if (!table) {
         return;
     }
 
+    updateCounters();
+
     const search =
-        document
-            .getElementById(
-                "interviewSearch"
-            )
-            ?.value
+        (
+            $("interviewSearch")
+                ?.value ||
+            ""
+        )
             .trim()
-            .toLowerCase() || "";
+            .toLowerCase();
 
     const statusFilter =
-        document
-            .getElementById(
-                "interviewStatusFilter"
-            )
-            ?.value || "";
+        normalizeStatus(
+            $("interviewStatusFilter")
+                ?.value ||
+            ""
+        );
 
     const filtered =
         interviews.filter(
             interview => {
 
                 const application =
-                    interview.applications;
+                    interview.applications ||
+                    {};
 
                 const applicant =
-                    application?.applicants;
+                    application.applicants ||
+                    {};
 
                 const job =
-                    application?.job_postings;
+                    application.job_postings ||
+                    {};
 
                 const applicantName =
-                    `${applicant?.first_name || ""} ${
-                        applicant?.last_name || ""
+                    `${applicant.first_name || ""} ${
+                        applicant.last_name || ""
                     }`
                         .trim()
                         .toLowerCase();
 
                 const applicantNo =
                     String(
-                        applicant?.applicant_no ||
+                        applicant.applicant_no ||
                         ""
                     ).toLowerCase();
 
-                const jobTitle =
+                const position =
                     String(
-                        job?.job_title ||
+                        job.job_title ||
                         ""
                     ).toLowerCase();
 
                 const jobCode =
                     String(
-                        job?.job_code ||
+                        job.job_code ||
                         ""
                     ).toLowerCase();
 
@@ -957,32 +768,37 @@ function renderInterviews() {
                         ""
                     ).toLowerCase();
 
+                const venue =
+                    String(
+                        interview.venue ||
+                        ""
+                    ).toLowerCase();
+
+                const status =
+                    normalizeStatus(
+                        interview.status
+                    );
+
+                const text =
+                    [
+                        applicantName,
+                        applicantNo,
+                        position,
+                        jobCode,
+                        interviewer,
+                        venue
+                    ].join(" ");
+
                 const matchesSearch =
                     !search ||
-                    applicantName.includes(
-                        search
-                    ) ||
-                    applicantNo.includes(
-                        search
-                    ) ||
-                    jobTitle.includes(
-                        search
-                    ) ||
-                    jobCode.includes(
-                        search
-                    ) ||
-                    interviewer.includes(
+                    text.includes(
                         search
                     );
 
                 const matchesStatus =
                     !statusFilter ||
-                    normalizeStatus(
-                        interview.status
-                    ) ===
-                        normalizeStatus(
-                            statusFilter
-                        );
+                    status ===
+                    statusFilter;
 
                 return (
                     matchesSearch &&
@@ -997,7 +813,7 @@ function renderInterviews() {
         table.innerHTML = `
             <tr>
                 <td
-                    colspan="7"
+                    colspan="8"
                     class="table-empty"
                 >
                     No interview schedules found.
@@ -1010,212 +826,265 @@ function renderInterviews() {
 
     table.innerHTML =
         filtered
-            .map(interview => {
+            .map(
+                interview => {
 
-                const application =
-                    interview.applications;
+                    const application =
+                        interview.applications ||
+                        {};
 
-                const applicant =
-                    application?.applicants;
+                    const applicant =
+                        application.applicants ||
+                        {};
 
-                const job =
-                    application?.job_postings;
+                    const job =
+                        application.job_postings ||
+                        {};
 
-                const applicantName =
-                    `${applicant?.first_name || ""} ${
-                        applicant?.last_name || ""
-                    }`.trim();
+                    const applicantName =
+                        `${applicant.first_name || ""} ${
+                            applicant.last_name || ""
+                        }`
+                            .trim() ||
+                        "—";
 
-                return `
-                    <tr>
+                    const cancelled =
+                        normalizeStatus(
+                            interview.status
+                        ) ===
+                        "CANCELLED";
 
-                        <td>
-                            ${escapeHtml(
-                                applicantName ||
-                                "—"
-                            )}
-                        </td>
+                    return `
 
-                        <td>
-                            <div class="application-meta">
+                        <tr>
 
-                                <strong>
-                                    ${escapeHtml(
-                                        job?.job_title ||
-                                        "—"
-                                    )}
-                                </strong>
+                            <td>
+                                ${escapeHtml(
+                                    applicantName
+                                )}
+                            </td>
 
-                                <span>
-                                    ${escapeHtml(
-                                        job?.job_code ||
-                                        ""
-                                    )}
-                                </span>
+                            <td>
 
-                            </div>
-                        </td>
-
-                        <td>
-                            ${formatDate(
-                                interview.interview_date
-                            )}
-                        </td>
-
-                        <td>
-                            ${formatTime(
-                                interview.interview_time
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                                interview.interviewer ||
-                                "—"
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                                interview.venue ||
-                                "—"
-                            )}
-                        </td>
-
-                        <td>
-                            <div class="table-actions">
-
-                                <button
-                                    type="button"
-                                    class="table-action"
-                                    data-action="view"
-                                    data-id="${
-                                        interview.interview_id
-                                    }"
+                                <div
+                                    class="application-meta"
                                 >
-                                    View
-                                </button>
 
-                                <button
-                                    type="button"
-                                    class="table-action"
-                                    data-action="edit"
-                                    data-id="${
-                                        interview.interview_id
-                                    }"
+                                    <strong>
+                                        ${escapeHtml(
+                                            job.job_title ||
+                                            "—"
+                                        )}
+                                    </strong>
+
+                                    <span>
+                                        ${escapeHtml(
+                                            job.job_code ||
+                                            ""
+                                        )}
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+                            <td>
+                                ${formatDate(
+                                    interview.interview_date
+                                )}
+                            </td>
+
+                            <td>
+                                ${formatTime(
+                                    interview.interview_time
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    interview.interviewer ||
+                                    "—"
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    interview.venue ||
+                                    "—"
+                                )}
+                            </td>
+
+                            <td>
+                                ${statusBadge(
+                                    interview.status
+                                )}
+                            </td>
+
+                            <td>
+
+                                <div
+                                    class="table-actions"
                                 >
-                                    Reschedule
-                                </button>
 
-                                ${
-                                    normalizeStatus(
-                                        interview.status
-                                    ) !== "CANCELLED"
-                                        ? `
-                                            <button
-                                                type="button"
-                                                class="table-action danger"
-                                                data-action="cancel"
-                                                data-id="${
-                                                    interview.interview_id
-                                                }"
-                                            >
-                                                Cancel
-                                            </button>
-                                          `
-                                        : ""
-                                }
+                                    <button
+                                        type="button"
+                                        class="table-action"
+                                        data-action="view"
+                                        data-id="${escapeHtml(
+                                            interview.interview_id
+                                        )}"
+                                    >
+                                        View
+                                    </button>
 
-                            </div>
-                        </td>
+                                    ${
+                                        cancelled
+                                            ? ""
+                                            : `
+                                                <button
+                                                    type="button"
+                                                    class="table-action"
+                                                    data-action="edit"
+                                                    data-id="${escapeHtml(
+                                                        interview.interview_id
+                                                    )}"
+                                                >
+                                                    Reschedule
+                                                </button>
+                                            `
+                                    }
 
-                    </tr>
-                `;
+                                    ${
+                                        cancelled
+                                            ? ""
+                                            : `
+                                                <button
+                                                    type="button"
+                                                    class="table-action danger"
+                                                    data-action="cancel"
+                                                    data-id="${escapeHtml(
+                                                        interview.interview_id
+                                                    )}"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            `
+                                    }
 
-            })
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
+            )
             .join("");
-
 }
 
+function updateCounters() {
 
-/* =========================================================
-   OPEN SCHEDULE FORM
-   ========================================================= */
+    const total =
+        interviews.length;
+
+    const scheduled =
+        interviews.filter(
+            interview => {
+
+                const status =
+                    normalizeStatus(
+                        interview.status
+                    );
+
+                return (
+                    status ===
+                        "SCHEDULED" ||
+                    status ===
+                        "RESCHEDULED"
+                );
+
+            }
+        ).length;
+
+    const cancelled =
+        interviews.filter(
+            interview =>
+                normalizeStatus(
+                    interview.status
+                ) ===
+                "CANCELLED"
+        ).length;
+
+    if ($("totalInterviews")) {
+
+        $("totalInterviews")
+            .textContent =
+            total;
+
+    }
+
+    if ($("scheduledInterviews")) {
+
+        $("scheduledInterviews")
+            .textContent =
+            scheduled;
+
+    }
+
+    if ($("cancelledInterviews")) {
+
+        $("cancelledInterviews")
+            .textContent =
+            cancelled;
+
+    }
+}
+
+/* -------------------- SCHEDULE / RESCHEDULE -------------------- */
 
 async function openInterviewModalForm() {
 
-    editingInterviewId = null;
+    editingInterviewId =
+        null;
 
     const form =
-        document.getElementById(
-            "interviewForm"
-        );
+        $("interviewForm");
 
     if (!form) {
-
-        console.error(
-            "interviewForm was not found."
-        );
-
         return;
     }
 
     form.reset();
 
-    const title =
-        document.getElementById(
-            "interviewModalTitle"
-        );
+    if ($("interviewModalTitle")) {
 
-    if (title) {
-
-        title.textContent =
+        $("interviewModalTitle")
+            .textContent =
             "Schedule Interview";
 
     }
 
-    const saveButton =
-        document.getElementById(
-            "saveInterviewButton"
-        );
+    if ($("saveInterviewButton")) {
 
-    if (saveButton) {
-
-        saveButton.textContent =
+        $("saveInterviewButton")
+            .textContent =
             "Schedule Interview";
 
     }
 
-    const applicationSelect =
-        document.getElementById(
-            "interviewApplication"
-        );
+    const select =
+        $("interviewApplication");
 
-    if (applicationSelect) {
+    if (select) {
 
-        applicationSelect.disabled =
+        select.disabled =
             false;
 
-        applicationSelect.innerHTML = `
-            <option value="">
-                Loading qualified applications...
-            </option>
-        `;
+        await loadApplications();
 
     }
-
-    /*
-     * IMPORTANT:
-     * Reload applications every time the modal opens.
-     * This guarantees the latest Qualified applications
-     * are available in the dropdown.
-     */
-    await loadApplications();
-
-    /*
-     * Populate the dropdown after the database request.
-     */
-    renderApplicationOptions();
 
     setMinimumInterviewDate();
 
@@ -1225,25 +1094,120 @@ async function openInterviewModalForm() {
         "interviewModal",
         true
     );
-
 }
 
-/* =========================================================
-   CLOSE SCHEDULE FORM
-   ========================================================= */
+function openEditInterviewForm(
+    interview
+) {
+
+    editingInterviewId =
+        interview.interview_id;
+
+    const form =
+        $("interviewForm");
+
+    if (!form) {
+        return;
+    }
+
+    form.reset();
+
+    if ($("interviewModalTitle")) {
+
+        $("interviewModalTitle")
+            .textContent =
+            "Reschedule Interview";
+
+    }
+
+    if ($("saveInterviewButton")) {
+
+        $("saveInterviewButton")
+            .textContent =
+            "Save Changes";
+
+    }
+
+    renderApplicationOptions(
+        interview.application_id
+    );
+
+    if ($("interviewApplication")) {
+
+        $("interviewApplication")
+            .value =
+            interview.application_id;
+
+        $("interviewApplication")
+            .disabled =
+            true;
+
+    }
+
+    if ($("interviewDate")) {
+
+        $("interviewDate")
+            .value =
+            interview.interview_date ||
+            "";
+
+    }
+
+    if ($("interviewTime")) {
+
+        $("interviewTime")
+            .value =
+            normalizeTime(
+                interview.interview_time
+            );
+
+    }
+
+    if ($("interviewer")) {
+
+        $("interviewer")
+            .value =
+            interview.interviewer ||
+            "";
+
+    }
+
+    if ($("interviewVenue")) {
+
+        $("interviewVenue")
+            .value =
+            interview.venue ||
+            "";
+
+    }
+
+    if ($("interviewStatus")) {
+
+        $("interviewStatus")
+            .value =
+            "Scheduled";
+
+    }
+
+    handleApplicationSelection();
+
+    setMinimumInterviewDate();
+
+    toggleModal(
+        "interviewModal",
+        true
+    );
+}
 
 function closeScheduleInterviewForm() {
 
-    editingInterviewId = null;
+    editingInterviewId =
+        null;
 
-    const applicationSelect =
-        document.getElementById(
-            "interviewApplication"
-        );
+    if ($("interviewApplication")) {
 
-    if (applicationSelect) {
-
-        applicationSelect.disabled =
+        $("interviewApplication")
+            .disabled =
             false;
 
     }
@@ -1252,387 +1216,410 @@ function closeScheduleInterviewForm() {
         "interviewModal",
         false
     );
-
-}
-/* =========================================================
-   LOAD INTERVIEWS
-   ========================================================= */
-
-async function loadInterviews() {
-
-    const table =
-        document.getElementById(
-            "interviewsTable"
-        );
-
-    if (!table) {
-        return;
-    }
-
-    table.innerHTML = `
-        <tr>
-            <td
-                colspan="7"
-                class="table-empty"
-            >
-                Loading interviews...
-            </td>
-        </tr>
-    `;
-
-    try {
-
-        if (!window.rmsSupabase) {
-
-            throw new Error(
-                "Supabase client is not initialized."
-            );
-
-        }
-
-        const {
-            data,
-            error
-        } = await window.rmsSupabase
-            .from("interviews")
-            .select(`
-                interview_id,
-                application_id,
-                interview_date,
-                interview_time,
-                interviewer,
-                venue,
-                status,
-                score,
-                result,
-                remarks,
-                created_at,
-                updated_at,
-                applications (
-                    application_id,
-                    applicant_id,
-                    job_id,
-                    status,
-                    applicants (
-                        applicant_no,
-                        first_name,
-                        last_name,
-                        email
-                    ),
-                    job_postings (
-                        job_code,
-                        job_title,
-                        department
-                    )
-                )
-            `)
-            .order(
-                "interview_date",
-                {
-                    ascending: true
-                }
-            )
-            .order(
-                "interview_time",
-                {
-                    ascending: true
-                }
-            );
-
-        if (error) {
-            throw error;
-        }
-
-        interviews =
-            Array.isArray(data)
-                ? data
-                : [];
-
-        renderInterviews();
-
-    } catch (error) {
-
-        console.error(
-            "Load interviews error:",
-            error
-        );
-
-        interviews = [];
-
-        table.innerHTML = `
-            <tr>
-                <td
-                    colspan="7"
-                    class="table-empty"
-                >
-                    Unable to load interviews.
-                </td>
-            </tr>
-        `;
-
-    }
-
 }
 
+async function submitInterview(
+    event
+) {
 
-/* =========================================================
-   RENDER INTERVIEWS
-   ========================================================= */
+    event.preventDefault();
 
-function renderInterviews() {
+    const applicationId =
+        String(
+            $("interviewApplication")
+                ?.value ||
+            ""
+        ).trim();
 
-    const table =
-        document.getElementById(
-            "interviewsTable"
+    const date =
+        String(
+            $("interviewDate")
+                ?.value ||
+            ""
+        ).trim();
+
+    const time =
+        String(
+            $("interviewTime")
+                ?.value ||
+            ""
+        ).trim();
+
+    const interviewer =
+        String(
+            $("interviewer")
+                ?.value ||
+            ""
+        ).trim();
+
+    const venue =
+        String(
+            $("interviewVenue")
+                ?.value ||
+            ""
+        ).trim();
+
+    if (!applicationId) {
+
+        return showToast(
+            "Please select a qualified application.",
+            "error"
         );
 
-    if (!table) {
-        return;
     }
 
-    const search =
-        document
-            .getElementById(
-                "interviewSearch"
-            )
-            ?.value
-            .trim()
-            .toLowerCase() || "";
+    if (!date) {
 
-    const statusFilter =
-        document
-            .getElementById(
-                "interviewStatusFilter"
-            )
-            ?.value || "";
+        return showToast(
+            "Please select an interview date.",
+            "error"
+        );
 
-    const filtered =
-        interviews.filter(
+    }
+
+    if (!time) {
+
+        return showToast(
+            "Please select an interview time.",
+            "error"
+        );
+
+    }
+
+    if (!interviewer) {
+
+        return showToast(
+            "Please enter the interviewer.",
+            "error"
+        );
+
+    }
+
+    if (!venue) {
+
+        return showToast(
+            "Please enter the interview venue.",
+            "error"
+        );
+
+    }
+
+    const application =
+        applications.find(
+            item =>
+                String(
+                    item.application_id
+                ) ===
+                applicationId
+        );
+
+    if (!application) {
+
+        return showToast(
+            "The selected application could not be found.",
+            "error"
+        );
+
+    }
+
+    const appStatus =
+        normalizeStatus(
+            application.status
+        );
+
+    if (
+        editingInterviewId === null &&
+        appStatus !== "QUALIFIED" &&
+        appStatus !== "FOR INTERVIEW"
+    ) {
+
+        return showToast(
+            "Interview cannot be scheduled because the application is not qualified.",
+            "error"
+        );
+
+    }
+
+    if (
+        !isValidFutureDateTime(
+            date,
+            time,
+            editingInterviewId
+        )
+    ) {
+
+        return showToast(
+            "Please select a valid future interview date and time.",
+            "error"
+        );
+
+    }
+
+    const duplicate =
+        interviews.find(
             interview => {
 
-                const application =
-                    interview.applications;
-
-                const applicant =
-                    application?.applicants;
-
-                const job =
-                    application?.job_postings;
-
-                const applicantName =
-                    `${applicant?.first_name || ""} ${
-                        applicant?.last_name || ""
-                    }`
-                        .trim()
-                        .toLowerCase();
-
-                const applicantNo =
+                if (
                     String(
-                        applicant?.applicant_no ||
-                        ""
-                    ).toLowerCase();
-
-                const jobTitle =
+                        interview.interview_id
+                    ) ===
                     String(
-                        job?.job_title ||
-                        ""
-                    ).toLowerCase();
+                        editingInterviewId
+                    )
+                ) {
+                    return false;
+                }
 
-                const jobCode =
-                    String(
-                        job?.job_code ||
-                        ""
-                    ).toLowerCase();
-
-                const interviewer =
-                    String(
-                        interview.interviewer ||
-                        ""
-                    ).toLowerCase();
-
-                const matchesSearch =
-                    !search ||
-                    applicantName.includes(
-                        search
-                    ) ||
-                    applicantNo.includes(
-                        search
-                    ) ||
-                    jobTitle.includes(
-                        search
-                    ) ||
-                    jobCode.includes(
-                        search
-                    ) ||
-                    interviewer.includes(
-                        search
-                    );
-
-                const matchesStatus =
-                    !statusFilter ||
+                if (
                     normalizeStatus(
                         interview.status
                     ) ===
-                        normalizeStatus(
-                            statusFilter
-                        );
+                    "CANCELLED"
+                ) {
+                    return false;
+                }
 
                 return (
-                    matchesSearch &&
-                    matchesStatus
+                    String(
+                        interview.application_id
+                    ) ===
+                    applicationId &&
+
+                    interview.interview_date ===
+                    date &&
+
+                    normalizeTime(
+                        interview.interview_time
+                    ) ===
+                    normalizeTime(
+                        time
+                    )
                 );
 
             }
         );
 
-    if (!filtered.length) {
+    if (duplicate) {
 
-        table.innerHTML = `
-            <tr>
-                <td
-                    colspan="7"
-                    class="table-empty"
-                >
-                    No interview schedules found.
-                </td>
-            </tr>
-        `;
+        return showToast(
+            "This applicant already has an interview scheduled at that date and time.",
+            "error"
+        );
 
-        return;
     }
 
-    table.innerHTML =
-        filtered
-            .map(interview => {
+    const interviewerConflict =
+        interviews.find(
+            interview => {
 
-                const application =
-                    interview.applications;
+                if (
+                    String(
+                        interview.interview_id
+                    ) ===
+                    String(
+                        editingInterviewId
+                    )
+                ) {
+                    return false;
+                }
 
-                const applicant =
-                    application?.applicants;
+                if (
+                    normalizeStatus(
+                        interview.status
+                    ) ===
+                    "CANCELLED"
+                ) {
+                    return false;
+                }
 
-                const job =
-                    application?.job_postings;
+                return (
 
-                const applicantName =
-                    `${applicant?.first_name || ""} ${
-                        applicant?.last_name || ""
-                    }`.trim();
+                    String(
+                        interview.interviewer ||
+                        ""
+                    )
+                        .trim()
+                        .toLowerCase() ===
+                    interviewer
+                        .toLowerCase() &&
 
-                return `
-                    <tr>
+                    interview.interview_date ===
+                    date &&
 
-                        <td>
-                            ${escapeHtml(
-                                applicantName ||
-                                "—"
-                            )}
-                        </td>
+                    normalizeTime(
+                        interview.interview_time
+                    ) ===
+                    normalizeTime(
+                        time
+                    )
 
-                        <td>
-                            <div class="application-meta">
+                );
 
-                                <strong>
-                                    ${escapeHtml(
-                                        job?.job_title ||
-                                        "—"
-                                    )}
-                                </strong>
+            }
+        );
 
-                                <span>
-                                    ${escapeHtml(
-                                        job?.job_code ||
-                                        ""
-                                    )}
-                                </span>
+    if (
+        interviewerConflict
+    ) {
 
-                            </div>
-                        </td>
+        return showToast(
+            "The interviewer already has another interview scheduled at that date and time.",
+            "error"
+        );
 
-                        <td>
-                            ${formatDate(
-                                interview.interview_date
-                            )}
-                        </td>
+    }
 
-                        <td>
-                            ${formatTime(
-                                interview.interview_time
-                            )}
-                        </td>
+    if (!window.rmsSupabase) {
 
-                        <td>
-                            ${escapeHtml(
-                                interview.interviewer ||
-                                "—"
-                            )}
-                        </td>
+        return showToast(
+            "Supabase client is not initialized. Please refresh the page.",
+            "error"
+        );
 
-                        <td>
-                            ${escapeHtml(
-                                interview.venue ||
-                                "—"
-                            )}
-                        </td>
+    }
 
-                        <td>
-                            <div class="table-actions">
+    const button =
+        $("saveInterviewButton");
 
-                                <button
-                                    type="button"
-                                    class="table-action"
-                                    data-action="view"
-                                    data-id="${
-                                        interview.interview_id
-                                    }"
-                                >
-                                    View
-                                </button>
+    const originalText =
+        button?.textContent ||
+        "Schedule Interview";
 
-                                <button
-                                    type="button"
-                                    class="table-action"
-                                    data-action="edit"
-                                    data-id="${
-                                        interview.interview_id
-                                    }"
-                                >
-                                    Reschedule
-                                </button>
+    if (button) {
 
-                                ${
-                                    normalizeStatus(
-                                        interview.status
-                                    ) !== "CANCELLED"
-                                        ? `
-                                            <button
-                                                type="button"
-                                                class="table-action danger"
-                                                data-action="cancel"
-                                                data-id="${
-                                                    interview.interview_id
-                                                }"
-                                            >
-                                                Cancel
-                                            </button>
-                                          `
-                                        : ""
-                                }
+        button.disabled =
+            true;
 
-                            </div>
-                        </td>
+        button.textContent =
+            editingInterviewId === null
+                ? "Scheduling..."
+                : "Saving...";
 
-                    </tr>
-                `;
+    }
 
-            })
-            .join("");
+    try {
 
+        if (
+            editingInterviewId === null
+        ) {
+
+            const {
+                error
+            } =
+                await window.rmsSupabase
+                    .from("interviews")
+                    .insert({
+
+                        application_id:
+                            applicationId,
+
+                        interview_date:
+                            date,
+
+                        interview_time:
+                            time,
+
+                        interviewer:
+                            interviewer,
+
+                        venue:
+                            venue,
+
+                        status:
+                            "Scheduled"
+
+                    });
+
+            if (error) {
+                throw error;
+            }
+
+            await updateApplicationForInterview(
+                applicationId
+            );
+
+            showToast(
+                "Interview scheduled successfully.",
+                "success"
+            );
+
+        } else {
+
+            const {
+                error
+            } =
+                await window.rmsSupabase
+                    .from("interviews")
+                    .update({
+
+                        application_id:
+                            applicationId,
+
+                        interview_date:
+                            date,
+
+                        interview_time:
+                            time,
+
+                        interviewer:
+                            interviewer,
+
+                        venue:
+                            venue,
+
+                        status:
+                            "Rescheduled"
+
+                    })
+                    .eq(
+                        "interview_id",
+                        editingInterviewId
+                    );
+
+            if (error) {
+                throw error;
+            }
+
+            showToast(
+                "Interview rescheduled successfully.",
+                "success"
+            );
+
+        }
+
+        closeScheduleInterviewForm();
+
+        await loadApplications();
+
+        await loadInterviews();
+
+    } catch (error) {
+
+        console.error(
+            "Interview save error:",
+            error
+        );
+
+        showToast(
+            error?.message ||
+            "Unable to save interview schedule.",
+            "error"
+        );
+
+    } finally {
+
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                originalText;
+
+        }
+
+    }
 }
-
-/* =========================================================
-   UPDATE APPLICATION STATUS
-   ========================================================= */
 
 async function updateApplicationForInterview(
     applicationId
@@ -1642,9 +1629,6 @@ async function updateApplicationForInterview(
         return;
     }
 
-    /*
-     * Qualified → For Interview
-     */
     const {
         error
     } =
@@ -1662,234 +1646,85 @@ async function updateApplicationForInterview(
     if (error) {
 
         console.warn(
-            "Application status could not be updated:",
+            "Application status update failed:",
             error
         );
 
     }
-
 }
 
+/* -------------------- ACTIONS -------------------- */
 
-/* =========================================================
-   TABLE ACTIONS
-   ========================================================= */
-
-async function handleInterviewAction(
+function handleInterviewAction(
     event
 ) {
 
     const button =
         event.target.closest(
-            "[data-action]"
+            "button[data-action]"
         );
 
     if (!button) {
         return;
     }
 
+    const interview =
+        interviews.find(
+            item =>
+                String(
+                    item.interview_id
+                ) ===
+                String(
+                    button.dataset.id
+                )
+        );
+
+    if (!interview) {
+
+        return showToast(
+            "Interview record not found.",
+            "error"
+        );
+
+    }
+
     const action =
         button.dataset.action;
 
-    const id =
-        button.dataset.id;
+    if (
+        action === "view"
+    ) {
 
-    if (!id) {
-        return;
-    }
-
-    if (action === "view") {
-
-        const interview =
-            interviews.find(
-                item =>
-                    String(
-                        item.interview_id
-                    ) ===
-                    String(id)
-            );
-
-        if (interview) {
-
-            openViewInterview(
-                interview
-            );
-
-        }
-
-        return;
-    }
-
-    if (action === "edit") {
-
-        const interview =
-            interviews.find(
-                item =>
-                    String(
-                        item.interview_id
-                    ) ===
-                    String(id)
-            );
-
-        if (interview) {
-
-            openEditInterviewForm(
-                interview
-            );
-
-        }
-
-        return;
-    }
-
-    if (action === "cancel") {
-
-        await cancelInterview(
-            id
+        openViewInterview(
+            interview
         );
 
     }
 
+    if (
+        action === "edit"
+    ) {
+
+        openEditInterviewForm(
+            interview
+        );
+
+    }
+
+    if (
+        action === "cancel"
+    ) {
+
+        cancelInterview(
+            interview.interview_id
+        );
+
+    }
 }
 
+/* -------------------- CANCEL -------------------- */
 
-/* =========================================================
-   OPEN EDIT / RESCHEDULE FORM
-   ========================================================= */
-
-function openEditInterviewForm(
-    interview
-) {
-
-    editingInterviewId =
-        interview.interview_id;
-
-    const form =
-        document.getElementById(
-            "interviewForm"
-        );
-
-    if (!form) {
-        return;
-    }
-
-    form.reset();
-
-    const title =
-        document.getElementById(
-            "interviewModalTitle"
-        );
-
-    if (title) {
-
-        title.textContent =
-            "Reschedule Interview";
-
-    }
-
-    const saveButton =
-        document.getElementById(
-            "saveInterviewButton"
-        );
-
-    if (saveButton) {
-
-        saveButton.textContent =
-            "Save Changes";
-
-    }
-
-    renderApplicationOptions();
-
-    const applicationSelect =
-        document.getElementById(
-            "interviewApplication"
-        );
-
-    if (applicationSelect) {
-
-        applicationSelect.value =
-            interview.application_id;
-
-        /*
-         * The applicant cannot be changed
-         * while rescheduling.
-         */
-        applicationSelect.disabled =
-            true;
-
-    }
-
-    const dateInput =
-        document.getElementById(
-            "interviewDate"
-        );
-
-    if (dateInput) {
-
-        dateInput.value =
-            interview.interview_date ||
-            "";
-
-    }
-
-    const timeInput =
-        document.getElementById(
-            "interviewTime"
-        );
-
-    if (timeInput) {
-
-        timeInput.value =
-            normalizeTime(
-                interview.interview_time
-            );
-
-    }
-
-    const interviewerInput =
-        document.getElementById(
-            "interviewer"
-        );
-
-    if (interviewerInput) {
-
-        interviewerInput.value =
-            interview.interviewer ||
-            "";
-
-    }
-
-    const venueInput =
-        document.getElementById(
-            "interviewVenue"
-        );
-
-    if (venueInput) {
-
-        venueInput.value =
-            interview.venue ||
-            "";
-
-    }
-
-    handleApplicationSelection();
-
-    setMinimumInterviewDate();
-
-    toggleModal(
-        "interviewModal",
-        true
-    );
-
-}
-
-
-/* =========================================================
-   CANCEL INTERVIEW
-   ========================================================= */
-
-async function cancelInterview(
+function cancelInterview(
     interviewId
 ) {
 
@@ -1899,36 +1734,133 @@ async function cancelInterview(
                 String(
                     item.interview_id
                 ) ===
-                String(interviewId)
+                String(
+                    interviewId
+                )
         );
 
     if (!interview) {
 
-        showToast(
+        return showToast(
             "Interview record not found.",
             "error"
         );
 
-        return;
     }
 
-    const confirmed =
-        window.confirm(
-            "Are you sure you want to cancel this interview?"
-        );
+    pendingCancelInterviewId =
+        interviewId;
 
-    if (!confirmed) {
-        return;
+    const application =
+        interview.applications ||
+        {};
+
+    const applicant =
+        application.applicants ||
+        {};
+
+    const job =
+        application.job_postings ||
+        {};
+
+    const applicantName =
+        `${applicant.first_name || ""} ${
+            applicant.last_name || ""
+        }`
+            .trim() ||
+        "this applicant";
+
+    if ($("cancelConfirmMessage")) {
+
+        $("cancelConfirmMessage")
+            .innerHTML = `
+
+                <strong>
+                    Cancel this interview?
+                </strong>
+
+                <br>
+
+                You are about to cancel
+                the interview scheduled
+                for
+
+                <strong>
+                    ${escapeHtml(
+                        applicantName
+                    )}
+                </strong>
+
+                —
+
+                ${escapeHtml(
+                    job.job_title ||
+                    "this position"
+                )}
+
+                <br><br>
+
+                The interview will remain
+                in the system as
+
+                <strong>
+                    Cancelled
+                </strong>.
+
+            `;
+
+    }
+
+    toggleModal(
+        "cancelConfirmModal",
+        true
+    );
+}
+
+function closeCancelConfirm() {
+
+    pendingCancelInterviewId =
+        null;
+
+    toggleModal(
+        "cancelConfirmModal",
+        false
+    );
+}
+
+async function confirmCancelInterview() {
+
+    if (
+        !pendingCancelInterviewId
+    ) {
+
+        return closeCancelConfirm();
+
     }
 
     if (!window.rmsSupabase) {
 
-        showToast(
-            "Supabase client is not initialized.",
+        return showToast(
+            "Supabase client is not initialized. Please refresh the page.",
             "error"
         );
 
-        return;
+    }
+
+    const id =
+        pendingCancelInterviewId;
+
+    const button =
+        $("confirmCancelInterview");
+
+    if (button) {
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Cancelling...";
+
     }
 
     try {
@@ -1937,28 +1869,30 @@ async function cancelInterview(
             error
         } =
             await window.rmsSupabase
-                .from(
-                    "interviews"
-                )
+                .from("interviews")
                 .update({
                     status:
                         "Cancelled"
                 })
                 .eq(
                     "interview_id",
-                    interviewId
+                    id
                 );
 
         if (error) {
             throw error;
         }
 
+        closeCancelConfirm();
+
+        await loadApplications();
+
+        await loadInterviews();
+
         showToast(
             "Interview cancelled successfully.",
             "success"
         );
-
-        await loadInterviews();
 
     } catch (error) {
 
@@ -1973,187 +1907,231 @@ async function cancelInterview(
             "error"
         );
 
-    }
+    } finally {
 
+        if (button) {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "Cancel Interview";
+
+        }
+
+    }
 }
-/* =========================================================
-   VIEW INTERVIEW
-   ========================================================= */
+
+/* -------------------- VIEW -------------------- */
 
 function openViewInterview(
     interview
 ) {
 
     const body =
-        document.getElementById(
-            "viewInterviewBody"
-        );
+        $("viewInterviewBody");
 
     if (!body) {
         return;
     }
 
     const application =
-        interview.applications;
+        interview.applications ||
+        {};
 
     const applicant =
-        application?.applicants;
+        application.applicants ||
+        {};
 
     const job =
-        application?.job_postings;
+        application.job_postings ||
+        {};
 
     const applicantName =
-        `${applicant?.first_name || ""} ${
-            applicant?.last_name || ""
-        }`.trim();
+        `${applicant.first_name || ""} ${
+            applicant.last_name || ""
+        }`
+            .trim() ||
+        "—";
 
     body.innerHTML = `
-        <div class="details-grid">
 
-            <div class="details-item">
-                <span class="details-label">
-                    Applicant
-                </span>
+        <div
+            class="interview-detail-item"
+        >
 
-                <strong>
-                    ${escapeHtml(
-                        applicantName ||
-                        "—"
-                    )}
-                </strong>
+            <small>
+                Applicant
+            </small>
+
+            <div>
+                ${escapeHtml(
+                    applicantName
+                )}
             </div>
 
-            <div class="details-item">
-                <span class="details-label">
-                    Applicant No.
-                </span>
+        </div>
 
-                <strong>
-                    ${escapeHtml(
-                        applicant?.applicant_no ||
-                        "—"
-                    )}
-                </strong>
+        <div
+            class="interview-detail-item"
+        >
+
+            <small>
+                Applicant No.
+            </small>
+
+            <div>
+                ${escapeHtml(
+                    applicant.applicant_no ||
+                    "—"
+                )}
             </div>
 
-            <div class="details-item">
-                <span class="details-label">
-                    Position
-                </span>
+        </div>
 
-                <strong>
-                    ${escapeHtml(
-                        job?.job_title ||
-                        "—"
-                    )}
-                </strong>
+        <div
+            class="interview-detail-item"
+        >
+
+            <small>
+                Position
+            </small>
+
+            <div>
+                ${escapeHtml(
+                    job.job_title ||
+                    "—"
+                )}
             </div>
 
-            <div class="details-item">
-                <span class="details-label">
-                    Job Code
-                </span>
+        </div>
 
-                <strong>
-                    ${escapeHtml(
-                        job?.job_code ||
-                        "—"
-                    )}
-                </strong>
+        <div
+            class="interview-detail-item"
+        >
+
+            <small>
+                Job Code
+            </small>
+
+            <div>
+                ${escapeHtml(
+                    job.job_code ||
+                    "—"
+                )}
             </div>
 
-            <div class="details-item">
-                <span class="details-label">
-                    Interview Date
-                </span>
+        </div>
 
-                <strong>
-                    ${formatDate(
-                        interview.interview_date
-                    )}
-                </strong>
+        <div
+            class="interview-detail-item"
+        >
+
+            <small>
+                Interview Date
+            </small>
+
+            <div>
+                ${formatDate(
+                    interview.interview_date
+                )}
             </div>
 
-            <div class="details-item">
-                <span class="details-label">
-                    Interview Time
-                </span>
+        </div>
 
-                <strong>
-                    ${formatTime(
-                        interview.interview_time
-                    )}
-                </strong>
+        <div
+            class="interview-detail-item"
+        >
+
+            <small>
+                Interview Time
+            </small>
+
+            <div>
+                ${formatTime(
+                    interview.interview_time
+                )}
             </div>
 
-            <div class="details-item">
-                <span class="details-label">
-                    Interviewer
-                </span>
+        </div>
 
-                <strong>
-                    ${escapeHtml(
-                        interview.interviewer ||
-                        "—"
-                    )}
-                </strong>
+        <div
+            class="interview-detail-item"
+        >
+
+            <small>
+                Interviewer
+            </small>
+
+            <div>
+                ${escapeHtml(
+                    interview.interviewer ||
+                    "—"
+                )}
             </div>
 
-            <div class="details-item">
-                <span class="details-label">
-                    Venue
-                </span>
+        </div>
 
-                <strong>
-                    ${escapeHtml(
-                        interview.venue ||
-                        "—"
-                    )}
-                </strong>
+        <div
+            class="interview-detail-item"
+        >
+
+            <small>
+                Venue
+            </small>
+
+            <div>
+                ${escapeHtml(
+                    interview.venue ||
+                    "—"
+                )}
             </div>
 
-            <div class="details-item">
-                <span class="details-label">
-                    Status
-                </span>
+        </div>
 
+        <div
+            class="interview-detail-item"
+        >
+
+            <small>
+                Status
+            </small>
+
+            <div>
                 ${statusBadge(
                     interview.status
                 )}
             </div>
 
-            ${
-                interview.remarks
-                    ? `
-                        <div class="details-item details-full">
-                            <span class="details-label">
-                                Remarks
-                            </span>
+        </div>
 
-                            <p>
-                                ${escapeHtml(
-                                    interview.remarks
-                                )}
-                            </p>
-                        </div>
-                      `
-                    : ""
-            }
+        <div
+            class="
+                interview-detail-item
+                interview-detail-item-full
+            "
+        >
+
+            <small>
+                Remarks
+            </small>
+
+            <div>
+                ${escapeHtml(
+                    interview.remarks ||
+                    "—"
+                )}
+            </div>
 
         </div>
+
     `;
 
     toggleModal(
         "viewInterviewModal",
         true
     );
-
 }
-
-
-/* =========================================================
-   CLOSE VIEW
-   ========================================================= */
 
 function closeViewInterview() {
 
@@ -2161,13 +2139,9 @@ function closeViewInterview() {
         "viewInterviewModal",
         false
     );
-
 }
 
-
-/* =========================================================
-   VALID DATE / TIME
-   ========================================================= */
+/* -------------------- VALIDATION -------------------- */
 
 function isValidFutureDateTime(
     date,
@@ -2175,13 +2149,47 @@ function isValidFutureDateTime(
     editingId = null
 ) {
 
-    if (!date || !time) {
+    if (
+        !date ||
+        !time
+    ) {
+
         return false;
+
     }
 
-    /*
-     * Browser local time.
-     */
+    if (
+        editingId !== null
+    ) {
+
+        const existing =
+            interviews.find(
+                item =>
+                    String(
+                        item.interview_id
+                    ) ===
+                    String(
+                        editingId
+                    )
+            );
+
+        if (
+            existing &&
+            existing.interview_date ===
+                date &&
+            normalizeTime(
+                existing.interview_time
+            ) ===
+                normalizeTime(
+                    time
+                )
+        ) {
+
+            return true;
+
+        }
+    }
+
     const selected =
         new Date(
             `${date}T${normalizeTime(
@@ -2189,124 +2197,53 @@ function isValidFutureDateTime(
             )}:00`
         );
 
-    if (
-        Number.isNaN(
-            selected.getTime()
-        )
-    ) {
-        return false;
-    }
-
-    /*
-     * Allow an existing appointment to retain
-     * its current date/time while editing.
-     */
-    if (editingId !== null) {
-
-        const existing =
-            interviews.find(
-                interview =>
-                    String(
-                        interview.interview_id
-                    ) ===
-                    String(
-                        editingId
-                    )
-            );
-
-        if (existing) {
-
-            const oldDate =
-                existing.interview_date;
-
-            const oldTime =
-                normalizeTime(
-                    existing.interview_time
-                );
-
-            if (
-                oldDate === date &&
-                oldTime ===
-                    normalizeTime(
-                        time
-                    )
-            ) {
-
-                return true;
-
-            }
-
-        }
-
-    }
-
-    /*
-     * New schedules must be in the future.
-     */
     return (
+        !Number.isNaN(
+            selected.getTime()
+        ) &&
         selected.getTime() >
         Date.now()
     );
-
 }
-
-
-/* =========================================================
-   MINIMUM INTERVIEW DATE
-   ========================================================= */
 
 function setMinimumInterviewDate() {
 
-    const dateInput =
-        document.getElementById(
-            "interviewDate"
-        );
+    const input =
+        $("interviewDate");
 
-    if (!dateInput) {
-        return;
+    if (input) {
+
+        input.min =
+            getTodayLocalDate();
+
     }
-
-    dateInput.min =
-        getTodayLocalDate();
-
 }
-
-
-/* =========================================================
-   GET TODAY'S LOCAL DATE
-   ========================================================= */
 
 function getTodayLocalDate() {
 
     const now =
         new Date();
 
-    const year =
-        now.getFullYear();
-
-    const month =
-        String(
-            now.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
-    const day =
-        String(
-            now.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
-
-    return `${year}-${month}-${day}`;
-
+    return `
+        ${now.getFullYear()}-${
+            String(
+                now.getMonth() + 1
+            ).padStart(
+                2,
+                "0"
+            )
+        }-${
+            String(
+                now.getDate()
+            ).padStart(
+                2,
+                "0"
+            )
+        }
+    `.replace(/\s+/g, "");
 }
 
-/* =========================================================
-   DATE FORMAT
-   ========================================================= */
+/* -------------------- FORMATTERS -------------------- */
 
 function formatDate(
     value
@@ -2326,7 +2263,11 @@ function formatDate(
             date.getTime()
         )
     ) {
-        return value;
+
+        return escapeHtml(
+            value
+        );
+
     }
 
     return date.toLocaleDateString(
@@ -2337,29 +2278,23 @@ function formatDate(
             day: "numeric"
         }
     );
-
 }
-
-
-/* =========================================================
-   TIME FORMAT
-   ========================================================= */
 
 function formatTime(
     value
 ) {
 
-    if (!value) {
-        return "—";
-    }
-
-    const normalized =
+    const time =
         normalizeTime(
             value
         );
 
+    if (!time) {
+        return "—";
+    }
+
     const parts =
-        normalized.split(":");
+        time.split(":");
 
     const hour =
         Number(
@@ -2367,32 +2302,26 @@ function formatTime(
         );
 
     const minute =
-        parts[1] || "00";
+        parts[1] ||
+        "00";
 
     if (
         Number.isNaN(
             hour
         )
     ) {
-        return value;
+
+        return escapeHtml(
+            value
+        );
+
     }
 
-    const suffix =
-        hour >= 12
-            ? "PM"
-            : "AM";
-
-    const displayHour =
-        hour % 12 || 12;
-
-    return `${displayHour}:${minute} ${suffix}`;
-
+    return `
+        ${hour % 12 || 12}:${minute}
+        ${hour >= 12 ? "PM" : "AM"}
+    `.trim();
 }
-
-
-/* =========================================================
-   NORMALIZE TIME
-   ========================================================= */
 
 function normalizeTime(
     value
@@ -2402,26 +2331,23 @@ function normalizeTime(
         return "";
     }
 
-    return String(value)
+    return String(
+        value
+    )
         .trim()
-        .substring(
+        .slice(
             0,
             5
         );
-
 }
-
-
-/* =========================================================
-   NORMALIZE STATUS
-   ========================================================= */
 
 function normalizeStatus(
     value
 ) {
 
     return String(
-        value || ""
+        value ||
+        ""
     )
         .trim()
         .toUpperCase()
@@ -2429,56 +2355,53 @@ function normalizeStatus(
             /_/g,
             " "
         );
-
 }
-
-
-/* =========================================================
-   STATUS BADGE
-   ========================================================= */
 
 function statusBadge(
     status
 ) {
 
-    if (!status) {
-
-        return `
-            <span class="status-badge">
-                —
-            </span>
-        `;
-
-    }
-
     const normalized =
         normalizeStatus(
             status
-        )
-            .toLowerCase()
-            .replace(
-                /\s+/g,
-                "-"
-            );
+        );
+
+    let css =
+        "interview-status-scheduled";
+
+    if (
+        normalized ===
+        "CANCELLED"
+    ) {
+
+        css =
+            "interview-status-cancelled";
+
+    }
+
+    if (
+        normalized ===
+        "COMPLETED"
+    ) {
+
+        css =
+            "interview-status-completed";
+
+    }
 
     return `
         <span
-            class="status-badge status-${escapeHtml(
-                normalized
-            )}"
+            class="${css}"
         >
             ${escapeHtml(
-                status
+                status ||
+                "—"
             )}
         </span>
     `;
-
 }
 
-
-/* =========================================================
-   MODAL
-   ========================================================= */
+/* -------------------- UI HELPERS -------------------- */
 
 function toggleModal(
     id,
@@ -2486,9 +2409,7 @@ function toggleModal(
 ) {
 
     const modal =
-        document.getElementById(
-            id
-        );
+        $(id);
 
     if (!modal) {
         return;
@@ -2501,79 +2422,20 @@ function toggleModal(
 
     modal.setAttribute(
         "aria-hidden",
-        String(!open)
+        String(
+            !open
+        )
     );
-
 }
-
-
-/* =========================================================
-   BUTTON LOADING
-   ========================================================= */
-
-function setButtonLoading(
-    button,
-    loading,
-    text = "Processing..."
-) {
-
-    if (!button) {
-        return;
-    }
-
-    if (loading) {
-
-        button.dataset.originalText =
-            button.innerHTML;
-
-        button.disabled =
-            true;
-
-        button.innerHTML = `
-            <span class="button-spinner"></span>
-            ${escapeHtml(
-                text
-            )}
-        `;
-
-    } else {
-
-        button.disabled =
-            false;
-
-        if (
-            button.dataset.originalText
-        ) {
-
-            button.innerHTML =
-                button.dataset.originalText;
-
-            delete button.dataset
-                .originalText;
-
-        }
-
-    }
-
-}
-
-
-/* =========================================================
-   HTML ESCAPE
-   ========================================================= */
 
 function escapeHtml(
     value
 ) {
 
-    if (
-        value === null ||
-        value === undefined
-    ) {
-        return "";
-    }
-
-    return String(value)
+    return String(
+        value ??
+        ""
+    )
         .replace(
             /&/g,
             "&amp;"
@@ -2594,39 +2456,31 @@ function escapeHtml(
             /'/g,
             "&#039;"
         );
-
 }
-
-
-/* =========================================================
-   TOAST
-   ========================================================= */
 
 function showToast(
     message,
     type = "info"
 ) {
 
-    let container =
-        document.getElementById(
-            "toastRoot"
-        );
+    let root =
+        $("toastRoot");
 
-    if (!container) {
+    if (!root) {
 
-        container =
+        root =
             document.createElement(
                 "div"
             );
 
-        container.id =
+        root.id =
             "toastRoot";
 
-        container.className =
-            "toast-container";
+        root.className =
+            "toast-root";
 
         document.body.appendChild(
-            container
+            root
         );
 
     }
@@ -2639,931 +2493,43 @@ function showToast(
     toast.className =
         `toast toast-${type}`;
 
-    toast.innerHTML = `
-        <div class="toast-message">
-            ${escapeHtml(
-                message
-            )}
-        </div>
-    `;
+    toast.textContent =
+        String(
+            message ??
+            ""
+        );
 
-    container.appendChild(
+    root.appendChild(
         toast
     );
 
-    setTimeout(() => {
+    requestAnimationFrame(
+        () => {
 
-        toast.classList.add(
-            "toast-show"
-        );
-
-    }, 10);
-
-    setTimeout(() => {
-
-        toast.classList.remove(
-            "toast-show"
-        );
-
-        setTimeout(() => {
-
-            toast.remove();
-
-        }, 250);
-
-    }, 3000);
-
-}
-
-/* =========================================================
-   LAB 13 FINAL FIX
-   Paste this entire block at the VERY BOTTOM of interviews.js
-   ========================================================= */
-
-/*
- * FIXED EVENT SETUP
- */
-function setupInterviewEvents() {
-
-    const openButton =
-        document.getElementById("openInterviewModal");
-
-    const closeButton =
-        document.getElementById("closeInterviewModal");
-
-    const cancelButton =
-        document.getElementById("cancelInterviewModal");
-
-    const form =
-        document.getElementById("interviewForm");
-
-    const applicationSelect =
-        document.getElementById("interviewApplication");
-
-    const searchInput =
-        document.getElementById("interviewSearch");
-
-    const statusFilter =
-        document.getElementById("interviewStatusFilter");
-
-    const table =
-        document.getElementById("interviewsTable");
-
-    const closeViewButton =
-        document.getElementById("closeViewInterview");
-
-    const closeViewBottomButton =
-        document.getElementById("closeViewInterviewBottom");
-
-
-    /* OPEN SCHEDULE MODAL */
-    if (openButton) {
-        openButton.addEventListener(
-            "click",
-            openInterviewModalForm
-        );
-    }
-
-
-    /* CLOSE SCHEDULE MODAL */
-    if (closeButton) {
-        closeButton.addEventListener(
-            "click",
-            closeScheduleInterviewForm
-        );
-    }
-
-
-    /* CANCEL SCHEDULE MODAL */
-    if (cancelButton) {
-        cancelButton.addEventListener(
-            "click",
-            closeScheduleInterviewForm
-        );
-    }
-
-
-    /*
-     * FORM SUBMIT
-     *
-     * IMPORTANT:
-     * Use a wrapper instead of referencing submitInterview
-     * directly during setup.
-     */
-    if (form) {
-        form.addEventListener(
-            "submit",
-            function (event) {
-                submitInterview(event);
-            }
-        );
-    }
-
-
-    /* APPLICATION SELECT */
-    if (applicationSelect) {
-        applicationSelect.addEventListener(
-            "change",
-            handleApplicationSelection
-        );
-    }
-
-
-    /* SEARCH */
-    if (searchInput) {
-        searchInput.addEventListener(
-            "input",
-            renderInterviews
-        );
-    }
-
-
-    /* STATUS FILTER */
-    if (statusFilter) {
-        statusFilter.addEventListener(
-            "change",
-            renderInterviews
-        );
-    }
-
-
-    /* TABLE ACTIONS */
-    if (table) {
-        table.addEventListener(
-            "click",
-            handleInterviewAction
-        );
-    }
-
-
-    /* VIEW MODAL */
-    if (closeViewButton) {
-        closeViewButton.addEventListener(
-            "click",
-            closeViewInterview
-        );
-    }
-
-
-    if (closeViewBottomButton) {
-        closeViewBottomButton.addEventListener(
-            "click",
-            closeViewInterview
-        );
-    }
-
-
-    /* MODAL BACKDROP */
-    document
-        .querySelectorAll(".modal-backdrop")
-        .forEach(modal => {
-
-            modal.addEventListener(
-                "click",
-                event => {
-
-                    if (
-                        event.target === modal
-                    ) {
-                        toggleModal(
-                            modal.id,
-                            false
-                        );
-                    }
-
-                }
+            toast.classList.add(
+                "toast-show"
             );
 
-        });
-
-
-    /* ESCAPE KEY */
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key !== "Escape"
-            ) {
-                return;
-            }
-
-            document
-                .querySelectorAll(
-                    ".modal-backdrop.open"
-                )
-                .forEach(modal => {
-
-                    toggleModal(
-                        modal.id,
-                        false
-                    );
-
-                });
-
         }
     );
-}
 
+    setTimeout(
+        () => {
 
-/* =========================================================
-   FIXED APPLICATION SELECTION
-   ========================================================= */
-
-function handleApplicationSelection() {
-
-    console.log(
-        "===== INTERVIEW APPLICATION SELECTION ====="
-    );
-
-
-    const select =
-        document.getElementById(
-            "interviewApplication"
-        );
-
-    const applicantElement =
-        document.getElementById(
-            "interviewApplicant"
-        );
-
-    const positionElement =
-        document.getElementById(
-            "interviewPosition"
-        );
-
-    const infoElement =
-        document.getElementById(
-            "selectedInterviewApplication"
-        );
-
-
-    console.log(
-        "Select:",
-        select
-    );
-
-    console.log(
-        "Applications:",
-        applications
-    );
-
-
-    if (
-        !select ||
-        !applicantElement ||
-        !positionElement
-    ) {
-
-        console.error(
-            "Interview application elements are missing."
-        );
-
-        return;
-    }
-
-
-    const applicationId =
-        String(
-            select.value || ""
-        ).trim();
-
-
-    console.log(
-        "Selected application ID:",
-        applicationId
-    );
-
-
-    /*
-     * Nothing selected
-     */
-    if (!applicationId) {
-
-        applicantElement.textContent =
-            "—";
-
-        positionElement.textContent =
-            "—";
-
-        if (infoElement) {
-
-            infoElement.hidden =
-                false;
-
-            infoElement.style.display =
-                "grid";
-
-        }
-
-        return;
-    }
-
-
-    /*
-     * Find selected application
-     */
-    const application =
-        applications.find(
-            item =>
-                String(
-                    item.application_id ??
-                    item.id ??
-                    ""
-                ).trim() ===
-                applicationId
-        );
-
-
-    console.log(
-        "Matched application:",
-        application
-    );
-
-
-    if (!application) {
-
-        console.warn(
-            "Application was not found:",
-            applicationId
-        );
-
-        applicantElement.textContent =
-            "—";
-
-        positionElement.textContent =
-            "—";
-
-        if (infoElement) {
-
-            infoElement.hidden =
-                false;
-
-            infoElement.style.display =
-                "grid";
-
-        }
-
-        return;
-    }
-
-
-    /*
-     * Applicant data
-     */
-    const applicant =
-        application.applicants ||
-        application.applicant ||
-        {};
-
-
-    /*
-     * Job data
-     */
-    const job =
-        application.job_postings ||
-        application.job_posting ||
-        application.job ||
-        {};
-
-
-    console.log(
-        "Applicant data:",
-        applicant
-    );
-
-    console.log(
-        "Job data:",
-        job
-    );
-
-
-    /*
-     * Build applicant name
-     */
-    const applicantName = [
-        applicant.first_name,
-        applicant.last_name
-    ]
-        .filter(
-            value =>
-                value !== null &&
-                value !== undefined &&
-                String(value).trim() !== ""
-        )
-        .map(
-            value =>
-                String(value).trim()
-        )
-        .join(" ");
-
-
-    /*
-     * Build position name
-     */
-    const positionName =
-        String(
-            job.job_title ||
-            application.job_title ||
-            ""
-        ).trim();
-
-
-    console.log(
-        "Applicant name:",
-        applicantName
-    );
-
-    console.log(
-        "Position:",
-        positionName
-    );
-
-
-    /*
-     * UPDATE APPLICANT
-     */
-    applicantElement.textContent =
-        applicantName || "—";
-
-
-    /*
-     * UPDATE POSITION
-     */
-    positionElement.textContent =
-        positionName || "—";
-
-
-    /*
-     * FORCE INFORMATION CARD VISIBLE
-     */
-    if (infoElement) {
-
-        infoElement.hidden =
-            false;
-
-        infoElement.removeAttribute(
-            "hidden"
-        );
-
-        infoElement.style.display =
-            "grid";
-
-    }
-
-
-    console.log(
-        "Applicant DOM:",
-        applicantElement.textContent
-    );
-
-    console.log(
-        "Position DOM:",
-        positionElement.textContent
-    );
-
-    console.log(
-        "=========================================="
-    );
-}
-
-
-/* =========================================================
-   FIXED SUBMIT INTERVIEW
-   ========================================================= */
-
-async function submitInterview(event) {
-    event.preventDefault();
-
-    const button = document.getElementById("saveInterviewButton");
-    const applicationSelect = document.getElementById("interviewApplication");
-    const dateInput = document.getElementById("interviewDate");
-    const timeInput = document.getElementById("interviewTime");
-    const interviewerInput = document.getElementById("interviewer");
-    const venueInput = document.getElementById("interviewVenue");
-    const statusInput = document.getElementById("interviewStatus");
-
-    const applicationId = String(applicationSelect?.value || "").trim();
-    const interviewDate = String(dateInput?.value || "").trim();
-    const interviewTime = String(timeInput?.value || "").trim();
-    const interviewer = String(interviewerInput?.value || "").trim();
-    const venue = String(venueInput?.value || "").trim();
-    const status = String(statusInput?.value || "Scheduled").trim();
-
-    if (!applicationId) {
-        showToast("Please select a qualified application.", "error");
-        return;
-    }
-
-    if (!interviewDate) {
-        showToast("Please select an interview date.", "error");
-        return;
-    }
-
-    if (!interviewTime) {
-        showToast("Please select an interview time.", "error");
-        return;
-    }
-
-    if (!interviewer) {
-        showToast("Please enter the interviewer.", "error");
-        return;
-    }
-
-    if (!venue) {
-        showToast("Please enter the interview venue.", "error");
-        return;
-    }
-
-    const application = applications.find(
-        item =>
-            String(item.application_id ?? item.id ?? "").trim() ===
-            applicationId
-    );
-
-    if (!application) {
-        showToast(
-            "The selected application could not be found.",
-            "error"
-        );
-        return;
-    }
-
-    const applicationStatus = normalizeStatus(application.status);
-
-    if (
-        editingInterviewId === null &&
-        applicationStatus !== "QUALIFIED" &&
-        applicationStatus !== "FOR INTERVIEW"
-    ) {
-        showToast(
-            "Interview cannot be scheduled because the application is not qualified.",
-            "error"
-        );
-        return;
-    }
-
-    if (
-        typeof isValidFutureDateTime === "function" &&
-        !isValidFutureDateTime(
-            interviewDate,
-            interviewTime,
-            editingInterviewId
-        )
-    ) {
-        showToast(
-            "Please select a valid future interview date and time.",
-            "error"
-        );
-        return;
-    }
-
-    if (!window.rmsSupabase) {
-        showToast(
-            "Supabase client is not initialized.",
-            "error"
-        );
-        return;
-    }
-
-    if (typeof setButtonLoading === "function") {
-        setButtonLoading(
-            button,
-            true,
-            editingInterviewId === null
-                ? "Scheduling..."
-                : "Saving..."
-        );
-    }
-
-    try {
-
-        /* =========================================
-           SCHEDULE NEW INTERVIEW
-           ========================================= */
-        if (editingInterviewId === null) {
-
-            const insertData = {
-                application_id: applicationId,
-                interview_date: interviewDate,
-                interview_time: interviewTime,
-                interviewer: interviewer,
-                venue: venue,
-                status: status || "Scheduled"
-            };
-
-            console.log(
-                "Saving interview:",
-                insertData
+            toast.classList.remove(
+                "toast-show"
             );
 
-            /*
-             * IMPORTANT:
-             * Do NOT use .select() here.
-             * This prevents an INSERT from failing because
-             * the inserted row cannot be returned under RLS.
-             */
-            const { error } =
-                await window.rmsSupabase
-                    .from("interviews")
-                    .insert(insertData);
+            setTimeout(
+                () => {
 
-            if (error) {
-                console.error(
-                    "SUPABASE INSERT ERROR:",
-                    error
-                );
+                    toast.remove();
 
-                console.error(
-                    "message:",
-                    error.message
-                );
-
-                console.error(
-                    "details:",
-                    error.details
-                );
-
-                console.error(
-                    "hint:",
-                    error.hint
-                );
-
-                console.error(
-                    "code:",
-                    error.code
-                );
-
-                throw error;
-            }
-
-            /*
-             * Update application status after successful insert.
-             */
-            if (
-                typeof updateApplicationForInterview ===
-                "function"
-            ) {
-                try {
-                    await updateApplicationForInterview(
-                        applicationId
-                    );
-                } catch (applicationError) {
-                    console.warn(
-                        "Interview saved, but application status could not be updated:",
-                        applicationError
-                    );
-                }
-            }
-
-            showToast(
-                "Interview scheduled successfully.",
-                "success"
-            );
-        }
-
-        /* =========================================
-           RESCHEDULE EXISTING INTERVIEW
-           ========================================= */
-        else {
-
-            const updateData = {
-                application_id: applicationId,
-                interview_date: interviewDate,
-                interview_time: interviewTime,
-                interviewer: interviewer,
-                venue: venue,
-                status: status || "Scheduled"
-            };
-
-            console.log(
-                "Updating interview:",
-                updateData
+                },
+                250
             );
 
-            const { error } =
-                await window.rmsSupabase
-                    .from("interviews")
-                    .update(updateData)
-                    .eq(
-                        "interview_id",
-                        editingInterviewId
-                    );
-
-            if (error) {
-                console.error(
-                    "SUPABASE UPDATE ERROR:",
-                    error
-                );
-
-                console.error(
-                    "message:",
-                    error.message
-                );
-
-                console.error(
-                    "details:",
-                    error.details
-                );
-
-                console.error(
-                    "hint:",
-                    error.hint
-                );
-
-                console.error(
-                    "code:",
-                    error.code
-                );
-
-                throw error;
-            }
-
-            showToast(
-                "Interview rescheduled successfully.",
-                "success"
-            );
-        }
-
-        closeScheduleInterviewForm();
-
-        /*
-         * Reload the table.
-         */
-        if (
-            typeof loadInterviews ===
-            "function"
-        ) {
-            await loadInterviews();
-        }
-
-        /*
-         * Reload applications so the status is current.
-         */
-        if (
-            typeof loadApplications ===
-            "function"
-        ) {
-            await loadApplications();
-        }
-
-    } catch (error) {
-
-        console.error(
-            "===== INTERVIEW SAVE FAILED ====="
-        );
-
-        console.error(
-            error
-        );
-
-        const message =
-            error?.message ||
-            error?.details ||
-            error?.hint ||
-            "Unable to save interview schedule.";
-
-        showToast(
-            message,
-            "error"
-        );
-
-    } finally {
-
-        if (
-            typeof setButtonLoading ===
-            "function"
-        ) {
-            setButtonLoading(
-                button,
-                false
-            );
-        }
-    }
-}
-
-/* =========================================================
-   FINAL INTERVIEW LOADING FIX
-   ========================================================= */
-
-async function loadInterviews() {
-
-    const table =
-        document.getElementById("interviewsTable");
-
-    if (!table) {
-        return;
-    }
-
-    table.innerHTML = `
-        <tr>
-            <td colspan="7" class="table-empty">
-                Loading interviews...
-            </td>
-        </tr>
-    `;
-
-    try {
-
-        if (!window.rmsSupabase) {
-            throw new Error(
-                "Supabase client is not initialized."
-            );
-        }
-
-        /*
-         * Make sure applications are loaded first.
-         */
-        if (
-            !Array.isArray(applications) ||
-            applications.length === 0
-        ) {
-            await loadApplications();
-        }
-
-        /*
-         * Get interviews directly.
-         *
-         * IMPORTANT:
-         * No nested applications/applicants/job_postings
-         * query here.
-         */
-        const {
-            data,
-            error
-        } = await window.rmsSupabase
-            .from("interviews")
-            .select("*")
-            .order(
-                "interview_date",
-                {
-                    ascending: true
-                }
-            )
-            .order(
-                "interview_time",
-                {
-                    ascending: true
-                }
-            );
-
-        if (error) {
-            throw error;
-        }
-
-        /*
-         * Attach the application information
-         * that is already in the applications array.
-         */
-        interviews =
-            (Array.isArray(data) ? data : [])
-                .map(interview => {
-
-                    const application =
-                        applications.find(
-                            item =>
-                                String(
-                                    item.application_id
-                                ) ===
-                                String(
-                                    interview.application_id
-                                )
-                        );
-
-                    return {
-                        ...interview,
-                        applications:
-                            application || null
-                    };
-
-                });
-
-        console.log(
-            "FINAL INTERVIEWS DATA:",
-            interviews
-        );
-
-        /*
-         * Render the table.
-         */
-        renderInterviews();
-
-    } catch (error) {
-
-        console.error(
-            "FINAL LOAD INTERVIEWS ERROR:",
-            error
-        );
-
-        interviews = [];
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="7" class="table-empty">
-                    Unable to load interviews.
-                </td>
-            </tr>
-        `;
-
-    }
+        },
+        3000
+    );
 }

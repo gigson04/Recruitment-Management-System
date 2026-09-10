@@ -1597,3 +1597,505 @@ textarea {
     }
 
 }
+
+/* =========================================================
+   CANCEL INTERVIEW MODAL
+   ========================================================= */
+
+.interview-confirm-modal {
+    width: min(520px, calc(100vw - 32px));
+    max-width: 520px;
+    padding: 20px;
+}
+
+.interview-confirm-message {
+    padding: 4px 0 8px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.cancel-confirm-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 4px 0 8px;
+}
+
+.cancel-confirm-icon {
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: rgba(181, 71, 71, 0.12);
+    border: 1px solid rgba(181, 71, 71, 0.28);
+
+    color: #e59a9a;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.cancel-confirm-text {
+    min-width: 0;
+}
+
+.cancel-confirm-text > strong {
+    display: block;
+    margin-bottom: 6px;
+
+    color: var(--text);
+    font-size: 14px;
+}
+
+.cancel-confirm-text p {
+    margin: 5px 0 0;
+    color: var(--muted);
+}
+
+.cancel-confirm-warning {
+    margin-top: 10px !important;
+    padding: 9px 10px;
+
+    border-radius: 9px;
+
+    background: rgba(181, 71, 71, 0.06);
+    border: 1px solid rgba(181, 71, 71, 0.14);
+
+    color: #d89a9a !important;
+}
+
+#confirmCancelInterview {
+    min-width: 130px;
+
+    background: rgba(181, 71, 71, 0.10) !important;
+    border-color: rgba(181, 71, 71, 0.30) !important;
+    color: #e59a9a !important;
+}
+
+#confirmCancelInterview:hover {
+    background: rgba(181, 71, 71, 0.17) !important;
+}
+
+#confirmCancelInterview:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   INTERVIEWS — LIGHT / DARK MODE VISIBILITY FIX
+   ========================================================= */
+
+/* -----------------------------------------
+   MODALS
+   ----------------------------------------- */
+
+.interview-modal,
+.interview-confirm-modal {
+    color: var(--text, #1f2937);
+}
+
+.interview-modal h3,
+.interview-confirm-modal h3,
+.interview-modal h2,
+.interview-confirm-modal h2 {
+    color: var(--text, #1f2937);
+}
+
+.interview-modal p,
+.interview-confirm-modal p,
+.interview-confirm-message {
+    color: var(--muted, #64748b);
+}
+
+
+/* -----------------------------------------
+   INTERVIEW SUMMARY CARDS
+   ----------------------------------------- */
+
+.interview-stat {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 4%,
+        transparent
+    );
+    border-color: var(--line);
+}
+
+.interview-stat strong {
+    color: var(--text, #1f2937) !important;
+}
+
+.interview-stat span {
+    color: var(--muted, #64748b);
+}
+
+
+/* -----------------------------------------
+   INTERVIEW META
+   ----------------------------------------- */
+
+.interview-meta strong {
+    color: var(--text, #1f2937) !important;
+}
+
+.interview-meta span {
+    color: var(--muted, #64748b);
+}
+
+
+/* -----------------------------------------
+   SELECTED APPLICATION
+   ----------------------------------------- */
+
+.interview-info-item {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 4%,
+        transparent
+    );
+    border-color: var(--line);
+}
+
+.interview-info-item small {
+    color: var(--muted, #64748b);
+}
+
+.interview-info-item strong {
+    color: var(--text, #1f2937) !important;
+}
+
+
+/* -----------------------------------------
+   VIEW INTERVIEW DETAILS
+   ----------------------------------------- */
+
+.interview-detail-item {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 5%,
+        transparent
+    ) !important;
+    border-color: var(--line);
+}
+
+.interview-detail-item small {
+    color: var(--muted, #64748b) !important;
+}
+
+.interview-detail-item div {
+    color: var(--text, #1f2937) !important;
+}
+
+
+/* -----------------------------------------
+   TABLE
+   ----------------------------------------- */
+
+.interview-table,
+.table-wrap table {
+    color: var(--text, #1f2937);
+}
+
+.table-wrap th {
+    color: var(--muted, #64748b);
+}
+
+.table-wrap td {
+    color: var(--text, #1f2937);
+}
+
+.table-wrap tbody tr:hover {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 3%,
+        transparent
+    );
+}
+
+
+/* -----------------------------------------
+   TABLE ACTION BUTTONS
+   ----------------------------------------- */
+
+.table-wrap .table-action {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 6%,
+        transparent
+    ) !important;
+
+    color: var(--text, #1f2937) !important;
+    border-color: var(--line) !important;
+
+    opacity: 1;
+}
+
+.table-wrap .table-action:hover {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 11%,
+        transparent
+    ) !important;
+
+    color: var(--text, #1f2937) !important;
+}
+
+.table-wrap .table-action.danger {
+    color: var(--danger, #b84d55) !important;
+
+    background: color-mix(
+        in srgb,
+        var(--danger, #b84d55) 8%,
+        transparent
+    ) !important;
+
+    border-color: color-mix(
+        in srgb,
+        var(--danger, #b84d55) 20%,
+        transparent
+    ) !important;
+}
+
+.table-wrap .table-action.danger:hover {
+    background: color-mix(
+        in srgb,
+        var(--danger, #b84d55) 14%,
+        transparent
+    ) !important;
+}
+
+
+/* -----------------------------------------
+   CANCEL CONFIRMATION
+   ----------------------------------------- */
+
+.cancel-confirm-content {
+    color: var(--text, #1f2937);
+}
+
+.cancel-confirm-text > strong {
+    color: var(--text, #1f2937) !important;
+}
+
+.cancel-confirm-text p {
+    color: var(--muted, #64748b) !important;
+}
+
+.cancel-confirm-warning {
+    background: color-mix(
+        in srgb,
+        var(--danger, #b84d55) 7%,
+        transparent
+    ) !important;
+
+    border-color: color-mix(
+        in srgb,
+        var(--danger, #b84d55) 18%,
+        transparent
+    ) !important;
+
+    color: var(--text, #1f2937) !important;
+}
+
+.cancel-confirm-warning strong {
+    color: var(--danger, #b84d55) !important;
+}
+
+
+/* -----------------------------------------
+   CANCEL ICON
+   ----------------------------------------- */
+
+.cancel-confirm-icon {
+    background: color-mix(
+        in srgb,
+        var(--danger, #b84d55) 10%,
+        transparent
+    ) !important;
+
+    border-color: color-mix(
+        in srgb,
+        var(--danger, #b84d55) 28%,
+        transparent
+    ) !important;
+
+    color: var(--danger, #b84d55) !important;
+}
+
+
+/* -----------------------------------------
+   MODAL CLOSE BUTTON
+   ----------------------------------------- */
+
+.interview-modal .icon-button,
+.interview-confirm-modal .icon-button {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 5%,
+        transparent
+    ) !important;
+
+    color: var(--text, #1f2937) !important;
+
+    border-color: var(--line) !important;
+}
+
+.interview-modal .icon-button:hover,
+.interview-confirm-modal .icon-button:hover {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 10%,
+        transparent
+    ) !important;
+
+    color: var(--text, #1f2937) !important;
+}
+
+
+/* -----------------------------------------
+   KEEP SCHEDULE BUTTON
+   ----------------------------------------- */
+
+#cancelCancelConfirm {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 6%,
+        transparent
+    ) !important;
+
+    color: var(--text, #1f2937) !important;
+
+    border-color: var(--line) !important;
+}
+
+#cancelCancelConfirm:hover {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 12%,
+        transparent
+    ) !important;
+}
+
+
+/* -----------------------------------------
+   CANCEL INTERVIEW BUTTON
+   ----------------------------------------- */
+
+#confirmCancelInterview {
+    background: color-mix(
+        in srgb,
+        var(--danger, #b84d55) 10%,
+        transparent
+    ) !important;
+
+    border-color: color-mix(
+        in srgb,
+        var(--danger, #b84d55) 30%,
+        transparent
+    ) !important;
+
+    color: var(--danger, #b84d55) !important;
+}
+
+#confirmCancelInterview:hover {
+    background: color-mix(
+        in srgb,
+        var(--danger, #b84d55) 17%,
+        transparent
+    ) !important;
+
+    color: var(--danger, #b84d55) !important;
+}
+
+
+/* -----------------------------------------
+   FORM INPUTS / SELECTS
+   ----------------------------------------- */
+
+.interview-modal input,
+.interview-modal select,
+.interview-modal textarea {
+    color: var(--text, #1f2937) !important;
+
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 4%,
+        transparent
+    ) !important;
+
+    border-color: var(--line) !important;
+}
+
+.interview-modal input::placeholder,
+.interview-modal textarea::placeholder {
+    color: var(--muted, #64748b) !important;
+}
+
+.interview-modal input:focus,
+.interview-modal select:focus,
+.interview-modal textarea:focus {
+    color: var(--text, #1f2937) !important;
+
+    border-color: var(--primary) !important;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(45, 108, 223, 0.10) !important;
+}
+
+
+/* -----------------------------------------
+   EMPTY / LOADING STATES
+   ----------------------------------------- */
+
+.table-empty {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* -----------------------------------------
+   STATUS BADGES
+   ----------------------------------------- */
+
+.interview-status-scheduled {
+    color: var(--primary, #2d6cdf) !important;
+}
+
+.interview-status-cancelled {
+    color: var(--danger, #b84d55) !important;
+}
+
+.interview-status-completed {
+    color: var(--success, #25865a) !important;
+}
+
+
+/* -----------------------------------------
+   MOBILE
+   ----------------------------------------- */
+
+@media (max-width: 900px) {
+
+    .interview-confirm-modal,
+    .interview-modal {
+        width: min(
+            100%,
+            calc(100vw - 24px)
+        );
+    }
+
+    .interview-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .interview-info-item {
+        min-width: 0;
+    }
+
+}
