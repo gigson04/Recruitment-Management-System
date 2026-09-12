@@ -320,6 +320,129 @@
 
 
         /* =================================================
+           EVALUATION
+           ================================================= */
+
+        .interview-evaluation-modal {
+            width: min(760px, 100%);
+            max-width: 760px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .evaluation-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .evaluation-summary-item {
+            padding: 11px 12px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .evaluation-summary-item small {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--muted);
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .evaluation-summary-item strong {
+            display: block;
+            color: #c9d0d8;
+            font-size: 12px;
+            line-height: 1.35;
+        }
+
+        .evaluation-score-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .evaluation-score-grid .form-group:last-child {
+            grid-column: 1 / -1;
+        }
+
+        .evaluation-score-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .evaluation-score-input input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .evaluation-max {
+            color: var(--muted);
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .evaluation-result-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .evaluation-result-item {
+            padding: 13px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #15191d;
+        }
+
+        .evaluation-result-item small {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .evaluation-result-item strong {
+            color: #c9d0d8;
+            font-size: 20px;
+        }
+
+        .evaluation-view-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 2px;
+        }
+
+        .evaluation-view-item {
+            padding: 8px;
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .evaluation-view-item span {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--muted);
+            font-size: 9px;
+        }
+
+        .evaluation-view-item strong {
+            color: #c9d0d8;
+            font-size: 11px;
+        }
+
+
+        /* =================================================
            MOBILE
            ================================================= */
 
@@ -1083,6 +1206,228 @@
     </div>
 
 
+    <!-- =================================================
+         INTERVIEW EVALUATION MODAL
+         ================================================= -->
+
+    <div
+        id="evaluationModal"
+        class="modal-backdrop"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal glass-panel interview-evaluation-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="evaluationModalTitle"
+        >
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Interview Evaluation
+                    </p>
+
+                    <h3 id="evaluationModalTitle">
+                        Evaluate Applicant
+                    </h3>
+
+                </div>
+
+                <button
+                    id="closeEvaluationModal"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="evaluation-summary">
+
+                <div class="evaluation-summary-item">
+                    <small>Applicant</small>
+                    <strong id="evaluationApplicant">—</strong>
+                </div>
+
+                <div class="evaluation-summary-item">
+                    <small>Position</small>
+                    <strong id="evaluationPosition">—</strong>
+                </div>
+
+                <div class="evaluation-summary-item">
+                    <small>Interview Date</small>
+                    <strong id="evaluationDate">—</strong>
+                </div>
+
+                <div class="evaluation-summary-item">
+                    <small>Interviewer</small>
+                    <strong id="evaluationInterviewer">—</strong>
+                </div>
+
+            </div>
+
+
+            <form id="interviewEvaluationForm" novalidate>
+
+                <div class="evaluation-score-grid">
+
+                    <div class="form-group">
+                        <label for="communicationScore">
+                            Communication *
+                        </label>
+                        <div class="evaluation-score-input">
+                            <input
+                                id="communicationScore"
+                                type="number"
+                                min="0"
+                                max="20"
+                                step="1"
+                                required
+                            >
+                            <span class="evaluation-max">/ 20</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="technicalKnowledgeScore">
+                            Technical Knowledge *
+                        </label>
+                        <div class="evaluation-score-input">
+                            <input
+                                id="technicalKnowledgeScore"
+                                type="number"
+                                min="0"
+                                max="30"
+                                step="1"
+                                required
+                            >
+                            <span class="evaluation-max">/ 30</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="problemSolvingScore">
+                            Problem Solving *
+                        </label>
+                        <div class="evaluation-score-input">
+                            <input
+                                id="problemSolvingScore"
+                                type="number"
+                                min="0"
+                                max="20"
+                                step="1"
+                                required
+                            >
+                            <span class="evaluation-max">/ 20</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="teamworkScore">
+                            Teamwork *
+                        </label>
+                        <div class="evaluation-score-input">
+                            <input
+                                id="teamworkScore"
+                                type="number"
+                                min="0"
+                                max="15"
+                                step="1"
+                                required
+                            >
+                            <span class="evaluation-max">/ 15</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="professionalismScore">
+                            Professionalism *
+                        </label>
+                        <div class="evaluation-score-input">
+                            <input
+                                id="professionalismScore"
+                                type="number"
+                                min="0"
+                                max="15"
+                                step="1"
+                                required
+                            >
+                            <span class="evaluation-max">/ 15</span>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="evaluation-result-box">
+
+                    <div class="evaluation-result-item">
+                        <small>Total Score</small>
+                        <strong>
+                            <span id="evaluationTotal">0</span>/100
+                        </strong>
+                    </div>
+
+                    <div class="evaluation-result-item">
+                        <small>Interview Result</small>
+                        <strong id="evaluationResult">
+                            —
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="form-group" style="margin-top:14px;">
+                    <label for="evaluationRemarks">
+                        Remarks
+                    </label>
+
+                    <textarea
+                        id="evaluationRemarks"
+                        rows="4"
+                        placeholder="Applicant demonstrated strong technical and communication skills."
+                    ></textarea>
+                </div>
+
+
+                <div
+                    class="button-row"
+                    style="margin-top:18px;"
+                >
+
+                    <button
+                        id="cancelEvaluationModal"
+                        class="btn btn-secondary"
+                        type="button"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        id="saveEvaluationButton"
+                        class="btn btn-primary"
+                        type="submit"
+                    >
+                        Save Evaluation
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    
     <!-- =================================================
          SUPABASE
          ================================================= -->
