@@ -12,22 +12,22 @@ let selectedPosition = null;
    PAGE INITIALIZATION
    ========================================================= */
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener(
+    "DOMContentLoaded",
+    initOpenPositions
+);
+
+
+async function initOpenPositions() {
 
     try {
 
         /*
-         * Make sure the user is authenticated first.
-         */
-        const session = await requireAuth();
-
-        if (!session) {
-            return;
-        }
-
-
-        /*
-         * Render the common sidebar and topbar.
+         * IMPORTANT:
+         *
+         * Render the common shell first so the page
+         * does not remain blank while authentication
+         * is being checked.
          */
         renderShell({
             active: "Open Positions"
@@ -35,33 +35,51 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         /*
-         * Load the logged-in user's profile.
-         *
-         * This is not allowed to stop the positions page
-         * from loading if the profile request fails.
+         * Make sure the user is authenticated.
          */
-        try {
+        const session =
+            await requireAuth();
 
-            await loadUserProfile();
+        if (!session) {
+            return;
+        }
 
-        } catch (profileError) {
 
-            console.warn(
-                "User profile could not be loaded:",
-                profileError
-            );
+        /*
+         * IMPORTANT:
+         *
+         * Do NOT wait for the profile request.
+         * A profile problem should never prevent
+         * Open Positions from loading.
+         */
+        if (
+            typeof loadUserProfile ===
+            "function"
+        ) {
+
+            loadUserProfile()
+                .catch(
+                    error => {
+
+                        console.warn(
+                            "User profile could not be loaded:",
+                            error
+                        );
+
+                    }
+                );
 
         }
 
 
         /*
-         * Set up search, filters, buttons and modal.
+         * Bind page events.
          */
         bindPositionEvents();
 
 
         /*
-         * Load job postings from Supabase.
+         * Load the positions immediately.
          */
         await loadOpenPositions();
 
@@ -73,15 +91,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             error
         );
 
+
         showToast(
-            error.message ||
+            error?.message ||
             "Unable to load open positions.",
             "error"
         );
 
     }
 
-});
+}
 
 
 /* =========================================================
@@ -94,7 +113,9 @@ function bindPositionEvents() {
      * Search
      */
     document
-        .getElementById("positionSearch")
+        .getElementById(
+            "positionSearch"
+        )
         ?.addEventListener(
             "input",
             renderPositions
@@ -105,7 +126,9 @@ function bindPositionEvents() {
      * Department filter
      */
     document
-        .getElementById("departmentFilter")
+        .getElementById(
+            "departmentFilter"
+        )
         ?.addEventListener(
             "change",
             renderPositions
@@ -116,7 +139,9 @@ function bindPositionEvents() {
      * Employment filter
      */
     document
-        .getElementById("employmentFilter")
+        .getElementById(
+            "employmentFilter"
+        )
         ?.addEventListener(
             "change",
             renderPositions
@@ -127,7 +152,9 @@ function bindPositionEvents() {
      * Status filter
      */
     document
-        .getElementById("positionStatusFilter")
+        .getElementById(
+            "positionStatusFilter"
+        )
         ?.addEventListener(
             "change",
             renderPositions
@@ -138,7 +165,9 @@ function bindPositionEvents() {
      * Position cards
      */
     document
-        .getElementById("positionsGrid")
+        .getElementById(
+            "positionsGrid"
+        )
         ?.addEventListener(
             "click",
             handlePositionClick
@@ -146,10 +175,12 @@ function bindPositionEvents() {
 
 
     /*
-     * Close modal
+     * Close details
      */
     document
-        .getElementById("closeDetails")
+        .getElementById(
+            "closeDetails"
+        )
         ?.addEventListener(
             "click",
             closeDetails
@@ -157,7 +188,9 @@ function bindPositionEvents() {
 
 
     document
-        .getElementById("closeDetailsBottom")
+        .getElementById(
+            "closeDetailsBottom"
+        )
         ?.addEventListener(
             "click",
             closeDetails
@@ -168,13 +201,16 @@ function bindPositionEvents() {
      * Click outside modal
      */
     document
-        .getElementById("detailsModal")
+        .getElementById(
+            "detailsModal"
+        )
         ?.addEventListener(
             "click",
-            (event) => {
+            event => {
 
                 if (
-                    event.target.id === "detailsModal"
+                    event.target.id ===
+                    "detailsModal"
                 ) {
 
                     closeDetails();
@@ -186,15 +222,19 @@ function bindPositionEvents() {
 
 
     /*
-     * Apply from details modal
+     * Apply from modal
      */
     document
-        .getElementById("applyFromDetails")
+        .getElementById(
+            "applyFromDetails"
+        )
         ?.addEventListener(
             "click",
             () => {
 
-                if (selectedPosition) {
+                if (
+                    selectedPosition
+                ) {
 
                     selectJobForApplication(
                         selectedPosition
@@ -207,14 +247,15 @@ function bindPositionEvents() {
 
 
     /*
-     * ESC key closes modal
+     * ESC closes details modal.
      */
     document.addEventListener(
         "keydown",
-        (event) => {
+        event => {
 
             if (
-                event.key === "Escape"
+                event.key ===
+                "Escape"
             ) {
 
                 closeDetails();
@@ -231,12 +272,15 @@ function bindPositionEvents() {
    HANDLE POSITION CARD BUTTONS
    ========================================================= */
 
-function handlePositionClick(event) {
+function handlePositionClick(
+    event
+) {
 
     const button =
         event.target.closest(
             "[data-action]"
         );
+
 
     if (!button) {
         return;
@@ -245,26 +289,45 @@ function handlePositionClick(event) {
 
     const job =
         positions.find(
-            (item) =>
-                String(item.job_id) ===
-                String(button.dataset.id)
+            item =>
+                String(
+                    item.job_id
+                ) ===
+                String(
+                    button.dataset.id
+                )
         );
 
 
     if (!job) {
+
+        showToast(
+            "Position record not found.",
+            "error"
+        );
+
         return;
+
     }
 
 
+    const action =
+        button.dataset.action;
+
+
     /*
-     * View Details
+     * View details
      */
     if (
-        button.dataset.action ===
+        action ===
         "details"
     ) {
 
-        openDetails(job);
+        openDetails(
+            job
+        );
+
+        return;
 
     }
 
@@ -273,11 +336,13 @@ function handlePositionClick(event) {
      * Apply
      */
     if (
-        button.dataset.action ===
+        action ===
         "apply"
     ) {
 
-        selectJobForApplication(job);
+        selectJobForApplication(
+            job
+        );
 
     }
 
@@ -297,7 +362,13 @@ async function loadOpenPositions() {
 
 
     if (!grid) {
+
+        console.error(
+            "positionsGrid element was not found."
+        );
+
         return;
+
     }
 
 
@@ -306,7 +377,8 @@ async function loadOpenPositions() {
      */
     grid.innerHTML = `
         <div
-            class="glass-panel position-card position-empty">
+            class="glass-panel position-card position-empty"
+        >
 
             <div class="table-empty">
                 Loading available positions...
@@ -319,44 +391,65 @@ async function loadOpenPositions() {
     try {
 
         /*
-         * Get job posting records.
+         * Make sure Supabase exists.
+         */
+        if (
+            !window.rmsSupabase
+        ) {
+
+            throw new Error(
+                "Supabase client is not initialized."
+            );
+
+        }
+
+
+        /*
+         * Query job postings.
          *
-         * This uses the SAME job_postings table
-         * created in Laboratory Activity 3.
+         * Laboratory Activity 3
+         * creates/manages these records.
+         *
+         * Laboratory Activity 4
+         * displays them here.
          */
         const {
             data,
             error
-        } = await window.rmsSupabase
-            .from("job_postings")
-            .select(`
-                job_id,
-                job_code,
-                job_title,
-                department,
-                description,
-                qualifications,
-                employment_type,
-                posting_date,
-                closing_date,
-                vacancies,
-                status
-            `)
-            .order(
-                "posting_date",
-                {
-                    ascending: false
-                }
-            );
+        } =
+            await window.rmsSupabase
+                .from(
+                    "job_postings"
+                )
+                .select(`
+                    job_id,
+                    job_code,
+                    job_title,
+                    department,
+                    description,
+                    qualifications,
+                    employment_type,
+                    posting_date,
+                    closing_date,
+                    vacancies,
+                    status
+                `)
+                .order(
+                    "posting_date",
+                    {
+                        ascending:
+                            false
+                    }
+                );
 
 
         /*
-         * Supabase error
+         * Supabase returned an error.
          */
         if (error) {
 
             console.error(
-                "Supabase error:",
+                "Supabase job_postings error:",
                 error
             );
 
@@ -366,22 +459,30 @@ async function loadOpenPositions() {
 
 
         /*
-         * Save data
+         * Save records.
          */
         positions =
-            Array.isArray(data)
+            Array.isArray(
+                data
+            )
                 ? data
                 : [];
 
 
+        console.log(
+            "Open Positions loaded:",
+            positions
+        );
+
+
         /*
-         * Build Department filter
+         * Populate department filter.
          */
         populateDepartmentFilter();
 
 
         /*
-         * Render cards
+         * Render positions.
          */
         renderPositions();
 
@@ -394,9 +495,13 @@ async function loadOpenPositions() {
         );
 
 
+        positions = [];
+
+
         grid.innerHTML = `
             <div
-                class="glass-panel position-card position-empty">
+                class="glass-panel position-card position-empty"
+            >
 
                 <h3>
                     Unable to load positions
@@ -404,7 +509,7 @@ async function loadOpenPositions() {
 
                 <p>
                     ${escapeHtml(
-                        error.message ||
+                        error?.message ||
                         "Please try again."
                     )}
                 </p>
@@ -413,13 +518,25 @@ async function loadOpenPositions() {
         `;
 
 
-        document.getElementById(
-            "positionCount"
-        ).textContent =
-            "Unable to load positions.";
+        const count =
+            document.getElementById(
+                "positionCount"
+            );
 
 
-        throw error;
+        if (count) {
+
+            count.textContent =
+                "Unable to load positions.";
+
+        }
+
+
+        showToast(
+            error?.message ||
+            "Unable to load positions.",
+            "error"
+        );
 
     }
 
@@ -444,14 +561,14 @@ function populateDepartmentFilter() {
 
 
     /*
-     * Remember current selection
+     * Remember current value.
      */
     const current =
         select.value;
 
 
     /*
-     * Get unique departments
+     * Unique departments.
      */
     const departments =
         [
@@ -459,7 +576,10 @@ function populateDepartmentFilter() {
                 positions
                     .map(
                         job =>
-                            job.department
+                            String(
+                                job.department ||
+                                ""
+                            ).trim()
                     )
                     .filter(Boolean)
             )
@@ -471,36 +591,35 @@ function populateDepartmentFilter() {
 
 
     /*
-     * Rebuild options
+     * Rebuild filter.
      */
-    select.innerHTML =
-        `
+    select.innerHTML = `
         <option value="">
             All departments
         </option>
-        `
 
-        +
-
-        departments
-            .map(
-                department =>
+        ${
+            departments
+                .map(
+                    department => `
+                        <option
+                            value="${escapeHtml(
+                                department
+                            )}"
+                        >
+                            ${escapeHtml(
+                                department
+                            )}
+                        </option>
                     `
-                    <option
-                        value="${escapeHtml(
-                            department
-                        )}">
-                        ${escapeHtml(
-                            department
-                        )}
-                    </option>
-                    `
-            )
-            .join("");
+                )
+                .join("")
+        }
+    `;
 
 
     /*
-     * Restore selection
+     * Restore previous selection.
      */
     if (
         departments.includes(
@@ -537,54 +656,78 @@ function renderPositions() {
      * Search
      */
     const query =
-        document.getElementById(
-            "positionSearch"
+        String(
+            document.getElementById(
+                "positionSearch"
+            )?.value ||
+            ""
         )
-        ?.value
-        .trim()
-        .toLowerCase()
-        || "";
+            .trim()
+            .toLowerCase();
 
 
     /*
      * Department
      */
     const department =
-        document.getElementById(
-            "departmentFilter"
-        )
-        ?.value
-        || "";
+        String(
+            document.getElementById(
+                "departmentFilter"
+            )?.value ||
+            ""
+        ).trim();
 
 
     /*
-     * Employment
+     * Employment type
      */
     const employment =
-        document.getElementById(
-            "employmentFilter"
-        )
-        ?.value
-        || "";
+        String(
+            document.getElementById(
+                "employmentFilter"
+            )?.value ||
+            ""
+        ).trim();
 
 
     /*
      * Status
+     *
+     * Default is Open.
      */
-    const status =
+    const statusSelect =
         document.getElementById(
             "positionStatusFilter"
-        )
-        ?.value
-        ?? "Open";
+        );
+
+
+    const status =
+        statusSelect
+            ? String(
+                statusSelect.value ||
+                ""
+            ).trim()
+            : "Open";
 
 
     /*
-     * Filter positions
+     * Filter positions.
      */
     const filtered =
         positions.filter(
             job => {
+
+                const normalizedStatus =
+                    normalizeStatus(
+                        job.status
+                    );
+
+
+                const normalizedSelectedStatus =
+                    normalizeStatus(
+                        status
+                    );
+
 
                 const haystack =
                     `
@@ -592,7 +735,7 @@ function renderPositions() {
                     ${job.job_title || ""}
                     ${job.department || ""}
                     `
-                    .toLowerCase();
+                        .toLowerCase();
 
 
                 const matchesSearch =
@@ -604,20 +747,26 @@ function renderPositions() {
 
                 const matchesDepartment =
                     !department ||
-                    job.department ===
-                        department;
+                    String(
+                        job.department ||
+                        ""
+                    ).trim() ===
+                    department;
 
 
                 const matchesEmployment =
                     !employment ||
-                    job.employment_type ===
-                        employment;
+                    String(
+                        job.employment_type ||
+                        ""
+                    ).trim() ===
+                    employment;
 
 
                 const matchesStatus =
                     !status ||
-                    job.status ===
-                        status;
+                    normalizedStatus ===
+                    normalizedSelectedStatus;
 
 
                 return (
@@ -632,7 +781,7 @@ function renderPositions() {
 
 
     /*
-     * Position count
+     * Position count.
      */
     const count =
         document.getElementById(
@@ -653,9 +802,11 @@ function renderPositions() {
 
 
     /*
-     * No results
+     * No positions.
      */
-    if (!filtered.length) {
+    if (
+        !filtered.length
+    ) {
 
         grid.innerHTML = `
             <div
@@ -663,14 +814,14 @@ function renderPositions() {
                     glass-panel
                     position-card
                     position-empty
-                ">
+                "
+            >
 
                 <div
                     class="empty-icon"
-                    style="margin:0 auto 8px;">
-
+                    style="margin:0 auto 8px;"
+                >
                     ⌕
-
                 </div>
 
                 <h3>
@@ -691,7 +842,7 @@ function renderPositions() {
 
 
     /*
-     * Build cards
+     * Render cards.
      */
     grid.innerHTML =
         filtered
@@ -710,22 +861,29 @@ function renderPositions() {
    CREATE POSITION CARD
    ========================================================= */
 
-function createPositionCard(job) {
+function createPositionCard(
+    job
+) {
 
     const isOpen =
-        job.status === "Open";
+        normalizeStatus(
+            job.status
+        ) ===
+        "OPEN";
 
 
     const applyButton =
         isOpen
             ? `
                 <button
+                    type="button"
                     class="btn btn-primary"
                     data-action="apply"
-                    data-id="${job.job_id}">
-
+                    data-id="${escapeHtml(
+                        job.job_id
+                    )}"
+                >
                     Apply
-
                 </button>
             `
             : "";
@@ -733,22 +891,26 @@ function createPositionCard(job) {
 
     return `
         <article
-            class="glass-panel position-card">
+            class="glass-panel position-card"
+        >
 
             <!-- TOP -->
+
             <div class="position-top">
 
                 <div>
 
                     <div class="job-code">
                         ${escapeHtml(
-                            job.job_code
+                            job.job_code ||
+                            "—"
                         )}
                     </div>
 
                     <h3>
                         ${escapeHtml(
-                            job.job_title
+                            job.job_title ||
+                            "Untitled Position"
                         )}
                     </h3>
 
@@ -763,25 +925,33 @@ function createPositionCard(job) {
 
 
             <!-- INFORMATION -->
+
             <div class="position-meta">
 
                 <span>
                     ◈
                     ${escapeHtml(
-                        job.department
+                        job.department ||
+                        "—"
                     )}
                 </span>
+
 
                 <span>
                     ◷
                     ${escapeHtml(
-                        job.employment_type
+                        job.employment_type ||
+                        "—"
                     )}
                 </span>
 
+
                 <span>
                     ▣
-                    ${job.vacancies}
+                    ${escapeHtml(
+                        job.vacancies ??
+                        "0"
+                    )}
                     ${
                         Number(
                             job.vacancies
@@ -790,6 +960,7 @@ function createPositionCard(job) {
                             : "Vacancies"
                     }
                 </span>
+
 
                 <span>
                     ⌁
@@ -803,6 +974,7 @@ function createPositionCard(job) {
 
 
             <!-- DESCRIPTION -->
+
             <p class="position-summary">
 
                 ${escapeHtml(
@@ -817,16 +989,20 @@ function createPositionCard(job) {
 
 
             <!-- ACTIONS -->
+
             <div class="position-actions">
 
                 <button
+                    type="button"
                     class="btn btn-secondary"
                     data-action="details"
-                    data-id="${job.job_id}">
-
+                    data-id="${escapeHtml(
+                        job.job_id
+                    )}"
+                >
                     View Details
-
                 </button>
+
 
                 ${applyButton}
 
@@ -842,184 +1018,205 @@ function createPositionCard(job) {
    OPEN DETAILS MODAL
    ========================================================= */
 
-function openDetails(job) {
+function openDetails(
+    job
+) {
 
     selectedPosition =
         job;
 
 
-    /*
-     * Modal title
-     */
-    document.getElementById(
-        "detailsCode"
-    ).textContent =
-        job.job_code;
+    const detailsCode =
+        document.getElementById(
+            "detailsCode"
+        );
 
 
-    document.getElementById(
-        "detailsTitle"
-    ).textContent =
-        job.job_title;
+    const detailsTitle =
+        document.getElementById(
+            "detailsTitle"
+        );
 
 
-    /*
-     * Modal content
-     */
-    document.getElementById(
-        "detailsBody"
-    ).innerHTML = `
-
-        <div class="details-grid">
-
-            <!-- DEPARTMENT -->
-            <div class="detail-block">
-
-                <small>
-                    Department
-                </small>
-
-                <strong>
-                    ${escapeHtml(
-                        job.department
-                    )}
-                </strong>
-
-            </div>
+    const detailsBody =
+        document.getElementById(
+            "detailsBody"
+        );
 
 
-            <!-- EMPLOYMENT -->
-            <div class="detail-block">
+    if (
+        detailsCode
+    ) {
 
-                <small>
-                    Employment Type
-                </small>
+        detailsCode.textContent =
+            job.job_code ||
+            "—";
 
-                <strong>
-                    ${escapeHtml(
-                        job.employment_type
-                    )}
-                </strong>
-
-            </div>
+    }
 
 
-            <!-- VACANCIES -->
-            <div class="detail-block">
+    if (
+        detailsTitle
+    ) {
 
-                <small>
-                    Vacancies
-                </small>
+        detailsTitle.textContent =
+            job.job_title ||
+            "Job Position";
 
-                <strong>
-                    ${job.vacancies}
-                </strong>
-
-            </div>
+    }
 
 
-            <!-- STATUS -->
-            <div class="detail-block">
+    if (
+        detailsBody
+    ) {
 
-                <small>
-                    Status
-                </small>
+        detailsBody.innerHTML = `
 
-                <strong>
-                    ${statusBadge(
-                        job.status
-                    )}
-                </strong>
+            <div class="details-grid">
 
-            </div>
+                <div class="detail-block">
 
+                    <small>
+                        Department
+                    </small>
 
-            <!-- POSTING DATE -->
-            <div class="detail-block">
+                    <strong>
+                        ${escapeHtml(
+                            job.department ||
+                            "—"
+                        )}
+                    </strong>
 
-                <small>
-                    Posting Date
-                </small>
-
-                <strong>
-                    ${formatDate(
-                        job.posting_date
-                    )}
-                </strong>
-
-            </div>
+                </div>
 
 
-            <!-- CLOSING DATE -->
-            <div class="detail-block">
+                <div class="detail-block">
 
-                <small>
-                    Closing Date
-                </small>
+                    <small>
+                        Employment Type
+                    </small>
 
-                <strong>
-                    ${formatDate(
-                        job.closing_date
-                    )}
-                </strong>
+                    <strong>
+                        ${escapeHtml(
+                            job.employment_type ||
+                            "—"
+                        )}
+                    </strong>
 
-            </div>
+                </div>
 
 
-            <!-- DESCRIPTION -->
-            <div
-                class="
-                    detail-block
-                    detail-full
-                ">
+                <div class="detail-block">
 
-                <small>
-                    Job Description
-                </small>
+                    <small>
+                        Vacancies
+                    </small>
+
+                    <strong>
+                        ${escapeHtml(
+                            job.vacancies ??
+                            "—"
+                        )}
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-block">
+
+                    <small>
+                        Status
+                    </small>
+
+                    <strong>
+                        ${statusBadge(
+                            job.status
+                        )}
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-block">
+
+                    <small>
+                        Posting Date
+                    </small>
+
+                    <strong>
+                        ${formatDate(
+                            job.posting_date
+                        )}
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-block">
+
+                    <small>
+                        Closing Date
+                    </small>
+
+                    <strong>
+                        ${formatDate(
+                            job.closing_date
+                        )}
+                    </strong>
+
+                </div>
+
 
                 <div
-                    class="modal-description">
+                    class="
+                        detail-block
+                        detail-full
+                    "
+                >
 
-                    ${escapeHtml(
-                        job.description ||
-                        "No job description provided."
-                    )}
+                    <small>
+                        Job Description
+                    </small>
+
+                    <div class="modal-description">
+                        ${escapeHtml(
+                            job.description ||
+                            "No job description provided."
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="
+                        detail-block
+                        detail-full
+                    "
+                >
+
+                    <small>
+                        Qualifications
+                    </small>
+
+                    <div class="modal-description">
+                        ${escapeHtml(
+                            job.qualifications ||
+                            "No qualifications provided."
+                        )}
+                    </div>
 
                 </div>
 
             </div>
 
+        `;
 
-            <!-- QUALIFICATIONS -->
-            <div
-                class="
-                    detail-block
-                    detail-full
-                ">
-
-                <small>
-                    Qualifications
-                </small>
-
-                <div
-                    class="modal-description">
-
-                    ${escapeHtml(
-                        job.qualifications ||
-                        "No qualifications provided."
-                    )}
-
-                </div>
-
-            </div>
-
-        </div>
-    `;
+    }
 
 
     /*
-     * Apply button is only available
-     * for Open positions.
+     * Apply button.
      */
     const applyButton =
         document.getElementById(
@@ -1029,8 +1226,15 @@ function openDetails(job) {
 
     if (applyButton) {
 
+        const isOpen =
+            normalizeStatus(
+                job.status
+            ) ===
+            "OPEN";
+
+
         applyButton.style.display =
-            job.status === "Open"
+            isOpen
                 ? "inline-flex"
                 : "none";
 
@@ -1038,69 +1242,56 @@ function openDetails(job) {
 
 
     /*
-     * Show modal
+     * Open modal.
      */
-    const modal =
-        document.getElementById(
-            "detailsModal"
-        );
-
-
-    modal.classList.add(
-        "open"
-    );
-
-
-    modal.setAttribute(
-        "aria-hidden",
-        "false"
+    toggleModal(
+        "detailsModal",
+        true
     );
 
 }
 
 
 /* =========================================================
-   CLOSE DETAILS MODAL
+   CLOSE DETAILS
    ========================================================= */
 
 function closeDetails() {
 
-    const modal =
-        document.getElementById(
-            "detailsModal"
-        );
-
-
-    if (!modal) {
-        return;
-    }
-
-
-    modal.classList.remove(
-        "open"
+    toggleModal(
+        "detailsModal",
+        false
     );
 
 
-    modal.setAttribute(
-        "aria-hidden",
-        "true"
-    );
+    selectedPosition =
+        null;
 
 }
 
 
 /* =========================================================
-   APPLY BUTTON
+   APPLY / SELECT JOB
    ========================================================= */
 
-function selectJobForApplication(job) {
+function selectJobForApplication(
+    job
+) {
 
-    /*
-     * Only open jobs can be applied for.
-     */
+    if (!job) {
+        return;
+    }
+
+
+    /* =====================================================
+       VALIDATE POSITION STATUS
+       ===================================================== */
+
     if (
-        job.status !==
-        "Open"
+        normalizeStatus(
+            job.status
+        ) !==
+        "OPEN"
     ) {
 
         showToast(
@@ -1113,15 +1304,82 @@ function selectJobForApplication(job) {
     }
 
 
-    /*
-     * Save the selected job.
-     *
-     * This is important for the next
-     * laboratory activity.
-     *
-     * The actual application record
-     * will later use this job_id.
-     */
+    /* =====================================================
+       VALIDATE CLOSING DATE
+       ===================================================== */
+
+    if (
+        job.closing_date
+    ) {
+
+        const closingDate =
+            new Date(
+                `${job.closing_date}T23:59:59`
+            );
+
+
+        if (
+            Number.isNaN(
+                closingDate.getTime()
+            )
+        ) {
+
+            showToast(
+                "The closing date for this position is invalid.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            closingDate.getTime() <
+            Date.now()
+        ) {
+
+            showToast(
+                "This position is no longer accepting applications.",
+                "error"
+            );
+
+            return;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       VALIDATE VACANCIES
+       ===================================================== */
+
+    const vacancies =
+        Number(
+            job.vacancies
+        );
+
+
+    if (
+        !Number.isFinite(vacancies) ||
+        vacancies <= 0
+    ) {
+
+        showToast(
+            "This position currently has no available vacancies.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       STORE SELECTED JOB
+       ===================================================== */
+
     const selectedJob = {
 
         job_id:
@@ -1136,31 +1394,215 @@ function selectJobForApplication(job) {
         department:
             job.department,
 
+        employment_type:
+            job.employment_type,
+
+        vacancies:
+            job.vacancies,
+
+        closing_date:
+            job.closing_date,
+
+        description:
+            job.description,
+
+        qualifications:
+            job.qualifications,
+
         selected_at:
-            new Date().toISOString()
+            new Date()
+                .toISOString()
 
     };
 
 
-    localStorage.setItem(
-        "rms_selected_job",
-        JSON.stringify(
-            selectedJob
-        )
+    try {
+
+        localStorage.setItem(
+            "rms_selected_job",
+            JSON.stringify(
+                selectedJob
+            )
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Unable to save selected job:",
+            error
+        );
+
+
+        showToast(
+            "Unable to prepare the selected position.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       CLOSE DETAILS MODAL
+       ===================================================== */
+
+    closeDetails();
+
+
+    /* =====================================================
+       GO TO APPLICATION PAGE
+       ===================================================== */
+
+    showToast(
+        `${job.job_title} selected. Opening application form...`
     );
 
 
     /*
-     * Close details modal
+     * Allow the toast to appear before navigation.
      */
-    closeDetails();
+    setTimeout(
+        () => {
+
+            window.location.href =
+                "applications.html";
+
+        },
+        250
+    );
+
+}
 
 
-    /*
-     * Notify user
-     */
-    showToast(
-        `${job.job_title} selected. This job is now ready to become the basis of an applicant application.`
+/* =========================================================
+   STATUS BADGE
+   ========================================================= */
+
+function statusBadge(
+    status
+) {
+
+    const normalized =
+        normalizeStatus(
+            status
+        );
+
+
+    if (
+        normalized ===
+        "OPEN"
+    ) {
+
+        return `
+            <span
+                class="position-status-open"
+            >
+                Open
+            </span>
+        `;
+
+    }
+
+
+    if (
+        normalized ===
+        "CLOSED"
+    ) {
+
+        return `
+            <span
+                class="position-status-closed"
+            >
+                Closed
+            </span>
+        `;
+
+    }
+
+
+    return `
+        <span
+            class="position-status-closed"
+        >
+            ${escapeHtml(
+                status ||
+                "—"
+            )}
+        </span>
+    `;
+
+}
+
+
+/* =========================================================
+   NORMALIZE STATUS
+   ========================================================= */
+
+function normalizeStatus(
+    value
+) {
+
+    return String(
+        value ||
+        ""
+    )
+        .trim()
+        .toUpperCase()
+        .replace(
+            /_/g,
+            " "
+        );
+
+}
+
+
+/* =========================================================
+   FORMAT DATE
+   ========================================================= */
+
+function formatDate(
+    value
+) {
+
+    if (!value) {
+        return "—";
+    }
+
+
+    const date =
+        new Date(
+            `${value}T00:00:00`
+        );
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return String(
+            value
+        );
+
+    }
+
+
+    return date.toLocaleDateString(
+        "en-US",
+        {
+
+            year:
+                "numeric",
+
+            month:
+                "short",
+
+            day:
+                "numeric"
+
+        }
     );
 
 }
@@ -1177,7 +1619,8 @@ function shorten(
 
     const text =
         String(
-            value || ""
+            value ||
+            ""
         ).trim();
 
 
@@ -1195,7 +1638,8 @@ function shorten(
         text.slice(
             0,
             maxLength - 1
-        ) + "…"
+        ) +
+        "…"
     );
 
 }
@@ -1205,30 +1649,164 @@ function shorten(
    SAFE HTML ESCAPING
    ========================================================= */
 
-function escapeHtml(value) {
+function escapeHtml(
+    value
+) {
 
     return String(
-        value ?? ""
+        value ??
+        ""
     )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   MODAL HELPER
+   ========================================================= */
+
+function toggleModal(
+    id,
+    open
+) {
+
+    const modal =
+        document.getElementById(
+            id
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.classList.toggle(
+        "open",
+        open
+    );
+
+
+    modal.setAttribute(
+        "aria-hidden",
+        String(
+            !open
+        )
+    );
+
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+function showToast(
+    message,
+    type = "info"
+) {
+
+    let container =
+        document.getElementById(
+            "toastRoot"
+        );
+
+
+    if (!container) {
+
+        container =
+            document.createElement(
+                "div"
+            );
+
+
+        container.id =
+            "toastRoot";
+
+
+        container.className =
+            "toast-root";
+
+
+        document.body.appendChild(
+            container
+        );
+
+    }
+
+
+    const toast =
+        document.createElement(
+            "div"
+        );
+
+
+    toast.className =
+        `toast toast-${type}`;
+
+
+    toast.innerHTML = `
+        <div class="toast-message">
+            ${escapeHtml(
+                message
+            )}
+        </div>
+    `;
+
+
+    container.appendChild(
+        toast
+    );
+
+
+    requestAnimationFrame(
+        () => {
+
+            toast.classList.add(
+                "toast-show"
+            );
+
+        }
+    );
+
+
+    setTimeout(
+        () => {
+
+            toast.classList.remove(
+                "toast-show"
+            );
+
+
+            setTimeout(
+                () => {
+                    toast.remove();
+                },
+                250
+            );
+
+        },
+        3000
     );
 
 }

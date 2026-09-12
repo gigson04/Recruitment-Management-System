@@ -34,3 +34,167 @@ Student-friendly recruitment system using:
 ## Notes
 
 The `users` table intentionally does not store plaintext passwords. Supabase Authentication manages passwords and sessions; `public.users` stores the application role/profile.
+
+
+
+ADMIN
+├── Full system access
+├── Job Postings
+├── Applicants
+├── Applications
+├── Screening
+├── Interviews
+├── Hiring
+├── Reports
+└── Users
+
+APPLICANT
+├── Open Positions
+├── My Applications
+└── My Profile
+
+INTERVIEWER
+├── Interviews
+└── Evaluations
+
+HIRING MANAGER
+└── Hiring
+
+MANAGEMENT
+├── Dashboard
+└── Reports
+
+
+1. Applicant Registration / Sign Up
+2. Applicant Login
+3. Link Auth account → applicants table
+4. Applicant session
+5. Applicant Open Positions
+6. Apply using logged-in applicant automatically
+7. My Applications
+8. RBAC
+9. Continue Lab 16
+
+
+
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — Recruitment Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/frost-ui.css"><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="auth-page">
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <main class="login-wrap">
+    <section class="login-card glass-panel">
+      <div class="brand-block brand-center"><div class="brand-mark">R</div><div><div class="brand-title">Recruitment</div><div class="brand-subtitle">Management System</div></div></div>
+      <div class="login-heading"><p class="eyebrow">Welcome back</p><h1>Sign in to your workspace</h1><p>Manage vacancies, applicants, and the recruitment pipeline from one place.</p></div>
+      <form id="loginForm" class="form-stack">
+        <label>Email<input id="email" type="email" required placeholder="Enter Email" autocomplete="email"></label>
+        <label>Password<div class="password-wrap"><input id="password" type="password" required placeholder="Enter your password" autocomplete="current-password"><button type="button" class="password-toggle" id="togglePassword">Show</button></div></label>
+        <button class="btn btn-primary btn-block" id="loginButton" type="submit">Sign In</button>
+        <div id="loginError" class="form-error" role="alert"></div>
+      </form>
+      <div class="login-footer">Talk is Cheap, Show me the Code.</div>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script><script src="js/supabase.js"></script><script src="js/auth.js"></script>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const loginForm = document.getElementById("loginForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const loginButton = document.getElementById("loginButton");
+    const errorBox = document.getElementById("loginError");
+    const togglePassword = document.getElementById("togglePassword");
+
+    // Show / hide password
+    if (togglePassword) {
+        togglePassword.addEventListener("click", () => {
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                togglePassword.textContent = "Hide";
+            } else {
+                passwordInput.type = "password";
+                togglePassword.textContent = "Show";
+            }
+        });
+    }
+
+    // Button loading state
+    function setButtonLoading(isLoading) {
+        if (!loginButton) return;
+
+        if (isLoading) {
+            loginButton.disabled = true;
+            loginButton.textContent = "Signing in...";
+        } else {
+            loginButton.disabled = false;
+            loginButton.textContent = "Sign In";
+        }
+    }
+
+    // Login
+    loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        errorBox.textContent = "";
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        if (!email || !password) {
+            errorBox.textContent = "Please enter your email and password.";
+            return;
+        }
+
+        setButtonLoading(true);
+
+        try {
+            console.log("Attempting Supabase login...");
+
+            const { data, error } =
+                await window.rmsSupabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+            console.log("Supabase response:", { data, error });
+
+            if (error) {
+                console.error("Supabase login error:", error);
+                errorBox.textContent = error.message;
+                setButtonLoading(false);
+                return;
+            }
+
+            if (!data || !data.session) {
+                errorBox.textContent = "Login failed. No session was created.";
+                setButtonLoading(false);
+                return;
+            }
+
+            console.log("Login successful.");
+
+            window.location.href = "dashboard.html";
+
+        } catch (error) {
+            console.error("Unexpected login error:", error);
+            errorBox.textContent =
+                error.message || "An unexpected error occurred.";
+
+            setButtonLoading(false);
+        }
+    });
+
+});
+</script>
+</body>
+</html>

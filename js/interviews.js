@@ -1,10 +1,14 @@
 /* =========================================================
    RECRUITMENT MANAGEMENT SYSTEM
+
    LABORATORY ACTIVITY 13
    INTERVIEW SCHEDULING
 
    LABORATORY ACTIVITY 14
    INTERVIEW EVALUATION
+
+   LABORATORY ACTIVITY 15
+   INTERVIEW HISTORY
 
    Features:
    - Schedule
@@ -23,6 +27,8 @@
    - Automatic PASSED / FAILED result
    - Evaluation validation
    - Evaluation saved to interview record
+   - Interview history
+   - Multiple interviews per application
    ========================================================= */
 
 let interviews = [];
@@ -32,7 +38,10 @@ let pendingCancelInterviewId = null;
 let interviewEventsBound = false;
 let evaluatingInterviewId = null;
 
-document.addEventListener("DOMContentLoaded", initInterviews);
+document.addEventListener(
+    "DOMContentLoaded",
+    initInterviews
+);
 
 
 /* =========================================================
@@ -40,27 +49,52 @@ document.addEventListener("DOMContentLoaded", initInterviews);
    ========================================================= */
 
 async function initInterviews() {
-    renderShell({ active: "Interviews" });
+
+    renderShell({
+        active: "Interviews"
+    });
+
     setupInterviewEvents();
 
     let session = null;
 
     try {
-        session = await requireAuth();
+
+        session =
+            await requireAuth();
+
     } catch (error) {
-        console.error("Authentication error:", error);
+
+        console.error(
+            "Authentication error:",
+            error
+        );
+
     }
 
     if (!session) {
-        console.warn("No authenticated session detected.");
+
+        console.warn(
+            "No authenticated session detected."
+        );
+
         return;
     }
 
-    loadUserProfile().catch(error => {
-        console.warn("Unable to load user profile:", error);
-    });
+    loadUserProfile()
+        .catch(
+            error => {
+
+                console.warn(
+                    "Unable to load user profile:",
+                    error
+                );
+
+            }
+        );
 
     await loadApplications();
+
     await loadInterviews();
 }
 
@@ -70,85 +104,177 @@ async function initInterviews() {
    ========================================================= */
 
 function setupInterviewEvents() {
-    if (interviewEventsBound) return;
+
+    if (interviewEventsBound) {
+        return;
+    }
+
     interviewEventsBound = true;
 
-    document
-        .getElementById("openInterviewModal")
-        ?.addEventListener("click", openInterviewModalForm);
 
     document
-        .getElementById("closeInterviewModal")
-        ?.addEventListener("click", closeScheduleInterviewForm);
+        .getElementById(
+            "openInterviewModal"
+        )
+        ?.addEventListener(
+            "click",
+            openInterviewModalForm
+        );
+
 
     document
-        .getElementById("cancelInterviewModal")
-        ?.addEventListener("click", closeScheduleInterviewForm);
+        .getElementById(
+            "closeInterviewModal"
+        )
+        ?.addEventListener(
+            "click",
+            closeScheduleInterviewForm
+        );
+
 
     document
-        .getElementById("interviewForm")
-        ?.addEventListener("submit", submitInterview);
+        .getElementById(
+            "cancelInterviewModal"
+        )
+        ?.addEventListener(
+            "click",
+            closeScheduleInterviewForm
+        );
+
 
     document
-        .getElementById("interviewApplication")
-        ?.addEventListener("change", handleApplicationSelection);
+        .getElementById(
+            "interviewForm"
+        )
+        ?.addEventListener(
+            "submit",
+            submitInterview
+        );
+
 
     document
-        .getElementById("interviewSearch")
-        ?.addEventListener("input", renderInterviews);
+        .getElementById(
+            "interviewApplication"
+        )
+        ?.addEventListener(
+            "change",
+            handleApplicationSelection
+        );
+
 
     document
-        .getElementById("interviewStatusFilter")
-        ?.addEventListener("change", renderInterviews);
+        .getElementById(
+            "interviewSearch"
+        )
+        ?.addEventListener(
+            "input",
+            renderInterviews
+        );
+
 
     document
-        .getElementById("interviewsTable")
-        ?.addEventListener("click", handleInterviewAction);
+        .getElementById(
+            "interviewStatusFilter"
+        )
+        ?.addEventListener(
+            "change",
+            renderInterviews
+        );
+
 
     document
-        .getElementById("closeViewInterview")
-        ?.addEventListener("click", closeViewInterview);
+        .getElementById(
+            "interviewsTable"
+        )
+        ?.addEventListener(
+            "click",
+            handleInterviewAction
+        );
+
 
     document
-        .getElementById("closeViewInterviewBottom")
-        ?.addEventListener("click", closeViewInterview);
+        .getElementById(
+            "closeViewInterview"
+        )
+        ?.addEventListener(
+            "click",
+            closeViewInterview
+        );
+
 
     document
-        .getElementById("closeCancelConfirm")
-        ?.addEventListener("click", closeCancelConfirm);
+        .getElementById(
+            "closeViewInterviewBottom"
+        )
+        ?.addEventListener(
+            "click",
+            closeViewInterview
+        );
+
 
     document
-        .getElementById("cancelCancelConfirm")
-        ?.addEventListener("click", closeCancelConfirm);
+        .getElementById(
+            "closeCancelConfirm"
+        )
+        ?.addEventListener(
+            "click",
+            closeCancelConfirm
+        );
+
 
     document
-        .getElementById("confirmCancelInterview")
-        ?.addEventListener("click", confirmCancelInterview);
+        .getElementById(
+            "cancelCancelConfirm"
+        )
+        ?.addEventListener(
+            "click",
+            closeCancelConfirm
+        );
+
+
+    document
+        .getElementById(
+            "confirmCancelInterview"
+        )
+        ?.addEventListener(
+            "click",
+            confirmCancelInterview
+        );
+
 
     /* =====================================================
        LAB 14 - EVALUATION EVENTS
        ===================================================== */
 
     document
-        .getElementById("closeEvaluationModal")
+        .getElementById(
+            "closeEvaluationModal"
+        )
         ?.addEventListener(
             "click",
             closeInterviewEvaluation
         );
 
+
     document
-        .getElementById("cancelEvaluationModal")
+        .getElementById(
+            "cancelEvaluationModal"
+        )
         ?.addEventListener(
             "click",
             closeInterviewEvaluation
         );
 
+
     document
-        .getElementById("interviewEvaluationForm")
+        .getElementById(
+            "interviewEvaluationForm"
+        )
         ?.addEventListener(
             "submit",
             submitInterviewEvaluation
         );
+
 
     [
         "communicationScore",
@@ -156,44 +282,69 @@ function setupInterviewEvents() {
         "problemSolvingScore",
         "teamworkScore",
         "professionalismScore"
-    ].forEach(id => {
-        document
-            .getElementById(id)
-            ?.addEventListener(
-                "input",
-                updateEvaluationTotal
-            );
-    });
+    ].forEach(
+        id => {
+
+            document
+                .getElementById(id)
+                ?.addEventListener(
+                    "input",
+                    updateEvaluationTotal
+                );
+
+        }
+    );
+
 
     document
-        .querySelectorAll(".modal-backdrop")
-        .forEach(modal => {
-            modal.addEventListener(
-                "click",
-                event => {
-                    if (event.target !== modal) {
-                        return;
-                    }
+        .querySelectorAll(
+            ".modal-backdrop"
+        )
+        .forEach(
+            modal => {
 
-                    if (
-                        modal.id ===
-                        "cancelConfirmModal"
-                    ) {
-                        closeCancelConfirm();
-                    } else {
-                        toggleModal(
-                            modal.id,
-                            false
-                        );
+                modal.addEventListener(
+                    "click",
+                    event => {
+
+                        if (
+                            event.target !==
+                            modal
+                        ) {
+                            return;
+                        }
+
+                        if (
+                            modal.id ===
+                            "cancelConfirmModal"
+                        ) {
+
+                            closeCancelConfirm();
+
+                        } else {
+
+                            toggleModal(
+                                modal.id,
+                                false
+                            );
+
+                        }
+
                     }
-                }
-            );
-        });
+                );
+
+            }
+        );
+
 
     document.addEventListener(
         "keydown",
         event => {
-            if (event.key !== "Escape") {
+
+            if (
+                event.key !==
+                "Escape"
+            ) {
                 return;
             }
 
@@ -204,40 +355,52 @@ function setupInterviewEvents() {
 
             openModals.forEach(
                 modal => {
+
                     if (
                         modal.id ===
                         "cancelConfirmModal"
                     ) {
+
                         closeCancelConfirm();
+
                     } else {
+
                         toggleModal(
                             modal.id,
                             false
                         );
+
                     }
+
                 }
             );
+
         }
     );
 }
 
 
 /* =========================================================
-   LOAD QUALIFIED APPLICATIONS
+   LOAD APPLICATIONS
    ========================================================= */
 
 async function loadApplications() {
+
     const select =
         document.getElementById(
             "interviewApplication"
         );
 
     try {
+
         if (!window.rmsSupabase) {
+
             throw new Error(
                 "Supabase client is not initialized."
             );
+
         }
+
 
         const {
             data: rows,
@@ -260,14 +423,17 @@ async function loadApplications() {
                     }
                 );
 
+
         if (error) {
             throw error;
         }
+
 
         const applicationRows =
             Array.isArray(rows)
                 ? rows
                 : [];
+
 
         const applicantIds = [
             ...new Set(
@@ -280,6 +446,7 @@ async function loadApplications() {
             )
         ];
 
+
         const jobIds = [
             ...new Set(
                 applicationRows
@@ -291,13 +458,20 @@ async function loadApplications() {
             )
         ];
 
+
         let applicantRows = [];
+
         let jobRows = [];
 
-        if (applicantIds.length) {
+
+        if (
+            applicantIds.length
+        ) {
+
             const {
                 data,
-                error: applicantError
+                error:
+                    applicantError
             } =
                 await window.rmsSupabase
                     .from("applicants")
@@ -313,20 +487,26 @@ async function loadApplications() {
                         applicantIds
                     );
 
+
             if (applicantError) {
                 throw applicantError;
             }
+
 
             applicantRows =
                 Array.isArray(data)
                     ? data
                     : [];
+
         }
 
+
         if (jobIds.length) {
+
             const {
                 data,
-                error: jobError
+                error:
+                    jobError
             } =
                 await window.rmsSupabase
                     .from("job_postings")
@@ -342,15 +522,19 @@ async function loadApplications() {
                         jobIds
                     );
 
+
             if (jobError) {
                 throw jobError;
             }
+
 
             jobRows =
                 Array.isArray(data)
                     ? data
                     : [];
+
         }
+
 
         const applicantMap =
             new Map(
@@ -364,6 +548,7 @@ async function loadApplications() {
                 )
             );
 
+
         const jobMap =
             new Map(
                 jobRows.map(
@@ -376,9 +561,11 @@ async function loadApplications() {
                 )
             );
 
+
         applications =
             applicationRows.map(
                 application => ({
+
                     ...application,
 
                     applicants:
@@ -392,31 +579,40 @@ async function loadApplications() {
                     job_postings:
                         jobMap.get(
                             String(
-                                application.job_id
+                                application
+                                    .job_id
                             )
                         ) || null
+
                 })
             );
+
 
         renderApplicationOptions(
             editingInterviewId !== null
         );
 
     } catch (error) {
+
         console.error(
             "Load applications error:",
             error
         );
 
+
         applications = [];
 
+
         if (select) {
+
             select.innerHTML = `
                 <option value="">
-                    Unable to load qualified applications
+                    Unable to load applications
                 </option>
             `;
+
         }
+
     }
 }
 
@@ -429,14 +625,17 @@ function renderApplicationOptions(
     includeForInterview = false,
     selectedId = null
 ) {
+
     const select =
         document.getElementById(
             "interviewApplication"
         );
 
+
     if (!select) {
         return;
     }
+
 
     const previousValue =
         String(
@@ -445,34 +644,51 @@ function renderApplicationOptions(
             ""
         ).trim();
 
+
     select.innerHTML = `
         <option value="">
             Select qualified application
         </option>
     `;
 
+
+    /*
+     * LAB 15:
+     *
+     * Allow:
+     *
+     * QUALIFIED
+     * FOR INTERVIEW
+     *
+     * This allows another interview to be created
+     * for an application that already had an interview.
+     */
+
     const availableApplications =
         applications.filter(
             application => {
+
                 const status =
                     normalizeStatus(
                         application.status
                     );
 
+
                 return (
                     status ===
                         "QUALIFIED" ||
-                    (
-                        includeForInterview &&
-                        status ===
-                            "FOR INTERVIEW"
-                    )
+
+                    status ===
+                        "FOR INTERVIEW"
                 );
+
             }
         );
 
+
     availableApplications.forEach(
         application => {
+
             const applicant =
                 application.applicants ||
                 {};
@@ -480,6 +696,7 @@ function renderApplicationOptions(
             const job =
                 application.job_postings ||
                 {};
+
 
             const applicantName =
                 `${
@@ -490,21 +707,26 @@ function renderApplicationOptions(
                     ""
                 }`.trim();
 
+
             const jobTitle =
                 job.job_title ||
                 "Unknown Position";
 
+
             const jobCode =
                 job.job_code ||
                 "";
+
 
             const option =
                 document.createElement(
                     "option"
                 );
 
+
             option.value =
                 application.application_id;
+
 
             option.textContent =
                 `${
@@ -516,30 +738,39 @@ function renderApplicationOptions(
                         : ""
                 }`;
 
+
             select.appendChild(
                 option
             );
+
         }
     );
+
 
     if (
         !availableApplications.length
     ) {
+
         const emptyOption =
             document.createElement(
                 "option"
             );
 
+
         emptyOption.disabled =
             true;
+
 
         emptyOption.textContent =
             "No qualified applications available";
 
+
         select.appendChild(
             emptyOption
         );
+
     }
+
 
     if (
         previousValue &&
@@ -549,11 +780,14 @@ function renderApplicationOptions(
             option =>
                 String(
                     option.value
-                ) === previousValue
+                ) ===
+                previousValue
         )
     ) {
+
         select.value =
             previousValue;
+
     }
 }
 
@@ -563,47 +797,62 @@ function renderApplicationOptions(
    ========================================================= */
 
 function handleApplicationSelection() {
+
     const select =
         document.getElementById(
             "interviewApplication"
         );
+
 
     const applicantElement =
         document.getElementById(
             "interviewApplicant"
         );
 
+
     const positionElement =
         document.getElementById(
             "interviewPosition"
         );
+
 
     const infoElement =
         document.getElementById(
             "selectedInterviewApplication"
         );
 
+
     if (!select) {
         return;
     }
+
 
     const applicationId =
         String(
             select.value || ""
         ).trim();
 
+
     if (!applicationId) {
+
         if (applicantElement) {
+
             applicantElement.textContent =
                 "—";
+
         }
+
 
         if (positionElement) {
+
             positionElement.textContent =
                 "—";
+
         }
 
+
         if (infoElement) {
+
             infoElement.hidden =
                 true;
 
@@ -611,40 +860,53 @@ function handleApplicationSelection() {
                 .removeProperty(
                     "display"
                 );
+
         }
 
         return;
     }
+
 
     const application =
         applications.find(
             item =>
                 String(
                     item.application_id
-                ) === applicationId
+                ) ===
+                applicationId
         );
 
+
     if (!application) {
+
         if (applicantElement) {
+
             applicantElement.textContent =
                 "—";
+
         }
 
+
         if (positionElement) {
+
             positionElement.textContent =
                 "—";
+
         }
 
         return;
     }
 
+
     const applicant =
         application.applicants ||
         {};
 
+
     const job =
         application.job_postings ||
         {};
+
 
     const applicantName =
         `${
@@ -655,30 +917,40 @@ function handleApplicationSelection() {
             ""
         }`.trim();
 
+
     const positionName =
         String(
             job.job_title ||
             ""
         ).trim();
 
+
     if (applicantElement) {
+
         applicantElement.textContent =
             applicantName ||
             "—";
+
     }
 
+
     if (positionElement) {
+
         positionElement.textContent =
             positionName ||
             "—";
+
     }
 
+
     if (infoElement) {
+
         infoElement.hidden =
             false;
 
         infoElement.style.display =
             "grid";
+
     }
 }
 
@@ -688,49 +960,71 @@ function handleApplicationSelection() {
    ========================================================= */
 
 async function openInterviewModalForm() {
-    editingInterviewId = null;
+
+    editingInterviewId =
+        null;
+
+
     pendingCancelInterviewId =
         null;
+
 
     const form =
         document.getElementById(
             "interviewForm"
         );
 
+
     if (!form) {
         return;
     }
 
+
     form.reset();
+
+
     clearFormError();
 
-    setFormMode("schedule");
+
+    setFormMode(
+        "schedule"
+    );
+
 
     const applicationSelect =
         document.getElementById(
             "interviewApplication"
         );
 
+
     if (applicationSelect) {
+
         applicationSelect.disabled =
             false;
 
+
         applicationSelect.innerHTML = `
             <option value="">
-                Loading qualified applications...
+                Loading applications...
             </option>
         `;
+
     }
+
 
     await loadApplications();
 
+
     renderApplicationOptions(
-        false
+        true
     );
+
 
     setMinimumInterviewDate();
 
+
     handleApplicationSelection();
+
 
     toggleModal(
         "interviewModal",
@@ -739,19 +1033,28 @@ async function openInterviewModalForm() {
 }
 
 
+/* =========================================================
+   EDIT / RESCHEDULE
+   ========================================================= */
+
 function openEditInterviewForm(
     interview
 ) {
+
     const status =
         normalizeStatus(
             interview?.status
         );
 
+
     if (
         !interview ||
-        status === "CANCELLED" ||
-        status === "COMPLETED"
+        status ===
+            "CANCELLED" ||
+        status ===
+            "COMPLETED"
     ) {
+
         showToast(
             "This interview cannot be rescheduled.",
             "error"
@@ -760,94 +1063,127 @@ function openEditInterviewForm(
         return;
     }
 
+
     editingInterviewId =
         interview.interview_id;
 
+
     pendingCancelInterviewId =
         null;
+
 
     const form =
         document.getElementById(
             "interviewForm"
         );
 
+
     if (!form) {
         return;
     }
 
+
     form.reset();
+
+
     clearFormError();
+
 
     setFormMode(
         "reschedule"
     );
+
 
     renderApplicationOptions(
         true,
         interview.application_id
     );
 
+
     const applicationSelect =
         document.getElementById(
             "interviewApplication"
         );
+
 
     const dateInput =
         document.getElementById(
             "interviewDate"
         );
 
+
     const timeInput =
         document.getElementById(
             "interviewTime"
         );
+
 
     const interviewerInput =
         document.getElementById(
             "interviewer"
         );
 
+
     const venueInput =
         document.getElementById(
             "interviewVenue"
         );
 
+
     if (applicationSelect) {
+
         applicationSelect.value =
             interview.application_id;
 
+
         applicationSelect.disabled =
             true;
+
     }
 
+
     if (dateInput) {
+
         dateInput.value =
             interview.interview_date ||
             "";
+
     }
 
+
     if (timeInput) {
+
         timeInput.value =
             normalizeTime(
                 interview.interview_time
             );
+
     }
 
+
     if (interviewerInput) {
+
         interviewerInput.value =
             interview.interviewer ||
             "";
+
     }
 
+
     if (venueInput) {
+
         venueInput.value =
             interview.venue ||
             "";
+
     }
+
 
     setMinimumInterviewDate();
 
+
     handleApplicationSelection();
+
 
     toggleModal(
         "interviewModal",
@@ -856,77 +1192,109 @@ function openEditInterviewForm(
 }
 
 
+/* =========================================================
+   FORM MODE
+   ========================================================= */
+
 function setFormMode(
     mode
 ) {
+
     const title =
         document.getElementById(
             "interviewModalTitle"
         );
+
 
     const saveButton =
         document.getElementById(
             "saveInterviewButton"
         );
 
+
     const statusInput =
         document.getElementById(
             "interviewStatus"
         );
 
+
     const isReschedule =
-        mode === "reschedule";
+        mode ===
+        "reschedule";
+
 
     const status =
         isReschedule
             ? "Rescheduled"
             : "Scheduled";
 
+
     if (title) {
+
         title.textContent =
             isReschedule
                 ? "Reschedule Interview"
                 : "Schedule Interview";
+
     }
 
+
     if (saveButton) {
+
         saveButton.textContent =
             isReschedule
                 ? "Save Changes"
                 : "Schedule Interview";
+
     }
 
+
     if (statusInput) {
+
         statusInput.innerHTML = `
             <option value="${status}">
                 ${status}
             </option>
         `;
 
+
         statusInput.value =
             status;
 
+
         statusInput.disabled =
             true;
+
     }
 }
 
 
+/* =========================================================
+   CLOSE SCHEDULE FORM
+   ========================================================= */
+
 function closeScheduleInterviewForm() {
+
     editingInterviewId =
         null;
 
+
     clearFormError();
+
 
     const applicationSelect =
         document.getElementById(
             "interviewApplication"
         );
 
+
     if (applicationSelect) {
+
         applicationSelect.disabled =
             false;
+
     }
+
 
     toggleModal(
         "interviewModal",
@@ -940,14 +1308,17 @@ function closeScheduleInterviewForm() {
    ========================================================= */
 
 async function loadInterviews() {
+
     const table =
         document.getElementById(
             "interviewsTable"
         );
 
+
     if (!table) {
         return;
     }
+
 
     table.innerHTML = `
         <tr>
@@ -960,12 +1331,17 @@ async function loadInterviews() {
         </tr>
     `;
 
+
     try {
+
         if (!window.rmsSupabase) {
+
             throw new Error(
                 "Supabase client is not initialized."
             );
+
         }
+
 
         const {
             data,
@@ -1009,9 +1385,11 @@ async function loadInterviews() {
                     }
                 );
 
+
         if (error) {
             throw error;
         }
+
 
         interviews =
             (
@@ -1020,32 +1398,41 @@ async function loadInterviews() {
                     : []
             ).map(
                 interview => ({
+
                     ...interview,
 
                     applications:
                         applications.find(
                             application =>
                                 String(
-                                    application.application_id
+                                    application
+                                        .application_id
                                 ) ===
                                 String(
-                                    interview.application_id
+                                    interview
+                                        .application_id
                                 )
                         ) || null
+
                 })
             );
+
 
         renderInterviews();
 
     } catch (error) {
+
         console.error(
             "Load interviews error:",
             error
         );
 
+
         interviews = [];
 
+
         updateInterviewSummary();
+
 
         table.innerHTML = `
             <tr>
@@ -1057,6 +1444,7 @@ async function loadInterviews() {
                 </td>
             </tr>
         `;
+
     }
 }
 
@@ -1066,40 +1454,50 @@ async function loadInterviews() {
    ========================================================= */
 
 function updateInterviewSummary() {
+
     const totalElement =
         document.getElementById(
             "totalInterviews"
         );
+
 
     const scheduledElement =
         document.getElementById(
             "scheduledInterviews"
         );
 
+
     const cancelledElement =
         document.getElementById(
             "cancelledInterviews"
         );
 
+
     const total =
         interviews.length;
+
 
     const scheduled =
         interviews.filter(
             interview => {
+
                 const status =
                     normalizeStatus(
                         interview.status
                     );
 
+
                 return (
                     status ===
                         "SCHEDULED" ||
+
                     status ===
                         "RESCHEDULED"
                 );
+
             }
         ).length;
+
 
     const cancelled =
         interviews.filter(
@@ -1110,19 +1508,28 @@ function updateInterviewSummary() {
                 "CANCELLED"
         ).length;
 
+
     if (totalElement) {
+
         totalElement.textContent =
             total;
+
     }
+
 
     if (scheduledElement) {
+
         scheduledElement.textContent =
             scheduled;
+
     }
 
+
     if (cancelledElement) {
+
         cancelledElement.textContent =
             cancelled;
+
     }
 }
 
@@ -1132,16 +1539,20 @@ function updateInterviewSummary() {
    ========================================================= */
 
 function renderInterviews() {
+
     const table =
         document.getElementById(
             "interviewsTable"
         );
 
+
     if (!table) {
         return;
     }
 
+
     updateInterviewSummary();
+
 
     const search =
         String(
@@ -1153,6 +1564,7 @@ function renderInterviews() {
             .trim()
             .toLowerCase();
 
+
     const statusFilter =
         String(
             document.getElementById(
@@ -1161,20 +1573,25 @@ function renderInterviews() {
                 ""
         ).trim();
 
+
     const filtered =
         interviews.filter(
             interview => {
+
                 const application =
                     interview.applications ||
                     {};
+
 
                 const applicant =
                     application.applicants ||
                     {};
 
+
                 const job =
                     application.job_postings ||
                     {};
+
 
                 const applicantName =
                     `${
@@ -1187,11 +1604,13 @@ function renderInterviews() {
                         .trim()
                         .toLowerCase();
 
+
                 const applicantNo =
                     String(
                         applicant.applicant_no ||
                         ""
                     ).toLowerCase();
+
 
                 const jobTitle =
                     String(
@@ -1199,11 +1618,13 @@ function renderInterviews() {
                         ""
                     ).toLowerCase();
 
+
                 const jobCode =
                     String(
                         job.job_code ||
                         ""
                     ).toLowerCase();
+
 
                 const interviewer =
                     String(
@@ -1211,16 +1632,19 @@ function renderInterviews() {
                         ""
                     ).toLowerCase();
 
+
                 const venue =
                     String(
                         interview.venue ||
                         ""
                     ).toLowerCase();
 
+
                 const status =
                     normalizeStatus(
                         interview.status
                     );
+
 
                 const matchesSearch =
                     !search ||
@@ -1248,39 +1672,52 @@ function renderInterviews() {
                             search
                         );
 
+
                 let matchesStatus =
                     true;
 
+
                 if (statusFilter) {
+
                     const wanted =
                         normalizeStatus(
                             statusFilter
                         );
 
+
                     if (
                         wanted ===
                         "SCHEDULED"
                     ) {
+
                         matchesStatus =
                             status ===
                                 "SCHEDULED" ||
                             status ===
                                 "RESCHEDULED";
+
                     } else {
+
                         matchesStatus =
                             status ===
                             wanted;
+
                     }
+
                 }
+
 
                 return (
                     matchesSearch &&
                     matchesStatus
                 );
+
             }
         );
 
+
     if (!filtered.length) {
+
         table.innerHTML = `
             <tr>
                 <td
@@ -1295,32 +1732,39 @@ function renderInterviews() {
         return;
     }
 
+
     table.innerHTML =
         filtered
             .map(
                 interview => {
+
                     const application =
                         interview.applications ||
                         {};
+
 
                     const applicant =
                         application.applicants ||
                         {};
 
+
                     const job =
                         application.job_postings ||
                         {};
+
 
                     const status =
                         normalizeStatus(
                             interview.status
                         );
 
+
                     const inactive =
                         status ===
                             "CANCELLED" ||
                         status ===
                             "COMPLETED";
+
 
                     const applicantName =
                         `${
@@ -1331,6 +1775,7 @@ function renderInterviews() {
                             ""
                         }`.trim();
 
+
                     const hasEvaluation =
                         interview.score !==
                             null &&
@@ -1338,6 +1783,7 @@ function renderInterviews() {
                             undefined &&
                         interview.score !==
                             "";
+
 
                     return `
                         <tr>
@@ -1348,6 +1794,7 @@ function renderInterviews() {
                                     "—"
                                 )}
                             </td>
+
 
                             <td>
                                 <div class="interview-meta">
@@ -1369,17 +1816,20 @@ function renderInterviews() {
                                 </div>
                             </td>
 
+
                             <td>
                                 ${formatDate(
                                     interview.interview_date
                                 )}
                             </td>
 
+
                             <td>
                                 ${formatTime(
                                     interview.interview_time
                                 )}
                             </td>
+
 
                             <td>
                                 ${escapeHtml(
@@ -1388,12 +1838,14 @@ function renderInterviews() {
                                 )}
                             </td>
 
+
                             <td>
                                 ${escapeHtml(
                                     interview.venue ||
                                     "—"
                                 )}
                             </td>
+
 
                             <td>
 
@@ -1415,6 +1867,7 @@ function renderInterviews() {
 
                             </td>
 
+
                             <td>
 
                                 <div class="table-actions">
@@ -1429,6 +1882,19 @@ function renderInterviews() {
                                     >
                                         View
                                     </button>
+
+
+                                    <button
+                                        type="button"
+                                        class="table-action"
+                                        data-action="history"
+                                        data-id="${escapeHtml(
+                                            interview.interview_id
+                                        )}"
+                                    >
+                                        History
+                                    </button>
+
 
                                     ${
                                         inactive
@@ -1446,6 +1912,7 @@ function renderInterviews() {
                                                     Reschedule
                                                 </button>
 
+
                                                 <button
                                                     type="button"
                                                     class="table-action"
@@ -1456,6 +1923,7 @@ function renderInterviews() {
                                                 >
                                                     Evaluate
                                                 </button>
+
 
                                                 <button
                                                     type="button"
@@ -1489,24 +1957,30 @@ function renderInterviews() {
 async function handleInterviewAction(
     event
 ) {
+
     const button =
         event.target.closest(
             "[data-action]"
         );
 
+
     if (!button) {
         return;
     }
 
+
     const action =
         button.dataset.action;
+
 
     const id =
         button.dataset.id;
 
+
     if (!id) {
         return;
     }
+
 
     const interview =
         interviews.find(
@@ -1514,10 +1988,14 @@ async function handleInterviewAction(
                 String(
                     item.interview_id
                 ) ===
-                String(id)
+                String(
+                    id
+                )
         );
 
+
     if (!interview) {
+
         showToast(
             "Interview record not found.",
             "error"
@@ -1526,7 +2004,12 @@ async function handleInterviewAction(
         return;
     }
 
-    if (action === "view") {
+
+    if (
+        action ===
+        "view"
+    ) {
+
         openViewInterview(
             interview
         );
@@ -1534,7 +2017,25 @@ async function handleInterviewAction(
         return;
     }
 
-    if (action === "edit") {
+
+    if (
+        action ===
+        "history"
+    ) {
+
+        openInterviewHistory(
+            interview
+        );
+
+        return;
+    }
+
+
+    if (
+        action ===
+        "edit"
+    ) {
+
         openEditInterviewForm(
             interview
         );
@@ -1542,7 +2043,12 @@ async function handleInterviewAction(
         return;
     }
 
-    if (action === "evaluate") {
+
+    if (
+        action ===
+        "evaluate"
+    ) {
+
         openInterviewEvaluation(
             interview
         );
@@ -1550,10 +2056,16 @@ async function handleInterviewAction(
         return;
     }
 
-    if (action === "cancel") {
+
+    if (
+        action ===
+        "cancel"
+    ) {
+
         cancelInterview(
             id
         );
+
     }
 }
 
@@ -1565,39 +2077,48 @@ async function handleInterviewAction(
 async function submitInterview(
     event
 ) {
+
     event.preventDefault();
 
+
     clearFormError();
+
 
     const button =
         document.getElementById(
             "saveInterviewButton"
         );
 
+
     const applicationSelect =
         document.getElementById(
             "interviewApplication"
         );
+
 
     const dateInput =
         document.getElementById(
             "interviewDate"
         );
 
+
     const timeInput =
         document.getElementById(
             "interviewTime"
         );
+
 
     const interviewerInput =
         document.getElementById(
             "interviewer"
         );
 
+
     const venueInput =
         document.getElementById(
             "interviewVenue"
         );
+
 
     const applicationId =
         String(
@@ -1605,11 +2126,13 @@ async function submitInterview(
                 ""
         ).trim();
 
+
     const interviewDate =
         String(
             dateInput?.value ||
                 ""
         ).trim();
+
 
     const interviewTime =
         String(
@@ -1617,11 +2140,13 @@ async function submitInterview(
                 ""
         ).trim();
 
+
     const interviewer =
         String(
             interviewerInput?.value ||
                 ""
         ).trim();
+
 
     const venue =
         String(
@@ -1629,19 +2154,25 @@ async function submitInterview(
                 ""
         ).trim();
 
+
     const error =
         message => {
+
             setFormError(
                 message
             );
+
 
             showToast(
                 message,
                 "error"
             );
+
         };
 
+
     if (!applicationId) {
+
         error(
             "Please select a qualified application."
         );
@@ -1649,7 +2180,9 @@ async function submitInterview(
         return;
     }
 
+
     if (!interviewDate) {
+
         error(
             "Please select an interview date."
         );
@@ -1657,7 +2190,9 @@ async function submitInterview(
         return;
     }
 
+
     if (!interviewTime) {
+
         error(
             "Please select an interview time."
         );
@@ -1665,7 +2200,9 @@ async function submitInterview(
         return;
     }
 
+
     if (!interviewer) {
+
         error(
             "Please enter the interviewer."
         );
@@ -1673,7 +2210,9 @@ async function submitInterview(
         return;
     }
 
+
     if (!venue) {
+
         error(
             "Please enter the interview venue."
         );
@@ -1681,13 +2220,16 @@ async function submitInterview(
         return;
     }
 
+
     if (!window.rmsSupabase) {
+
         error(
             "Supabase client is not initialized. Please refresh the page."
         );
 
         return;
     }
+
 
     const application =
         applications.find(
@@ -1698,7 +2240,9 @@ async function submitInterview(
                 applicationId
         );
 
+
     if (!application) {
+
         error(
             "The selected application could not be found."
         );
@@ -1706,25 +2250,19 @@ async function submitInterview(
         return;
     }
 
+
     const applicationStatus =
         normalizeStatus(
             application.status
         );
 
-    if (
-        editingInterviewId === null &&
-        applicationStatus !==
-            "QUALIFIED"
-    ) {
-        error(
-            "Interview cannot be scheduled because the application is not qualified."
-        );
 
-        return;
-    }
+    /*
+     * New interview / reschedule:
+     * Qualified OR For Interview
+     */
 
     if (
-        editingInterviewId !== null &&
         ![
             "QUALIFIED",
             "FOR INTERVIEW"
@@ -1732,12 +2270,14 @@ async function submitInterview(
             applicationStatus
         )
     ) {
+
         error(
-            "This application is no longer eligible for an interview."
+            "This application is not eligible for an interview."
         );
 
         return;
     }
+
 
     if (
         !isValidFutureDateTime(
@@ -1745,6 +2285,7 @@ async function submitInterview(
             interviewTime
         )
     ) {
+
         error(
             "Please select a valid future interview date and time."
         );
@@ -1752,9 +2293,21 @@ async function submitInterview(
         return;
     }
 
+
+    /*
+     * Same application + same date + same time
+     * is prevented.
+     *
+     * Different dates/times are allowed.
+     *
+     * This allows Interview 2, Interview 3,
+     * and additional interviews.
+     */
+
     const duplicate =
         interviews.find(
             interview => {
+
                 if (
                     String(
                         interview.interview_id
@@ -1766,10 +2319,12 @@ async function submitInterview(
                     return false;
                 }
 
+
                 const status =
                     normalizeStatus(
                         interview.status
                     );
+
 
                 if (
                     status ===
@@ -1780,15 +2335,18 @@ async function submitInterview(
                     return false;
                 }
 
+
                 return (
                     String(
                         interview.application_id
                     ) ===
                         applicationId &&
+
                     String(
                         interview.interview_date
                     ) ===
                         interviewDate &&
+
                     normalizeTime(
                         interview.interview_time
                     ) ===
@@ -1796,10 +2354,13 @@ async function submitInterview(
                             interviewTime
                         )
                 );
+
             }
         );
 
+
     if (duplicate) {
+
         error(
             "This applicant already has an interview scheduled at that date and time."
         );
@@ -1807,9 +2368,15 @@ async function submitInterview(
         return;
     }
 
+
+    /*
+     * Interviewer conflict.
+     */
+
     const interviewerConflict =
         interviews.find(
             interview => {
+
                 if (
                     String(
                         interview.interview_id
@@ -1821,10 +2388,12 @@ async function submitInterview(
                     return false;
                 }
 
+
                 const status =
                     normalizeStatus(
                         interview.status
                     );
+
 
                 if (
                     status ===
@@ -1834,6 +2403,7 @@ async function submitInterview(
                 ) {
                     return false;
                 }
+
 
                 return (
                     String(
@@ -1844,10 +2414,12 @@ async function submitInterview(
                         .toLowerCase() ===
                         interviewer
                             .toLowerCase() &&
+
                     String(
                         interview.interview_date
                     ) ===
                         interviewDate &&
+
                     normalizeTime(
                         interview.interview_time
                     ) ===
@@ -1855,10 +2427,13 @@ async function submitInterview(
                             interviewTime
                         )
                 );
+
             }
         );
 
+
     if (interviewerConflict) {
+
         error(
             "The interviewer already has another interview scheduled at that date and time."
         );
@@ -1866,13 +2441,16 @@ async function submitInterview(
         return;
     }
 
+
     const isReschedule =
         editingInterviewId !== null;
+
 
     const status =
         isReschedule
             ? "Rescheduled"
             : "Scheduled";
+
 
     setButtonLoading(
         button,
@@ -1882,33 +2460,47 @@ async function submitInterview(
             : "Scheduling..."
     );
 
+
     try {
+
         if (!isReschedule) {
+
             const {
-                error: insertError
+                error:
+                    insertError
             } =
                 await window.rmsSupabase
                     .from("interviews")
                     .insert({
+
                         application_id:
                             applicationId,
+
                         interview_date:
                             interviewDate,
+
                         interview_time:
                             interviewTime,
+
                         interviewer,
+
                         venue,
+
                         status:
                             "Scheduled"
+
                     });
+
 
             if (insertError) {
                 throw insertError;
             }
 
+
             await updateApplicationForInterview(
                 applicationId
             );
+
 
             showToast(
                 "Interview scheduled successfully.",
@@ -1916,45 +2508,62 @@ async function submitInterview(
             );
 
         } else {
+
             const {
-                error: updateError
+                error:
+                    updateError
             } =
                 await window.rmsSupabase
                     .from("interviews")
                     .update({
+
                         interview_date:
                             interviewDate,
+
                         interview_time:
                             interviewTime,
+
                         interviewer,
+
                         venue,
+
                         status
+
                     })
                     .eq(
                         "interview_id",
                         editingInterviewId
                     );
 
+
             if (updateError) {
                 throw updateError;
             }
+
 
             showToast(
                 "Interview rescheduled successfully.",
                 "success"
             );
+
         }
+
 
         closeScheduleInterviewForm();
 
+
         await loadApplications();
+
+
         await loadInterviews();
 
     } catch (error) {
+
         console.error(
             "Save interview error:",
             error
         );
+
 
         showToast(
             error?.message ||
@@ -1964,10 +2573,12 @@ async function submitInterview(
         );
 
     } finally {
+
         setButtonLoading(
             button,
             false
         );
+
     }
 }
 
@@ -1979,25 +2590,31 @@ async function submitInterview(
 async function updateApplicationForInterview(
     applicationId
 ) {
+
     const {
         error
     } =
         await window.rmsSupabase
             .from("applications")
             .update({
+
                 status:
                     "For Interview"
+
             })
             .eq(
                 "application_id",
                 applicationId
             );
 
+
     if (error) {
+
         console.warn(
             "Interview saved, but application status could not be updated:",
             error
         );
+
     }
 }
 
@@ -2009,6 +2626,7 @@ async function updateApplicationForInterview(
 function cancelInterview(
     interviewId
 ) {
+
     const interview =
         interviews.find(
             item =>
@@ -2020,7 +2638,9 @@ function cancelInterview(
                 )
         );
 
+
     if (!interview) {
+
         showToast(
             "Interview record not found.",
             "error"
@@ -2029,15 +2649,18 @@ function cancelInterview(
         return;
     }
 
+
     const status =
         normalizeStatus(
             interview.status
         );
 
+
     if (
         status ===
         "CANCELLED"
     ) {
+
         showToast(
             "This interview is already cancelled.",
             "info"
@@ -2046,10 +2669,12 @@ function cancelInterview(
         return;
     }
 
+
     if (
         status ===
         "COMPLETED"
     ) {
+
         showToast(
             "Completed interviews cannot be cancelled.",
             "error"
@@ -2058,8 +2683,10 @@ function cancelInterview(
         return;
     }
 
+
     pendingCancelInterviewId =
         interview.interview_id;
+
 
     const application =
         interview.applications ||
@@ -2074,13 +2701,16 @@ function cancelInterview(
         ) ||
         {};
 
+
     const applicant =
         application.applicants ||
         {};
 
+
     const job =
         application.job_postings ||
         {};
+
 
     const applicantName =
         `${
@@ -2092,18 +2722,24 @@ function cancelInterview(
         }`.trim() ||
         "this applicant";
 
+
     const positionName =
         job.job_title ||
         "this position";
+
 
     const message =
         document.getElementById(
             "cancelConfirmMessage"
         );
 
+
     if (message) {
+
         message.innerHTML = `
-            <strong>Cancel this interview?</strong>
+            <strong>
+                Cancel this interview?
+            </strong>
 
             <p>
                 You are about to cancel the interview scheduled for
@@ -2120,23 +2756,32 @@ function cancelInterview(
 
             <p>
                 The interview will remain in the system as
-                <strong>Cancelled</strong>.
+                <strong>
+                    Cancelled
+                </strong>.
             </p>
         `;
+
     }
+
 
     const confirmButton =
         document.getElementById(
             "confirmCancelInterview"
         );
 
+
     if (confirmButton) {
+
         confirmButton.disabled =
             false;
 
+
         confirmButton.textContent =
             "Cancel Interview";
+
     }
+
 
     toggleModal(
         "cancelConfirmModal",
@@ -2146,8 +2791,10 @@ function cancelInterview(
 
 
 function closeCancelConfirm() {
+
     pendingCancelInterviewId =
         null;
+
 
     toggleModal(
         "cancelConfirmModal",
@@ -2157,33 +2804,46 @@ function closeCancelConfirm() {
 
 
 async function confirmCancelInterview() {
+
     const interviewId =
         pendingCancelInterviewId;
 
+
     if (!interviewId) {
+
         closeCancelConfirm();
+
         return;
     }
+
 
     const button =
         document.getElementById(
             "confirmCancelInterview"
         );
 
+
     try {
+
         if (!window.rmsSupabase) {
+
             throw new Error(
                 "Supabase client is not initialized."
             );
+
         }
 
+
         if (button) {
+
             button.disabled =
                 true;
 
             button.textContent =
                 "Cancelling...";
+
         }
+
 
         const {
             error
@@ -2191,22 +2851,30 @@ async function confirmCancelInterview() {
             await window.rmsSupabase
                 .from("interviews")
                 .update({
+
                     status:
                         "Cancelled"
+
                 })
                 .eq(
                     "interview_id",
                     interviewId
                 );
 
+
         if (error) {
             throw error;
         }
 
+
         closeCancelConfirm();
 
+
         await loadApplications();
+
+
         await loadInterviews();
+
 
         showToast(
             "Interview cancelled successfully.",
@@ -2214,10 +2882,12 @@ async function confirmCancelInterview() {
         );
 
     } catch (error) {
+
         console.error(
             "Cancel interview error:",
             error
         );
+
 
         showToast(
             error?.message ||
@@ -2226,13 +2896,17 @@ async function confirmCancelInterview() {
             "error"
         );
 
+
         if (button) {
+
             button.disabled =
                 false;
 
             button.textContent =
                 "Cancel Interview";
+
         }
+
     }
 }
 
@@ -2244,7 +2918,9 @@ async function confirmCancelInterview() {
 function openInterviewEvaluation(
     interview
 ) {
+
     if (!interview) {
+
         showToast(
             "Interview record not found.",
             "error"
@@ -2253,15 +2929,18 @@ function openInterviewEvaluation(
         return;
     }
 
+
     const status =
         normalizeStatus(
             interview.status
         );
 
+
     if (
         status ===
         "CANCELLED"
     ) {
+
         showToast(
             "Cancelled interviews cannot be evaluated.",
             "error"
@@ -2270,10 +2949,12 @@ function openInterviewEvaluation(
         return;
     }
 
+
     if (
         status ===
         "COMPLETED"
     ) {
+
         showToast(
             "This interview has already been evaluated.",
             "info"
@@ -2282,23 +2963,22 @@ function openInterviewEvaluation(
         return;
     }
 
+
     evaluatingInterviewId =
         interview.interview_id;
+
 
     const form =
         document.getElementById(
             "interviewEvaluationForm"
         );
 
+
     if (form) {
         form.reset();
     }
 
-    /*
-     * Use the interview's attached application first.
-     * If it is missing, find the matching application
-     * from the already loaded applications array.
-     */
+
     const application =
         interview.applications ||
         applications.find(
@@ -2312,10 +2992,12 @@ function openInterviewEvaluation(
         ) ||
         {};
 
+
     const applicant =
         application.applicants ||
         application.applicant ||
         {};
+
 
     const job =
         application.job_postings ||
@@ -2323,9 +3005,7 @@ function openInterviewEvaluation(
         application.job ||
         {};
 
-    /*
-     * Build applicant name.
-     */
+
     const applicantName =
         [
             applicant.first_name,
@@ -2335,90 +3015,91 @@ function openInterviewEvaluation(
             .join(" ")
             .trim();
 
-    /*
-     * Get evaluation modal elements.
-     */
+
     const applicantElement =
         document.getElementById(
             "evaluationApplicant"
         );
+
 
     const positionElement =
         document.getElementById(
             "evaluationPosition"
         );
 
+
     const dateElement =
         document.getElementById(
             "evaluationDate"
         );
+
 
     const timeElement =
         document.getElementById(
             "evaluationTime"
         );
 
+
     const interviewerElement =
         document.getElementById(
             "evaluationInterviewer"
         );
 
-    /*
-     * Fill applicant.
-     */
+
     if (applicantElement) {
+
         applicantElement.textContent =
             applicantName ||
             "—";
+
     }
 
-    /*
-     * Fill position.
-     */
+
     if (positionElement) {
+
         positionElement.textContent =
             job.job_title ||
             application.job_title ||
             "—";
+
     }
 
-    /*
-     * Fill date.
-     */
+
     if (dateElement) {
+
         dateElement.textContent =
             formatDate(
                 interview.interview_date
             );
+
     }
 
-    /*
-     * Fill time.
-     */
+
     if (timeElement) {
+
         timeElement.textContent =
             formatTime(
                 interview.interview_time
             );
+
     }
 
-    /*
-     * Fill interviewer.
-     */
+
     if (interviewerElement) {
+
         interviewerElement.textContent =
             interview.interviewer ||
             "—";
+
     }
+
 
     clearEvaluationError();
 
+
     resetEvaluationTotal();
 
-    /*
-     * IMPORTANT:
-     * Your HTML uses id="evaluationModal".
-     */
+
     toggleModal(
         "evaluationModal",
         true
@@ -2431,15 +3112,14 @@ function openInterviewEvaluation(
    ========================================================= */
 
 function closeInterviewEvaluation() {
+
     evaluatingInterviewId =
         null;
 
+
     clearEvaluationError();
 
-    /*
-     * IMPORTANT:
-     * Your HTML uses id="evaluationModal".
-     */
+
     toggleModal(
         "evaluationModal",
         false
@@ -2454,14 +3134,17 @@ function closeInterviewEvaluation() {
 function getEvaluationScore(
     id
 ) {
+
     const input =
         document.getElementById(
             id
         );
 
+
     if (!input) {
         return 0;
     }
+
 
     return Number(
         input.value
@@ -2474,38 +3157,51 @@ function getEvaluationScore(
    ========================================================= */
 
 function updateEvaluationTotal() {
+
     const communication =
         getEvaluationScore(
             "communicationScore"
         );
+
 
     const technical =
         getEvaluationScore(
             "technicalKnowledgeScore"
         );
 
+
     const problemSolving =
         getEvaluationScore(
             "problemSolvingScore"
         );
+
 
     const teamwork =
         getEvaluationScore(
             "teamworkScore"
         );
 
+
     const professionalism =
         getEvaluationScore(
             "professionalismScore"
         );
 
+
     const scores = [
+
         communication,
+
         technical,
+
         problemSolving,
+
         teamwork,
+
         professionalism
+
     ];
+
 
     const total =
         scores.reduce(
@@ -2524,34 +3220,47 @@ function updateEvaluationTotal() {
             0
         );
 
+
     const totalElement =
         document.getElementById(
             "evaluationTotal"
         );
+
 
     const resultElement =
         document.getElementById(
             "evaluationResult"
         );
 
+
     if (totalElement) {
+
         totalElement.textContent =
-            `${total}/100`;
+            total;
+
     }
+
 
     const result =
         total >= 75
             ? "PASSED"
             : "FAILED";
 
+
     if (resultElement) {
+
         resultElement.textContent =
             result;
+
     }
 
+
     return {
+
         total,
+
         result
+
     };
 }
 
@@ -2561,24 +3270,32 @@ function updateEvaluationTotal() {
    ========================================================= */
 
 function resetEvaluationTotal() {
+
     const totalElement =
         document.getElementById(
             "evaluationTotal"
         );
+
 
     const resultElement =
         document.getElementById(
             "evaluationResult"
         );
 
+
     if (totalElement) {
+
         totalElement.textContent =
-            "0/100";
+            "0";
+
     }
 
+
     if (resultElement) {
+
         resultElement.textContent =
             "—";
+
     }
 }
 
@@ -2588,7 +3305,9 @@ function resetEvaluationTotal() {
    ========================================================= */
 
 function validateEvaluationScores() {
+
     const rules = [
+
         [
             "communicationScore",
             "Communication",
@@ -2618,7 +3337,9 @@ function validateEvaluationScores() {
             "Professionalism",
             15
         ]
+
     ];
+
 
     for (
         const [
@@ -2627,54 +3348,70 @@ function validateEvaluationScores() {
             max
         ] of rules
     ) {
+
         const input =
             document.getElementById(
                 id
             );
 
+
         if (
             !input ||
             input.value === ""
         ) {
+
             return (
                 `${label} score is required.`
             );
+
         }
+
 
         const value =
             Number(
                 input.value
             );
 
+
         if (
             !Number.isFinite(
                 value
             )
         ) {
+
             return (
                 `${label} score must be a valid number.`
             );
+
         }
+
 
         if (
             value < 0 ||
             value > max
         ) {
+
             return (
                 `${label} score must be between 0 and ${max}.`
             );
+
         }
+
 
         if (
             !Number.isInteger(
                 value
             )
         ) {
+
             return (
                 `${label} score must be a whole number.`
             );
+
         }
+
     }
+
 
     return "";
 }
@@ -2687,20 +3424,27 @@ function validateEvaluationScores() {
 function setEvaluationError(
     message
 ) {
+
     const element =
         document.getElementById(
             "evaluationFormError"
         );
 
+
     if (element) {
+
         element.textContent =
             message || "";
+
     }
 }
 
 
 function clearEvaluationError() {
-    setEvaluationError("");
+
+    setEvaluationError(
+        ""
+    );
 }
 
 
@@ -2711,9 +3455,12 @@ function clearEvaluationError() {
 async function submitInterviewEvaluation(
     event
 ) {
+
     event.preventDefault();
 
+
     if (!evaluatingInterviewId) {
+
         showToast(
             "Interview record not found.",
             "error"
@@ -2721,6 +3468,7 @@ async function submitInterviewEvaluation(
 
         return;
     }
+
 
     const interview =
         interviews.find(
@@ -2733,7 +3481,9 @@ async function submitInterviewEvaluation(
                 )
         );
 
+
     if (!interview) {
+
         showToast(
             "Interview record not found.",
             "error"
@@ -2742,15 +3492,18 @@ async function submitInterviewEvaluation(
         return;
     }
 
+
     const status =
         normalizeStatus(
             interview.status
         );
 
+
     if (
         status ===
         "CANCELLED"
     ) {
+
         showToast(
             "Cancelled interviews cannot be evaluated.",
             "error"
@@ -2759,10 +3512,12 @@ async function submitInterviewEvaluation(
         return;
     }
 
+
     if (
         status ===
         "COMPLETED"
     ) {
+
         showToast(
             "This interview has already been evaluated.",
             "info"
@@ -2771,27 +3526,34 @@ async function submitInterviewEvaluation(
         return;
     }
 
+
     const validationError =
         validateEvaluationScores();
 
+
     if (validationError) {
+
         setEvaluationError(
             validationError
         );
+
 
         showToast(
             validationError,
             "error"
         );
 
+
         return;
     }
+
 
     const {
         total,
         result
     } =
         updateEvaluationTotal();
+
 
     const remarks =
         String(
@@ -2801,10 +3563,12 @@ async function submitInterviewEvaluation(
                 ""
         ).trim();
 
+
     if (
         total < 0 ||
         total > 100
     ) {
+
         showToast(
             "Invalid total evaluation score.",
             "error"
@@ -2813,10 +3577,12 @@ async function submitInterviewEvaluation(
         return;
     }
 
+
     const button =
         document.getElementById(
             "saveEvaluationButton"
         );
+
 
     setButtonLoading(
         button,
@@ -2824,17 +3590,24 @@ async function submitInterviewEvaluation(
         "Saving..."
     );
 
+
     try {
+
         if (!window.rmsSupabase) {
+
             throw new Error(
                 "Supabase client is not initialized."
             );
+
         }
+
 
         let evaluatedBy =
             null;
 
+
         try {
+
             const {
                 data
             } =
@@ -2842,23 +3615,30 @@ async function submitInterviewEvaluation(
                     .auth
                     .getUser();
 
+
             evaluatedBy =
                 data?.user
                     ?.user_metadata
                     ?.full_name ||
+
                 data?.user
                     ?.user_metadata
                     ?.name ||
+
                 data?.user
                     ?.email ||
+
                 null;
 
         } catch (error) {
+
             console.warn(
                 "Unable to determine evaluator:",
                 error
             );
+
         }
+
 
         const updateData = {
 
@@ -2902,12 +3682,17 @@ async function submitInterviewEvaluation(
             evaluated_at:
                 new Date()
                     .toISOString()
+
         };
 
+
         if (evaluatedBy) {
+
             updateData.evaluated_by =
                 evaluatedBy;
+
         }
+
 
         const {
             error
@@ -2922,25 +3707,33 @@ async function submitInterviewEvaluation(
                     evaluatingInterviewId
                 );
 
+
         if (error) {
             throw error;
         }
+
 
         showToast(
             "Interview evaluation saved successfully.",
             "success"
         );
 
+
         closeInterviewEvaluation();
 
+
         await loadApplications();
+
+
         await loadInterviews();
 
     } catch (error) {
+
         console.error(
             "Interview evaluation error:",
             error
         );
+
 
         showToast(
             error?.message ||
@@ -2950,10 +3743,12 @@ async function submitInterviewEvaluation(
         );
 
     } finally {
+
         setButtonLoading(
             button,
             false
         );
+
     }
 }
 
@@ -2965,12 +3760,19 @@ async function submitInterviewEvaluation(
 function renderEvaluationCriteria(
     interview
 ) {
+
     const hasScores = [
+
         interview.communication_score,
+
         interview.technical_knowledge_score,
+
         interview.problem_solving_score,
+
         interview.teamwork_score,
+
         interview.professionalism_score
+
     ].some(
         value =>
             value !== null &&
@@ -2978,11 +3780,14 @@ function renderEvaluationCriteria(
             value !== ""
     );
 
+
     if (!hasScores) {
         return "";
     }
 
+
     const criteria = [
+
         [
             "Communication",
             interview.communication_score,
@@ -3012,9 +3817,12 @@ function renderEvaluationCriteria(
             interview.professionalism_score,
             15
         ]
+
     ];
 
+
     return `
+
         <div
             class="interview-detail-item
                    interview-detail-item-full"
@@ -3023,6 +3831,7 @@ function renderEvaluationCriteria(
             <small>
                 Evaluation Criteria
             </small>
+
 
             <div
                 class="evaluation-view-grid"
@@ -3036,6 +3845,7 @@ function renderEvaluationCriteria(
                                 score,
                                 max
                             ]) => `
+
                                 <div
                                     class="evaluation-view-item"
                                 >
@@ -3054,6 +3864,7 @@ function renderEvaluationCriteria(
                                     </strong>
 
                                 </div>
+
                             `
                         )
                         .join("")
@@ -3062,6 +3873,7 @@ function renderEvaluationCriteria(
             </div>
 
         </div>
+
     `;
 }
 
@@ -3073,14 +3885,17 @@ function renderEvaluationCriteria(
 function openViewInterview(
     interview
 ) {
+
     const body =
         document.getElementById(
             "viewInterviewBody"
         );
 
+
     if (!body) {
         return;
     }
+
 
     const application =
         interview.applications ||
@@ -3095,16 +3910,19 @@ function openViewInterview(
         ) ||
         {};
 
+
     const applicant =
         application.applicants ||
         application.applicant ||
         {};
+
 
     const job =
         application.job_postings ||
         application.job_posting ||
         application.job ||
         {};
+
 
     const applicantName =
         `${
@@ -3115,7 +3933,9 @@ function openViewInterview(
             ""
         }`.trim();
 
+
     body.innerHTML = `
+
         <div
             class="interview-details-grid"
         >
@@ -3123,6 +3943,7 @@ function openViewInterview(
             <div
                 class="interview-detail-item"
             >
+
                 <small>
                     Applicant
                 </small>
@@ -3133,12 +3954,14 @@ function openViewInterview(
                         "—"
                     )}
                 </div>
+
             </div>
 
 
             <div
                 class="interview-detail-item"
             >
+
                 <small>
                     Applicant No.
                 </small>
@@ -3149,12 +3972,14 @@ function openViewInterview(
                         "—"
                     )}
                 </div>
+
             </div>
 
 
             <div
                 class="interview-detail-item"
             >
+
                 <small>
                     Position
                 </small>
@@ -3165,12 +3990,14 @@ function openViewInterview(
                         "—"
                     )}
                 </div>
+
             </div>
 
 
             <div
                 class="interview-detail-item"
             >
+
                 <small>
                     Job Code
                 </small>
@@ -3181,12 +4008,14 @@ function openViewInterview(
                         "—"
                     )}
                 </div>
+
             </div>
 
 
             <div
                 class="interview-detail-item"
             >
+
                 <small>
                     Interview Date
                 </small>
@@ -3196,12 +4025,14 @@ function openViewInterview(
                         interview.interview_date
                     )}
                 </div>
+
             </div>
 
 
             <div
                 class="interview-detail-item"
             >
+
                 <small>
                     Interview Time
                 </small>
@@ -3211,12 +4042,14 @@ function openViewInterview(
                         interview.interview_time
                     )}
                 </div>
+
             </div>
 
 
             <div
                 class="interview-detail-item"
             >
+
                 <small>
                     Interviewer
                 </small>
@@ -3227,12 +4060,14 @@ function openViewInterview(
                         "—"
                     )}
                 </div>
+
             </div>
 
 
             <div
                 class="interview-detail-item"
             >
+
                 <small>
                     Venue
                 </small>
@@ -3243,12 +4078,14 @@ function openViewInterview(
                         "—"
                     )}
                 </div>
+
             </div>
 
 
             <div
                 class="interview-detail-item"
             >
+
                 <small>
                     Status
                 </small>
@@ -3258,6 +4095,7 @@ function openViewInterview(
                         interview.status
                     )}
                 </div>
+
             </div>
 
 
@@ -3269,6 +4107,7 @@ function openViewInterview(
                 interview.score !==
                     ""
                     ? `
+
                         <div
                             class="interview-detail-item"
                         >
@@ -3284,6 +4123,7 @@ function openViewInterview(
                             </div>
 
                         </div>
+
                     `
                     : ""
             }
@@ -3292,6 +4132,7 @@ function openViewInterview(
             ${
                 interview.result
                     ? `
+
                         <div
                             class="interview-detail-item"
                         >
@@ -3307,6 +4148,7 @@ function openViewInterview(
                             </div>
 
                         </div>
+
                     `
                     : ""
             }
@@ -3315,6 +4157,7 @@ function openViewInterview(
             ${
                 interview.evaluated_by
                     ? `
+
                         <div
                             class="interview-detail-item"
                         >
@@ -3330,6 +4173,7 @@ function openViewInterview(
                             </div>
 
                         </div>
+
                     `
                     : ""
             }
@@ -3338,6 +4182,7 @@ function openViewInterview(
             ${
                 interview.evaluated_at
                     ? `
+
                         <div
                             class="interview-detail-item"
                         >
@@ -3353,6 +4198,7 @@ function openViewInterview(
                             </div>
 
                         </div>
+
                     `
                     : ""
             }
@@ -3361,6 +4207,7 @@ function openViewInterview(
             ${
                 interview.remarks
                     ? `
+
                         <div
                             class="interview-detail-item
                                    interview-detail-item-full"
@@ -3377,16 +4224,20 @@ function openViewInterview(
                             </div>
 
                         </div>
+
                     `
                     : ""
             }
 
         </div>
 
+
         ${renderEvaluationCriteria(
             interview
         )}
+
     `;
+
 
     toggleModal(
         "viewInterviewModal",
@@ -3396,10 +4247,608 @@ function openViewInterview(
 
 
 function closeViewInterview() {
+
     toggleModal(
         "viewInterviewModal",
         false
     );
+}
+
+
+/* =========================================================
+   LAB 15 - INTERVIEW HISTORY
+   ========================================================= */
+
+function openInterviewHistory(
+    interview
+) {
+
+    if (!interview) {
+
+        showToast(
+            "Interview record not found.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const applicationId =
+        String(
+            interview.application_id ||
+            ""
+        ).trim();
+
+
+    if (!applicationId) {
+
+        showToast(
+            "This interview is not linked to an application.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const application =
+        applications.find(
+            item =>
+                String(
+                    item.application_id
+                ) ===
+                applicationId
+        ) || {};
+
+
+    const applicant =
+        application.applicants ||
+        {};
+
+
+    const job =
+        application.job_postings ||
+        {};
+
+
+    const applicantName =
+        `${
+            applicant.first_name ||
+            ""
+        } ${
+            applicant.last_name ||
+            ""
+        }`
+            .trim() ||
+            "Applicant";
+
+
+    const position =
+        job.job_title ||
+        "—";
+
+
+    /*
+     * Find all interview records belonging
+     * to the same application.
+     */
+
+    const history =
+        interviews
+            .filter(
+                item =>
+                    String(
+                        item.application_id
+                    ) ===
+                    applicationId
+            )
+            .sort(
+                (a, b) => {
+
+                    const dateA =
+                        getInterviewDateTime(
+                            a
+                        );
+
+
+                    const dateB =
+                        getInterviewDateTime(
+                            b
+                        );
+
+
+                    return (
+                        dateA -
+                        dateB
+                    );
+
+                }
+            );
+
+
+    const existingModal =
+        document.getElementById(
+            "interviewHistoryModal"
+        );
+
+
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+
+    const modal =
+        document.createElement(
+            "div"
+        );
+
+
+    modal.id =
+        "interviewHistoryModal";
+
+
+    modal.className =
+        "modal-backdrop open";
+
+
+    modal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    modal.innerHTML = `
+
+        <div
+            class="modal glass-panel interview-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="interviewHistoryTitle"
+        >
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Lab 15 · Interview History
+                    </p>
+
+                    <h3 id="interviewHistoryTitle">
+                        Interview History
+                    </h3>
+
+                    <p
+                        style="
+                            margin:5px 0 0;
+                            color:var(--muted);
+                            font-size:12px;
+                        "
+                    >
+                        ${escapeHtml(
+                            applicantName
+                        )}
+                        —
+                        ${escapeHtml(
+                            position
+                        )}
+                    </p>
+
+                </div>
+
+
+                <button
+                    id="closeInterviewHistory"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                ${
+                    history.length
+                        ? `
+
+                            <div
+                                class="interview-history-list"
+                            >
+
+                                ${history
+                                    .map(
+                                        (
+                                            item,
+                                            index
+                                        ) =>
+                                            renderInterviewHistoryItem(
+                                                item,
+                                                index + 1
+                                            )
+                                    )
+                                    .join("")}
+
+                            </div>
+
+                        `
+                        : `
+
+                            <div
+                                class="table-empty"
+                            >
+                                No interview history found.
+                            </div>
+
+                        `
+                }
+
+            </div>
+
+
+            <div class="button-row">
+
+                <button
+                    id="closeInterviewHistoryBottom"
+                    class="btn btn-secondary"
+                    type="button"
+                >
+                    Close
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        modal
+    );
+
+
+    document
+        .getElementById(
+            "closeInterviewHistory"
+        )
+        ?.addEventListener(
+            "click",
+            closeInterviewHistory
+        );
+
+
+    document
+        .getElementById(
+            "closeInterviewHistoryBottom"
+        )
+        ?.addEventListener(
+            "click",
+            closeInterviewHistory
+        );
+
+
+    modal.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target ===
+                modal
+            ) {
+
+                closeInterviewHistory();
+
+            }
+
+        }
+    );
+}
+
+
+function renderInterviewHistoryItem(
+    interview,
+    interviewNumber
+) {
+
+    const status =
+        normalizeStatus(
+            interview.status
+        );
+
+
+    const hasScore =
+        interview.score !==
+            null &&
+        interview.score !==
+            undefined &&
+        interview.score !==
+            "";
+
+
+    const result =
+        interview.result ||
+        "—";
+
+
+    let resultClass =
+        "";
+
+
+    if (
+        normalizeStatus(
+            result
+        ) ===
+        "PASSED"
+    ) {
+
+        resultClass =
+            "history-result-passed";
+
+    } else if (
+        normalizeStatus(
+            result
+        ) ===
+        "FAILED"
+    ) {
+
+        resultClass =
+            "history-result-failed";
+
+    }
+
+
+    return `
+
+        <div
+            class="interview-history-item"
+        >
+
+            <div
+                class="interview-history-number"
+            >
+                Interview ${interviewNumber}
+            </div>
+
+
+            <div
+                class="interview-history-details"
+            >
+
+                <div>
+
+                    <small>
+                        Date
+                    </small>
+
+                    <strong>
+                        ${formatDate(
+                            interview.interview_date
+                        )}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <small>
+                        Time
+                    </small>
+
+                    <strong>
+                        ${formatTime(
+                            interview.interview_time
+                        )}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <small>
+                        Interviewer
+                    </small>
+
+                    <strong>
+                        ${escapeHtml(
+                            interview.interviewer ||
+                            "—"
+                        )}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <small>
+                        Venue
+                    </small>
+
+                    <strong>
+                        ${escapeHtml(
+                            interview.venue ||
+                            "—"
+                        )}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <small>
+                        Status
+                    </small>
+
+                    <strong>
+                        ${statusBadge(
+                            interview.status
+                        )}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <small>
+                        Score
+                    </small>
+
+                    <strong>
+                        ${
+                            hasScore
+                                ? `${escapeHtml(
+                                      interview.score
+                                  )}/100`
+                                : "—"
+                        }
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <small>
+                        Result
+                    </small>
+
+                    <strong
+                        class="${resultClass}"
+                    >
+                        ${escapeHtml(
+                            result
+                        )}
+                    </strong>
+
+                </div>
+
+
+                ${
+                    interview.evaluated_by
+                        ? `
+
+                            <div>
+
+                                <small>
+                                    Evaluated By
+                                </small>
+
+                                <strong>
+                                    ${escapeHtml(
+                                        interview.evaluated_by
+                                    )}
+                                </strong>
+
+                            </div>
+
+                        `
+                        : ""
+                }
+
+
+                ${
+                    interview.remarks
+                        ? `
+
+                            <div
+                                class="history-remarks"
+                            >
+
+                                <small>
+                                    Remarks
+                                </small>
+
+                                <p>
+                                    ${escapeHtml(
+                                        interview.remarks
+                                    )}
+                                </p>
+
+                            </div>
+
+                        `
+                        : ""
+                }
+
+            </div>
+
+        </div>
+
+    `;
+}
+
+
+function closeInterviewHistory() {
+
+    const modal =
+        document.getElementById(
+            "interviewHistoryModal"
+        );
+
+
+    if (modal) {
+        modal.remove();
+    }
+}
+
+
+/* =========================================================
+   INTERVIEW DATE/TIME HELPER
+   ========================================================= */
+
+function getInterviewDateTime(
+    interview
+) {
+
+    if (!interview) {
+        return 0;
+    }
+
+
+    const date =
+        String(
+            interview.interview_date ||
+            ""
+        ).trim();
+
+
+    const time =
+        normalizeTime(
+            interview.interview_time
+        );
+
+
+    if (!date) {
+        return 0;
+    }
+
+
+    const parsed =
+        new Date(
+            `${date}T${
+                time || "00:00"
+            }:00`
+        );
+
+
+    const timestamp =
+        parsed.getTime();
+
+
+    return Number.isNaN(
+        timestamp
+    )
+        ? 0
+        : timestamp;
 }
 
 
@@ -3411,19 +4860,23 @@ function isValidFutureDateTime(
     date,
     time
 ) {
+
     if (!date || !time) {
         return false;
     }
+
 
     const normalizedTime =
         normalizeTime(
             time
         );
 
+
     const selected =
         new Date(
             `${date}T${normalizedTime}:00`
         );
+
 
     if (
         Number.isNaN(
@@ -3433,6 +4886,7 @@ function isValidFutureDateTime(
         return false;
     }
 
+
     return (
         selected.getTime() >
         Date.now()
@@ -3441,24 +4895,31 @@ function isValidFutureDateTime(
 
 
 function setMinimumInterviewDate() {
+
     const input =
         document.getElementById(
             "interviewDate"
         );
 
+
     if (input) {
+
         input.min =
             getTodayLocalDate();
+
     }
 }
 
 
 function getTodayLocalDate() {
+
     const now =
         new Date();
 
+
     const year =
         now.getFullYear();
+
 
     const month =
         String(
@@ -3468,6 +4929,7 @@ function getTodayLocalDate() {
             "0"
         );
 
+
     const day =
         String(
             now.getDate()
@@ -3475,6 +4937,7 @@ function getTodayLocalDate() {
             2,
             "0"
         );
+
 
     return `${year}-${month}-${day}`;
 }
@@ -3487,20 +4950,27 @@ function getTodayLocalDate() {
 function setFormError(
     message
 ) {
+
     const element =
         document.getElementById(
             "interviewFormError"
         );
 
+
     if (element) {
+
         element.textContent =
             message || "";
+
     }
 }
 
 
 function clearFormError() {
-    setFormError("");
+
+    setFormError(
+        ""
+    );
 }
 
 
@@ -3511,31 +4981,44 @@ function clearFormError() {
 function formatDate(
     value
 ) {
+
     if (!value) {
         return "—";
     }
+
 
     const date =
         new Date(
             `${value}T00:00:00`
         );
 
+
     if (
         Number.isNaN(
             date.getTime()
         )
     ) {
+
         return String(
             value
         );
+
     }
+
 
     return date.toLocaleDateString(
         "en-US",
         {
-            year: "numeric",
-            month: "short",
-            day: "numeric"
+
+            year:
+                "numeric",
+
+            month:
+                "short",
+
+            day:
+                "numeric"
+
         }
     );
 }
@@ -3544,33 +5027,50 @@ function formatDate(
 function formatDateTime(
     value
 ) {
+
     if (!value) {
         return "—";
     }
+
 
     const date =
         new Date(
             value
         );
 
+
     if (
         Number.isNaN(
             date.getTime()
         )
     ) {
+
         return String(
             value
         );
+
     }
+
 
     return date.toLocaleString(
         "en-US",
         {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-            hour: "numeric",
-            minute: "2-digit"
+
+            year:
+                "numeric",
+
+            month:
+                "short",
+
+            day:
+                "numeric",
+
+            hour:
+                "numeric",
+
+            minute:
+                "2-digit"
+
         }
     );
 }
@@ -3579,14 +5079,17 @@ function formatDateTime(
 function formatTime(
     value
 ) {
+
     if (!value) {
         return "—";
     }
+
 
     const normalized =
         normalizeTime(
             value
         );
+
 
     const [
         hoursText,
@@ -3596,29 +5099,36 @@ function formatTime(
             ":"
         );
 
+
     const hour =
         Number(
             hoursText
         );
+
 
     if (
         Number.isNaN(
             hour
         )
     ) {
+
         return String(
             value
         );
+
     }
+
 
     const suffix =
         hour >= 12
             ? "PM"
             : "AM";
 
+
     const displayHour =
         hour % 12 ||
         12;
+
 
     return `${displayHour}:${minutesText} ${suffix}`;
 }
@@ -3627,9 +5137,11 @@ function formatTime(
 function normalizeTime(
     value
 ) {
+
     if (!value) {
         return "";
     }
+
 
     return String(
         value
@@ -3645,6 +5157,7 @@ function normalizeTime(
 function normalizeStatus(
     value
 ) {
+
     return String(
         value || ""
     )
@@ -3664,7 +5177,9 @@ function normalizeStatus(
 function statusBadge(
     status
 ) {
+
     if (!status) {
+
         return `
             <span
                 class="interview-status-scheduled"
@@ -3672,20 +5187,25 @@ function statusBadge(
                 —
             </span>
         `;
+
     }
+
 
     const normalized =
         normalizeStatus(
             status
         );
 
+
     let className =
         "interview-status-scheduled";
+
 
     if (
         normalized ===
         "CANCELLED"
     ) {
+
         className =
             "interview-status-cancelled";
 
@@ -3693,11 +5213,15 @@ function statusBadge(
         normalized ===
         "COMPLETED"
     ) {
+
         className =
             "interview-status-completed";
+
     }
 
+
     return `
+
         <span
             class="${className}"
         >
@@ -3705,6 +5229,7 @@ function statusBadge(
                 status
             )}
         </span>
+
     `;
 }
 
@@ -3717,19 +5242,23 @@ function toggleModal(
     id,
     open
 ) {
+
     const modal =
         document.getElementById(
             id
         );
 
+
     if (!modal) {
         return;
     }
+
 
     modal.classList.toggle(
         "open",
         open
     );
+
 
     modal.setAttribute(
         "aria-hidden",
@@ -3745,24 +5274,32 @@ function setButtonLoading(
     loading,
     text = "Processing..."
 ) {
+
     if (!button) {
         return;
     }
 
+
     if (loading) {
+
         if (
             !button.dataset
                 .originalText
         ) {
+
             button.dataset
                 .originalText =
                 button.innerHTML;
+
         }
+
 
         button.disabled =
             true;
 
+
         button.innerHTML = `
+
             <span
                 class="button-spinner"
             ></span>
@@ -3770,24 +5307,30 @@ function setButtonLoading(
             ${escapeHtml(
                 text
             )}
+
         `;
 
         return;
     }
 
+
     button.disabled =
         false;
+
 
     if (
         button.dataset
             .originalText
     ) {
+
         button.innerHTML =
             button.dataset
                 .originalText;
 
+
         delete button.dataset
             .originalText;
+
     }
 }
 
@@ -3795,12 +5338,14 @@ function setButtonLoading(
 function escapeHtml(
     value
 ) {
+
     if (
         value === null ||
         value === undefined
     ) {
         return "";
     }
+
 
     return String(
         value
@@ -3832,37 +5377,48 @@ function showToast(
     message,
     type = "info"
 ) {
+
     let container =
         document.getElementById(
             "toastRoot"
         );
 
+
     if (!container) {
+
         container =
             document.createElement(
                 "div"
             );
 
+
         container.id =
             "toastRoot";
+
 
         container.className =
             "toast-root";
 
+
         document.body.appendChild(
             container
         );
+
     }
+
 
     const toast =
         document.createElement(
             "div"
         );
 
+
     toast.className =
         `toast toast-${type}`;
 
+
     toast.innerHTML = `
+
         <div
             class="toast-message"
         >
@@ -3870,31 +5426,40 @@ function showToast(
                 message
             )}
         </div>
+
     `;
+
 
     container.appendChild(
         toast
     );
 
+
     requestAnimationFrame(
         () => {
+
             toast.classList.add(
                 "toast-show"
             );
+
         }
     );
 
+
     setTimeout(
         () => {
+
             toast.classList.remove(
                 "toast-show"
             );
+
 
             setTimeout(
                 () =>
                     toast.remove(),
                 250
             );
+
         },
         3000
     );

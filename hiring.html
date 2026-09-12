@@ -1,43 +1,920 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Hiring - Recruitment Management System</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="css/frost-ui.css">
-        <link rel="stylesheet" href="css/style.css">
-        <link rel="stylesheet" href="css/responsive.css">
-    </head>
-    <body data-active="Hiring" class="app-page">
-        <aside id="appSidebar" class="sidebar glass-panel"></aside>
-        <main class="app-main">
-            <header id="appTopbar" class="topbar glass-panel"></header>
-            <section class="page-content">
-                <div class="page-intro">
-                    <div>
-                        <p class="eyebrow">Laboratory module</p>
-                        <h2>Hiring</h2>
-                        <p>This module is wired into the same Supabase-backed application and ready for the next laboratory activity.</p>
-                    </div>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Hiring - Recruitment Management System
+    </title>
+
+
+    <!-- GOOGLE FONT -->
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- PROJECT CSS -->
+    <link
+        rel="stylesheet"
+        href="css/frost-ui.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/responsive.css"
+    >
+
+
+    <style>
+
+        /* =================================================
+           PAGE
+           ================================================= */
+
+        .selection-summary {
+            display: grid;
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+
+        .selection-stat {
+            padding: 15px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background:
+                rgba(255, 255, 255, 0.03);
+        }
+
+
+        .selection-stat small {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+
+        .selection-stat strong {
+            display: block;
+            color: #c9d0d8;
+            font-size: 22px;
+        }
+
+
+        .selection-stat span {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+
+        /* =================================================
+           TABLE
+           ================================================= */
+
+        .selection-applicant {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+
+        .selection-applicant strong {
+            color: #c9d0d8;
+            font-size: 12px;
+        }
+
+
+        .selection-applicant span {
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+
+        .selection-position {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+
+        .selection-position strong {
+            color: #c9d0d8;
+            font-size: 12px;
+        }
+
+
+        .selection-position span {
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+
+        .selection-score {
+            font-weight: 700;
+            color: #c9d0d8;
+        }
+
+
+        .selection-score-high {
+            color: #75d3a5;
+        }
+
+
+        .selection-score-medium {
+            color: #e1c47b;
+        }
+
+
+        .selection-score-low {
+            color: #e59a9a;
+        }
+
+
+        .selection-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            border: 1px solid var(--line);
+        }
+
+
+        .selection-status-qualified {
+            color: #9fc6ee;
+            background:
+                rgba(53, 95, 138, .12);
+        }
+
+
+        .selection-status-selected {
+            color: #75d3a5;
+            background:
+                rgba(37, 134, 90, .12);
+        }
+
+
+        /* =================================================
+           MODAL
+           ================================================= */
+
+        .selection-modal {
+            width: min(720px, 100%);
+            max-width: 720px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+
+        .selection-summary-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+
+        .selection-info-card {
+            padding: 13px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background:
+                rgba(255, 255, 255, .03);
+        }
+
+
+        .selection-info-card small {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+
+        .selection-info-card strong {
+            color: #c9d0d8;
+            font-size: 13px;
+        }
+
+
+        .selection-score-panel {
+            display: grid;
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+
+        .selection-score-card {
+            padding: 14px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background:
+                #15191d;
+            text-align: center;
+        }
+
+
+        .selection-score-card small {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--muted);
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+
+        .selection-score-card strong {
+            display: block;
+            color: #c9d0d8;
+            font-size: 24px;
+        }
+
+
+        .selection-score-card span {
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+
+        .selection-overall {
+            border-color:
+                rgba(117, 211, 165, .25);
+        }
+
+
+        .selection-overall strong {
+            color: #75d3a5;
+        }
+
+
+        .selection-recommendation {
+            margin-top: 16px;
+        }
+
+
+        .selection-recommendation label {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+
+        .selection-recommendation select {
+            width: 100%;
+        }
+
+
+        .selection-form-error {
+            min-height: 18px;
+            margin-bottom: 10px;
+            color: #d88282;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+
+        .selection-note {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background:
+                rgba(255, 255, 255, .03);
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+
+        /* =================================================
+           MOBILE
+           ================================================= */
+
+        @media (max-width: 800px) {
+
+            .selection-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .selection-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .selection-score-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .table-wrap table {
+                min-width: 900px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body
+    class="app-page"
+    data-active="Hiring"
+>
+
+
+    <!-- =================================================
+         SIDEBAR
+         ================================================= -->
+
+    <aside
+        id="appSidebar"
+        class="sidebar glass-panel"
+    ></aside>
+
+
+    <!-- =================================================
+         MAIN
+         ================================================= -->
+
+    <main class="app-main">
+
+
+        <!-- TOPBAR -->
+
+        <header
+            id="appTopbar"
+            class="topbar glass-panel"
+        ></header>
+
+
+        <!-- =================================================
+             CONTENT
+             ================================================= -->
+
+        <section class="page-content">
+
+
+            <!-- HEADER -->
+
+            <div class="page-intro">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Stage 8 · Hiring
+                    </p>
+
+                    <h2>
+                        Applicant Selection
+                    </h2>
+
+                    <p>
+                        Review qualified applicants and identify candidates selected for hiring.
+                    </p>
+
                 </div>
-                <section class="glass-panel section-card">
-                    <div class="empty-state">
-                        <div class="empty-icon">◌</div>
-                        <h3>Hiring module</h3>
-                        <p>The navigation and database architecture are already in place. Build this module here in the next laboratory without creating a new project or database.</p>
-                    </div>
-                </section>
+
+            </div>
+
+
+            <!-- =================================================
+                 SUMMARY
+                 ================================================= -->
+
+            <section class="selection-summary">
+
+                <div class="selection-stat glass-panel">
+
+                    <small>
+                        Qualified Applicants
+                    </small>
+
+                    <strong
+                        id="qualifiedCount"
+                    >
+                        0
+                    </strong>
+
+                    <span>
+                        Candidates eligible for selection
+                    </span>
+
+                </div>
+
+
+                <div class="selection-stat glass-panel">
+
+                    <small>
+                        Selected
+                    </small>
+
+                    <strong
+                        id="selectedCount"
+                    >
+                        0
+                    </strong>
+
+                    <span>
+                        Marked for hiring
+                    </span>
+
+                </div>
+
+
+                <div class="selection-stat glass-panel">
+
+                    <small>
+                        Average Overall Score
+                    </small>
+
+                    <strong
+                        id="averageScore"
+                    >
+                        0.0
+                    </strong>
+
+                    <span>
+                        Qualified candidates
+                    </span>
+
+                </div>
+
             </section>
-        </main>
-        <div id="toastRoot" class="toast-root"></div>
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-        <script src="js/config.js"></script>
-        <script src="js/supabase.js"></script>
-        <script src="js/auth.js"></script>
-        <script src="js/components.js"></script>
-        <script src="js/application.js"></script>
-    </body>
+
+
+            <!-- =================================================
+                 TABLE
+                 ================================================= -->
+
+            <section
+                class="glass-panel section-card"
+            >
+
+                <div class="toolbar">
+
+
+                    <div class="search-wrap">
+
+                        <span
+                            class="search-icon"
+                            aria-hidden="true"
+                        >
+                            ⌕
+                        </span>
+
+                        <input
+                            id="selectionSearch"
+                            type="search"
+                            placeholder="Search applicant, position, or applicant number"
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <select
+                        id="selectionFilter"
+                        class="select-control"
+                    >
+
+                        <option value="">
+                            All candidates
+                        </option>
+
+                        <option value="QUALIFIED">
+                            Qualified
+                        </option>
+
+                        <option value="SELECTED">
+                            Selected for Hiring
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Applicant
+                                </th>
+
+                                <th>
+                                    Position
+                                </th>
+
+                                <th>
+                                    Screening
+                                </th>
+
+                                <th>
+                                    Interview
+                                </th>
+
+                                <th>
+                                    Overall
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="selectionTable"
+                        >
+
+                            <tr>
+
+                                <td
+                                    colspan="7"
+                                    class="table-empty"
+                                >
+                                    Loading candidates...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+
+    <!-- =================================================
+         TOAST
+         ================================================= -->
+
+    <div
+        id="toastRoot"
+        class="toast-root"
+    ></div>
+
+
+    <!-- =================================================
+         SELECTION MODAL
+         ================================================= -->
+
+    <div
+        id="selectionModal"
+        class="modal-backdrop"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal glass-panel selection-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="selectionModalTitle"
+        >
+
+
+            <!-- MODAL HEADER -->
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Applicant Selection
+                    </p>
+
+                    <h3
+                        id="selectionModalTitle"
+                    >
+                        Review Candidate
+                    </h3>
+
+                </div>
+
+
+                <button
+                    id="closeSelectionModal"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <!-- ERROR -->
+
+            <div
+                id="selectionFormError"
+                class="selection-form-error"
+                role="alert"
+            ></div>
+
+
+            <!-- =================================================
+                 APPLICANT INFORMATION
+                 ================================================= -->
+
+            <div
+                class="selection-summary-grid"
+            >
+
+
+                <div class="selection-info-card">
+
+                    <small>
+                        Applicant
+                    </small>
+
+                    <strong
+                        id="selectionApplicant"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="selection-info-card">
+
+                    <small>
+                        Applicant No.
+                    </small>
+
+                    <strong
+                        id="selectionApplicantNo"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="selection-info-card">
+
+                    <small>
+                        Position
+                    </small>
+
+                    <strong
+                        id="selectionPosition"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="selection-info-card">
+
+                    <small>
+                        Application Status
+                    </small>
+
+                    <strong
+                        id="selectionApplicationStatus"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 SCORE SUMMARY
+                 ================================================= -->
+
+            <div
+                class="selection-score-panel"
+            >
+
+
+                <div class="selection-score-card">
+
+                    <small>
+                        Screening Score
+                    </small>
+
+                    <strong
+                        id="selectionScreeningScore"
+                    >
+                        0
+                    </strong>
+
+                    <span>
+                        / 100
+                    </span>
+
+                </div>
+
+
+                <div class="selection-score-card">
+
+                    <small>
+                        Interview Score
+                    </small>
+
+                    <strong
+                        id="selectionInterviewScore"
+                    >
+                        0
+                    </strong>
+
+                    <span>
+                        / 100
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="
+                        selection-score-card
+                        selection-overall
+                    "
+                >
+
+                    <small>
+                        Overall Score
+                    </small>
+
+                    <strong
+                        id="selectionOverallScore"
+                    >
+                        0.0
+                    </strong>
+
+                    <span>
+                        / 100
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 RECOMMENDATION
+                 ================================================= -->
+
+            <div
+                class="selection-recommendation"
+            >
+
+                <label
+                    for="selectionRecommendation"
+                >
+                    Recommendation
+                </label>
+
+                <select
+                    id="selectionRecommendation"
+                >
+
+                    <option value="QUALIFIED">
+                        Qualified
+                    </option>
+
+                    <option value="SELECTED">
+                        SELECTED
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div
+                class="selection-note"
+            >
+                The overall score is calculated using the screening
+                and interview scores. Selecting <strong>SELECTED</strong>
+                changes the application status to
+                <strong>SELECTED FOR HIRING</strong>.
+            </div>
+
+
+            <!-- =================================================
+                 BUTTONS
+                 ================================================= -->
+
+            <div
+                class="button-row"
+                style="margin-top:18px;"
+            >
+
+                <button
+                    id="cancelSelectionModal"
+                    class="btn btn-secondary"
+                    type="button"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    id="saveSelectionButton"
+                    class="btn btn-primary"
+                    type="button"
+                >
+                    Save Selection
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         SUPABASE
+         ================================================= -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- =================================================
+         PROJECT JS
+         ================================================= -->
+
+    <script src="js/config.js"></script>
+
+    <script src="js/supabase.js"></script>
+
+    <script src="js/auth.js"></script>
+
+    <script src="js/components.js"></script>
+
+    <script src="js/hiring.js"></script>
+
+</body>
+
 </html>

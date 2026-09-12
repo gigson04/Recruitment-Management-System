@@ -11,11 +11,19 @@
     >
 
     <title>
-        Job Postings - Recruitment Management System
+        Open Positions - Recruitment Management System
     </title>
 
 
-    <!-- Google Font -->
+    <!-- =================================================
+         GOOGLE FONT
+         ================================================= -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
     <link
         rel="preconnect"
         href="https://fonts.googleapis.com"
@@ -33,7 +41,10 @@
     >
 
 
-    <!-- Project CSS -->
+    <!-- =================================================
+         PROJECT CSS
+         ================================================= -->
+
     <link
         rel="stylesheet"
         href="css/frost-ui.css"
@@ -49,18 +60,301 @@
         href="css/responsive.css"
     >
 
+
+    <!-- =================================================
+         OPEN POSITIONS CSS
+         ================================================= -->
+
+    <style>
+
+        /* =================================================
+           PAGE
+           ================================================= */
+
+        .positions-toolbar {
+            display: grid;
+            grid-template-columns:
+                minmax(260px, 2fr)
+                repeat(3, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+
+        /* =================================================
+           POSITION GRID
+           ================================================= */
+
+        .positions-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+
+        /* =================================================
+           POSITION CARD
+           ================================================= */
+
+        .position-card {
+            min-width: 0;
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 15px;
+            background:
+                rgba(255, 255, 255, 0.18);
+        }
+
+        .position-card h3 {
+            margin: 5px 0 0;
+            color: #c9d0d8;
+            font-size: 17px;
+            line-height: 1.25;
+        }
+
+        .position-card.position-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+        }
+
+
+        /* =================================================
+           TOP
+           ================================================= */
+
+        .position-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .position-top > div {
+            min-width: 0;
+        }
+
+        .job-code {
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+
+        /* =================================================
+           STATUS
+           ================================================= */
+
+        .position-status-open,
+        .position-status-closed {
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+            padding: 5px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .position-status-open {
+            background:
+                rgba(37, 134, 90, 0.10);
+            border: 1px solid
+                rgba(37, 134, 90, 0.20);
+            color: #75d3a5;
+        }
+
+        .position-status-closed {
+            background:
+                rgba(181, 71, 71, 0.10);
+            border: 1px solid
+                rgba(181, 71, 71, 0.22);
+            color: #e59a9a;
+        }
+
+
+        /* =================================================
+           META
+           ================================================= */
+
+        .position-meta {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .position-meta span {
+            min-width: 0;
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.45;
+        }
+
+
+        /* =================================================
+           SUMMARY
+           ================================================= */
+
+        .position-summary {
+            margin: 14px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+
+        /* =================================================
+           ACTIONS
+           ================================================= */
+
+        .position-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .position-actions .btn {
+            flex: 1;
+        }
+
+
+        /* =================================================
+           MODAL
+           ================================================= */
+
+        .position-modal {
+            width: min(760px, 100%);
+            max-width: 760px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+
+        /* =================================================
+           DETAILS
+           ================================================= */
+
+        .details-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .detail-block {
+            min-width: 0;
+            padding: 13px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #15191d;
+        }
+
+        .detail-full {
+            grid-column: 1 / -1;
+        }
+
+        .detail-block small {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .detail-block strong {
+            color: #c9d0d8;
+            font-size: 13px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .modal-description {
+            color: #c9d0d8;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-line;
+            word-break: break-word;
+        }
+
+
+        /* =================================================
+           COUNT
+           ================================================= */
+
+        .position-count {
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+
+        /* =================================================
+           MOBILE
+           ================================================= */
+
+        @media (max-width: 1000px) {
+
+            .positions-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+            .positions-toolbar {
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .positions-toolbar {
+                grid-template-columns: 1fr;
+            }
+
+            .positions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .position-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-full {
+                grid-column: auto;
+            }
+
+            .position-actions {
+                flex-direction: column;
+            }
+
+        }
+
+    </style>
+
 </head>
 
 
 <body
-    data-active="Job Postings"
+    data-active="Open Positions"
     class="app-page"
 >
 
 
-    <!-- =====================================================
+    <!-- =================================================
          SIDEBAR
-         ===================================================== -->
+         ================================================= -->
 
     <aside
         id="appSidebar"
@@ -68,14 +362,16 @@
     ></aside>
 
 
-    <!-- =====================================================
-         MAIN APPLICATION
-         ===================================================== -->
+    <!-- =================================================
+         MAIN
+         ================================================= -->
 
     <main class="app-main">
 
 
-        <!-- TOP BAR -->
+        <!-- =================================================
+             TOPBAR
+             ================================================= -->
 
         <header
             id="appTopbar"
@@ -83,338 +379,101 @@
         ></header>
 
 
-        <!-- PAGE CONTENT -->
+        <!-- =================================================
+             PAGE CONTENT
+             ================================================= -->
 
         <section class="page-content">
 
 
-            <!-- PAGE HEADER -->
+            <!-- =================================================
+                 PAGE HEADER
+                 ================================================= -->
 
             <div class="page-intro">
 
                 <div>
 
                     <p class="eyebrow">
-                        Vacancy management
+                        Laboratory Activity 4
                     </p>
 
                     <h2>
-                        Job Postings
+                        Open Positions
                     </h2>
 
                     <p>
-                        Create, review, search, close,
-                        and reopen recruitment opportunities.
+                        Browse available job opportunities
+                        and view position details.
                     </p>
 
+                    <div
+                        id="positionCount"
+                        class="position-count"
+                    >
+                        Loading positions...
+                    </div>
+
                 </div>
-
-
-                <button
-                    class="btn btn-primary"
-                    id="openAddModal"
-                    type="button"
-                >
-                    ＋ Add Job Posting
-                </button>
 
             </div>
 
 
             <!-- =================================================
-                 SEARCH / FILTER
+                 FILTERS
                  ================================================= -->
 
             <section
                 class="glass-panel section-card"
             >
 
-                <div class="toolbar">
+                <div class="positions-toolbar">
 
 
                     <!-- SEARCH -->
 
                     <div class="search-wrap">
 
-                        <span class="search-icon">
+                        <span
+                            class="search-icon"
+                            aria-hidden="true"
+                        >
                             ⌕
                         </span>
 
                         <input
-                            id="jobSearch"
+                            id="positionSearch"
                             type="search"
-                            placeholder="Search job code, position, or department"
+                            placeholder="Search position, job code, or department"
                             autocomplete="off"
                         >
 
                     </div>
 
 
-                    <!-- STATUS -->
+                    <!-- DEPARTMENT -->
 
                     <select
-                        id="statusFilter"
+                        id="departmentFilter"
                         class="select-control"
                     >
 
                         <option value="">
-                            All statuses
-                        </option>
-
-                        <option value="Open">
-                            Open
-                        </option>
-
-                        <option value="Closed">
-                            Closed
+                            All departments
                         </option>
 
                     </select>
 
-                </div>
 
-
-                <!-- TABLE -->
-
-                <div class="table-wrap">
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Job Code
-                                </th>
-
-                                <th>
-                                    Position
-                                </th>
-
-                                <th>
-                                    Department
-                                </th>
-
-                                <th>
-                                    Employment
-                                </th>
-
-                                <th>
-                                    Vacancies
-                                </th>
-
-                                <th>
-                                    Posted
-                                </th>
-
-                                <th>
-                                    Closing
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Actions
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody id="jobsTable">
-
-                            <tr>
-
-                                <td
-                                    colspan="9"
-                                    class="table-empty"
-                                >
-                                    Loading job postings…
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </section>
-
-        </section>
-
-    </main>
-
-
-    <!-- =====================================================
-         TOAST
-         ===================================================== -->
-
-    <div
-        id="toastRoot"
-        class="toast-root"
-    ></div>
-
-
-    <!-- =====================================================
-         JOB POSTING MODAL
-         ===================================================== -->
-
-    <div
-        id="jobModal"
-        class="modal-backdrop"
-        aria-hidden="true"
-    >
-
-        <div
-            class="modal glass-panel"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="modalTitle"
-        >
-
-
-            <!-- MODAL HEADER -->
-
-            <div class="modal-head">
-
-                <div>
-
-                    <p
-                        class="eyebrow"
-                        id="modalEyebrow"
-                    >
-                        Create vacancy
-                    </p>
-
-                    <h3 id="modalTitle">
-                        Add Job Posting
-                    </h3>
-
-                </div>
-
-
-                <button
-                    id="closeModal"
-                    class="icon-button"
-                    type="button"
-                    aria-label="Close"
-                >
-                    ×
-                </button>
-
-            </div>
-
-
-            <!-- ERROR -->
-
-            <div
-                id="jobFormError"
-                class="form-error"
-                role="alert"
-            ></div>
-
-
-            <!-- FORM -->
-
-            <form
-                id="jobForm"
-                novalidate
-            >
-
-                <!-- Hidden ID -->
-
-                <input
-                    type="hidden"
-                    id="jobId"
-                >
-
-
-                <!-- JOB CODE -->
-
-                <div class="form-group">
-
-                    <label for="jobCode">
-                        Job Code
-                        <span>*</span>
-                    </label>
-
-                    <input
-                        id="jobCode"
-                        name="jobCode"
-                        type="text"
-                        placeholder="JOB-001"
-                        maxlength="30"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- JOB TITLE -->
-
-                <div class="form-group">
-
-                    <label for="jobTitle">
-                        Position
-                        <span>*</span>
-                    </label>
-
-                    <input
-                        id="jobTitle"
-                        name="jobTitle"
-                        type="text"
-                        placeholder="Software Developer"
-                        maxlength="150"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- DEPARTMENT -->
-
-                <div class="form-group">
-
-                    <label for="department">
-                        Department
-                        <span>*</span>
-                    </label>
-
-                    <input
-                        id="department"
-                        name="department"
-                        type="text"
-                        placeholder="Information Technology"
-                        maxlength="120"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- EMPLOYMENT TYPE -->
-
-                <div class="form-group">
-
-                    <label for="employmentType">
-                        Employment Type
-                        <span>*</span>
-                    </label>
+                    <!-- EMPLOYMENT -->
 
                     <select
-                        id="employmentType"
-                        name="employmentType"
-                        required
+                        id="employmentFilter"
+                        class="select-control"
                     >
 
                         <option value="">
-                            Select employment type
+                            All employment types
                         </option>
 
                         <option value="Full-Time">
@@ -435,148 +494,185 @@
 
                     </select>
 
-                </div>
 
+                    <!-- STATUS -->
 
-                <!-- VACANCIES -->
-
-                <div class="form-group">
-
-                    <label for="vacancies">
-                        Vacancies
-                        <span>*</span>
-                    </label>
-
-                    <input
-                        id="vacancies"
-                        name="vacancies"
-                        type="number"
-                        min="1"
-                        step="1"
-                        placeholder="2"
-                        required
+                    <select
+                        id="positionStatusFilter"
+                        class="select-control"
                     >
 
+                        <option value="Open">
+                            Open
+                        </option>
+
+                        <option value="">
+                            All statuses
+                        </option>
+
+                        <option value="Closed">
+                            Closed
+                        </option>
+
+                    </select>
+
                 </div>
 
 
-                <!-- POSTING DATE -->
+                <!-- =================================================
+                     POSITIONS GRID
+                     ================================================= -->
 
-                <div class="form-group">
+                <div
+                    id="positionsGrid"
+                    class="positions-grid"
+                >
 
-                    <label for="postingDate">
-                        Posting Date
-                        <span>*</span>
-                    </label>
-
-                    <input
-                        id="postingDate"
-                        name="postingDate"
-                        type="date"
-                        required
+                    <div
+                        class="glass-panel position-card position-empty"
                     >
 
+                        <div class="table-empty">
+                            Loading available positions...
+                        </div>
+
+                    </div>
+
                 </div>
 
+            </section>
 
-                <!-- CLOSING DATE -->
+        </section>
 
-                <div class="form-group">
+    </main>
 
-                    <label for="closingDate">
-                        Closing Date
-                        <span>*</span>
-                    </label>
 
-                    <input
-                        id="closingDate"
-                        name="closingDate"
-                        type="date"
-                        required
+    <!-- =================================================
+         TOAST
+         ================================================= -->
+
+    <div
+        id="toastRoot"
+        class="toast-root"
+    ></div>
+
+
+    <!-- =================================================
+         DETAILS MODAL
+         ================================================= -->
+
+    <div
+        id="detailsModal"
+        class="modal-backdrop"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal glass-panel position-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="detailsTitle"
+        >
+
+
+            <!-- HEADER -->
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p
+                        id="detailsCode"
+                        class="eyebrow"
                     >
+                        JOB-001
+                    </p>
+
+                    <h3 id="detailsTitle">
+                        Job Position
+                    </h3>
 
                 </div>
 
 
-                <!-- DESCRIPTION -->
+                <button
+                    id="closeDetails"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
 
-                <div class="form-group">
-
-                    <label for="description">
-                        Job Description
-                    </label>
-
-                    <textarea
-                        id="description"
-                        name="description"
-                        rows="4"
-                        placeholder="Develop and maintain software applications."
-                    ></textarea>
-
-                </div>
+            </div>
 
 
-                <!-- QUALIFICATIONS -->
+            <!-- BODY -->
 
-                <div class="form-group">
+            <div id="detailsBody">
 
-                    <label for="qualifications">
-                        Qualifications
-                    </label>
+                <div class="details-grid">
 
-                    <textarea
-                        id="qualifications"
-                        name="qualifications"
-                        rows="5"
-                        placeholder="Bachelor's degree in IT/CS&#10;Programming experience&#10;Database knowledge"
-                    ></textarea>
+                    <div class="detail-block">
+
+                        <small>
+                            Department
+                        </small>
+
+                        <strong>
+                            —
+                        </strong>
+
+                    </div>
 
                 </div>
 
-
-                <!-- FORM BUTTONS -->
-
-                <div class="button-row">
-
-                    <button
-                        id="cancelModal"
-                        class="btn btn-secondary"
-                        type="button"
-                    >
-                        Cancel
-                    </button>
+            </div>
 
 
-                    <button
-                        id="saveJobButton"
-                        class="btn btn-primary"
-                        type="submit"
-                    >
-                        Save Job Posting
-                    </button>
+            <!-- FOOTER -->
 
-                </div>
+            <div
+                class="button-row"
+                style="margin-top:18px;"
+            >
 
-            </form>
+                <button
+                    id="closeDetailsBottom"
+                    class="btn btn-secondary"
+                    type="button"
+                >
+                    Close
+                </button>
+
+
+                <button
+                    id="applyFromDetails"
+                    class="btn btn-primary"
+                    type="button"
+                >
+                    Apply
+                </button>
+
+            </div>
 
         </div>
 
     </div>
 
 
-    <!-- =====================================================
+    <!-- =================================================
          SUPABASE
-         ===================================================== -->
+         ================================================= -->
 
     <script
         src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
     ></script>
 
 
-    <!-- =====================================================
+    <!-- =================================================
          PROJECT JAVASCRIPT
-         ORDER IS IMPORTANT
-         ===================================================== -->
+         ================================================= -->
 
     <script src="js/config.js"></script>
 
@@ -586,7 +682,12 @@
 
     <script src="js/components.js"></script>
 
-    <script src="js/job-postings.js"></script>
+    <!-- IMPORTANT:
+         Use the Open Positions JS here.
+         NOT job-postings.js
+    -->
+
+    <script src="js/open-position.js"></script>
 
 
 </body>
