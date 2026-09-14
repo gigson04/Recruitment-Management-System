@@ -1,11 +1,24 @@
 /* =========================================================
    RECRUITMENT MANAGEMENT SYSTEM
+
    LABORATORY ACTIVITY 16
    APPLICANT SELECTION
+
+   LABORATORY ACTIVITY 17
+   HIRING DECISION
+
+   OPTIMIZED VERSION
+   ========================================================= */
+
+
+/* =========================================================
+   GLOBAL VARIABLES
    ========================================================= */
 
 let selectionCandidates = [];
+
 let selectedApplicationId = null;
+
 let hiringEventsBound = false;
 
 
@@ -21,6 +34,10 @@ document.addEventListener(
 
 async function initHiring() {
 
+    /* -----------------------------------------------------
+       LOAD COMMON SHELL
+       ----------------------------------------------------- */
+
     if (
         typeof renderShell ===
         "function"
@@ -33,8 +50,16 @@ async function initHiring() {
     }
 
 
+    /* -----------------------------------------------------
+       BIND EVENTS
+       ----------------------------------------------------- */
+
     setupHiringEvents();
 
+
+    /* -----------------------------------------------------
+       AUTHENTICATION
+       ----------------------------------------------------- */
 
     let session = null;
 
@@ -68,8 +93,13 @@ async function initHiring() {
         );
 
         return;
+
     }
 
+
+    /* -----------------------------------------------------
+       LOAD USER PROFILE
+       ----------------------------------------------------- */
 
     if (
         typeof loadUserProfile ===
@@ -78,15 +108,22 @@ async function initHiring() {
 
         loadUserProfile()
             .catch(
-                error =>
+                error => {
+
                     console.warn(
                         "Unable to load user profile:",
                         error
-                    )
+                    );
+
+                }
             );
 
     }
 
+
+    /* -----------------------------------------------------
+       LOAD HIRING DATA
+       ----------------------------------------------------- */
 
     await loadSelectionCandidates();
 
@@ -94,7 +131,7 @@ async function initHiring() {
 
 
 /* =========================================================
-   EVENTS
+   EVENT SETUP
    ========================================================= */
 
 function setupHiringEvents() {
@@ -104,8 +141,13 @@ function setupHiringEvents() {
     }
 
 
-    hiringEventsBound = true;
+    hiringEventsBound =
+        true;
 
+
+    /* -----------------------------------------------------
+       SEARCH
+       ----------------------------------------------------- */
 
     document
         .getElementById(
@@ -117,6 +159,10 @@ function setupHiringEvents() {
         );
 
 
+    /* -----------------------------------------------------
+       FILTER
+       ----------------------------------------------------- */
+
     document
         .getElementById(
             "selectionFilter"
@@ -127,6 +173,10 @@ function setupHiringEvents() {
         );
 
 
+    /* -----------------------------------------------------
+       TABLE
+       ----------------------------------------------------- */
+
     document
         .getElementById(
             "selectionTable"
@@ -136,6 +186,10 @@ function setupHiringEvents() {
             handleSelectionTableAction
         );
 
+
+    /* -----------------------------------------------------
+       LAB 16
+       ----------------------------------------------------- */
 
     document
         .getElementById(
@@ -167,6 +221,44 @@ function setupHiringEvents() {
         );
 
 
+    /* -----------------------------------------------------
+       LAB 17
+       ----------------------------------------------------- */
+
+    document
+        .getElementById(
+            "closeHiringDecisionModal"
+        )
+        ?.addEventListener(
+            "click",
+            closeHiringDecisionModal
+        );
+
+
+    document
+        .getElementById(
+            "cancelHiringDecisionModal"
+        )
+        ?.addEventListener(
+            "click",
+            closeHiringDecisionModal
+        );
+
+
+    document
+        .getElementById(
+            "saveHiringDecisionButton"
+        )
+        ?.addEventListener(
+            "click",
+            saveHiringDecision
+        );
+
+
+    /* -----------------------------------------------------
+       SELECTION MODAL BACKDROP
+       ----------------------------------------------------- */
+
     document
         .getElementById(
             "selectionModal"
@@ -175,15 +267,9 @@ function setupHiringEvents() {
             "click",
             event => {
 
-                const modal =
-                    document.getElementById(
-                        "selectionModal"
-                    );
-
-
                 if (
-                    event.target ===
-                    modal
+                    event.target.id ===
+                    "selectionModal"
                 ) {
 
                     closeSelectionModal();
@@ -194,18 +280,50 @@ function setupHiringEvents() {
         );
 
 
+    /* -----------------------------------------------------
+       HIRING MODAL BACKDROP
+       ----------------------------------------------------- */
+
+    document
+        .getElementById(
+            "hiringDecisionModal"
+        )
+        ?.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target.id ===
+                    "hiringDecisionModal"
+                ) {
+
+                    closeHiringDecisionModal();
+
+                }
+
+            }
+        );
+
+
+    /* -----------------------------------------------------
+       ESCAPE KEY
+       ----------------------------------------------------- */
+
     document.addEventListener(
         "keydown",
         event => {
 
             if (
-                event.key ===
+                event.key !==
                 "Escape"
             ) {
-
-                closeSelectionModal();
-
+                return;
             }
+
+
+            closeSelectionModal();
+
+            closeHiringDecisionModal();
 
         }
     );
@@ -214,7 +332,20 @@ function setupHiringEvents() {
 
 
 /* =========================================================
-   LOAD CANDIDATES
+   LOAD DATA
+   =========================================================
+
+   IMPORTANT:
+
+   This uses ONE Supabase request.
+
+   applications
+       ├── applicants
+       ├── job_postings
+       ├── screenings
+       ├── interviews
+       └── hiring
+
    ========================================================= */
 
 async function loadSelectionCandidates() {
@@ -224,6 +355,10 @@ async function loadSelectionCandidates() {
             "selectionTable"
         );
 
+
+    /* -----------------------------------------------------
+       LOADING MESSAGE
+       ----------------------------------------------------- */
 
     if (table) {
 
@@ -243,7 +378,13 @@ async function loadSelectionCandidates() {
 
     try {
 
-        if (!window.rmsSupabase) {
+        /* -------------------------------------------------
+           CHECK SUPABASE
+           ------------------------------------------------- */
+
+        if (
+            !window.rmsSupabase
+        ) {
 
             throw new Error(
                 "Supabase client is not initialized."
@@ -253,23 +394,90 @@ async function loadSelectionCandidates() {
 
 
         /* =================================================
-           APPLICATIONS
+           ONE DATABASE REQUEST
            ================================================= */
 
         const {
-            data: applicationRows,
-            error: applicationError
+            data,
+            error
         } =
             await window.rmsSupabase
-                .from("applications")
+                .from(
+                    "applications"
+                )
                 .select(`
                     application_id,
                     applicant_id,
                     job_id,
                     application_date,
                     status,
-                    created_at
+                    created_at,
+
+                    applicants (
+                        applicant_id,
+                        applicant_no,
+                        first_name,
+                        last_name,
+                        email,
+                        status
+                    ),
+
+                    job_postings (
+                        job_id,
+                        job_code,
+                        job_title,
+                        department
+                    ),
+
+                    screenings (
+                        screening_id,
+                        application_id,
+                        screening_date,
+                        score,
+                        result,
+                        created_at
+                    ),
+
+                    interviews (
+                        interview_id,
+                        application_id,
+                        interview_date,
+                        interview_time,
+                        interviewer,
+                        status,
+                        score,
+                        result,
+                        remarks,
+                        created_at,
+                        updated_at
+                    ),
+
+                    hiring (
+                        hiring_id,
+                        application_id,
+                        hiring_date,
+                        position,
+                        salary_offer,
+                        employment_status,
+                        start_date,
+                        status,
+                        created_at,
+                        updated_at
+                    )
                 `)
+                .in(
+                    "status",
+                    [
+                        "QUALIFIED",
+                        "For Interview",
+                        "Interviewed",
+                        "SELECTED FOR HIRING",
+                        "HIRED",
+                        "DECLINED",
+                        "REJECTED",
+                        "ON HOLD"
+                    ]
+                )
                 .order(
                     "created_at",
                     {
@@ -279,398 +487,23 @@ async function loadSelectionCandidates() {
                 );
 
 
-        if (applicationError) {
-            throw applicationError;
+        /* -------------------------------------------------
+           SUPABASE ERROR
+           ------------------------------------------------- */
+
+        if (error) {
+            throw error;
         }
 
 
-        const apps =
-            Array.isArray(
-                applicationRows
-            )
-                ? applicationRows
+        /* -------------------------------------------------
+           NORMALIZE RESULT
+           ------------------------------------------------- */
+
+        const applications =
+            Array.isArray(data)
+                ? data
                 : [];
-
-
-        if (!apps.length) {
-
-            selectionCandidates = [];
-
-            updateSelectionSummary();
-
-            renderSelectionCandidates();
-
-            return;
-
-        }
-
-
-        /* =================================================
-           APPLICANTS
-           ================================================= */
-
-        const applicantIds =
-            [
-                ...new Set(
-                    apps
-                        .map(
-                            application =>
-                                application.applicant_id
-                        )
-                        .filter(Boolean)
-                )
-            ];
-
-
-        let applicantRows = [];
-
-
-        if (
-            applicantIds.length
-        ) {
-
-            const {
-                data,
-                error
-            } =
-                await window.rmsSupabase
-                    .from("applicants")
-                    .select(`
-                        applicant_id,
-                        applicant_no,
-                        first_name,
-                        last_name,
-                        email,
-                        status
-                    `)
-                    .in(
-                        "applicant_id",
-                        applicantIds
-                    );
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            applicantRows =
-                Array.isArray(data)
-                    ? data
-                    : [];
-
-        }
-
-
-        /* =================================================
-           JOB POSTINGS
-           ================================================= */
-
-        const jobIds =
-            [
-                ...new Set(
-                    apps
-                        .map(
-                            application =>
-                                application.job_id
-                        )
-                        .filter(Boolean)
-                )
-            ];
-
-
-        let jobRows = [];
-
-
-        if (jobIds.length) {
-
-            const {
-                data,
-                error
-            } =
-                await window.rmsSupabase
-                    .from("job_postings")
-                    .select(`
-                        job_id,
-                        job_code,
-                        job_title,
-                        department
-                    `)
-                    .in(
-                        "job_id",
-                        jobIds
-                    );
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            jobRows =
-                Array.isArray(data)
-                    ? data
-                    : [];
-
-        }
-
-
-        /* =================================================
-           MAP DATA
-           ================================================= */
-
-        const applicantMap =
-            new Map(
-                applicantRows.map(
-                    applicant => [
-                        String(
-                            applicant.applicant_id
-                        ),
-                        applicant
-                    ]
-                )
-            );
-
-
-        const jobMap =
-            new Map(
-                jobRows.map(
-                    job => [
-                        String(
-                            job.job_id
-                        ),
-                        job
-                    ]
-                )
-            );
-
-
-        /* =================================================
-           SCREENINGS
-           ================================================= */
-
-        const applicationIds =
-            apps
-                .map(
-                    application =>
-                        application.application_id
-                )
-                .filter(Boolean);
-
-
-        let screeningRows = [];
-
-
-        if (
-            applicationIds.length
-        ) {
-
-            const {
-                data,
-                error
-            } =
-                await window.rmsSupabase
-                    .from("screenings")
-                    .select(`
-                        screening_id,
-                        application_id,
-                        screening_date,
-                        score,
-                        result,
-                        created_at
-                    `)
-                    .in(
-                        "application_id",
-                        applicationIds
-                    )
-                    .order(
-                        "created_at",
-                        {
-                            ascending:
-                                false
-                        }
-                    );
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            screeningRows =
-                Array.isArray(data)
-                    ? data
-                    : [];
-
-        }
-
-
-        const screeningMap =
-            new Map();
-
-
-        screeningRows.forEach(
-            screening => {
-
-                const id =
-                    String(
-                        screening.application_id
-                    );
-
-
-                if (
-                    !screeningMap.has(
-                        id
-                    )
-                ) {
-
-                    screeningMap.set(
-                        id,
-                        screening
-                    );
-
-                }
-
-            }
-        );
-
-
-        /* =================================================
-           INTERVIEWS
-           ================================================= */
-
-        let interviewRows = [];
-
-
-        if (
-            applicationIds.length
-        ) {
-
-            const {
-                data,
-                error
-            } =
-                await window.rmsSupabase
-                    .from("interviews")
-                    .select(`
-                        interview_id,
-                        application_id,
-                        interview_date,
-                        interview_time,
-                        status,
-                        score,
-                        result,
-                        created_at,
-                        updated_at
-                    `)
-                    .in(
-                        "application_id",
-                        applicationIds
-                    )
-                    .order(
-                        "created_at",
-                        {
-                            ascending:
-                                false
-                        }
-                    );
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            interviewRows =
-                Array.isArray(data)
-                    ? data
-                    : [];
-
-        }
-
-
-        /*
-         * Lab 15 permits multiple interviews.
-         *
-         * For Lab 16 we use the latest
-         * completed interview that has a score.
-         */
-
-        const interviewMap =
-            new Map();
-
-
-        interviewRows.forEach(
-            interview => {
-
-                const id =
-                    String(
-                        interview.application_id
-                    );
-
-
-                const current =
-                    interviewMap.get(
-                        id
-                    );
-
-
-                if (!current) {
-
-                    interviewMap.set(
-                        id,
-                        interview
-                    );
-
-                    return;
-
-                }
-
-
-                const currentCompleted =
-                    normalizeStatus(
-                        current.status
-                    ) ===
-                    "COMPLETED";
-
-
-                const currentHasScore =
-                    hasScore(
-                        current.score
-                    );
-
-
-                const interviewCompleted =
-                    normalizeStatus(
-                        interview.status
-                    ) ===
-                    "COMPLETED";
-
-
-                const interviewHasScore =
-                    hasScore(
-                        interview.score
-                    );
-
-
-                if (
-                    interviewCompleted &&
-                    interviewHasScore &&
-                    (
-                        !currentCompleted ||
-                        !currentHasScore
-                    )
-                ) {
-
-                    interviewMap.set(
-                        id,
-                        interview
-                    );
-
-                }
-
-            }
-        );
 
 
         /* =================================================
@@ -678,43 +511,243 @@ async function loadSelectionCandidates() {
            ================================================= */
 
         selectionCandidates =
-            apps
+            applications
                 .map(
                     application => {
 
-                        const applicationId =
-                            String(
-                                application.application_id
+                        /* ---------------------------------
+                           APPLICANT
+                           --------------------------------- */
+
+                        const applicant =
+                            getRelatedRecord(
+                                application
+                                    .applicants
                             );
 
 
-                        const applicant =
-                            applicantMap.get(
-                                String(
-                                    application.applicant_id
-                                )
-                            ) || null;
-
+                        /* ---------------------------------
+                           JOB
+                           --------------------------------- */
 
                         const job =
-                            jobMap.get(
-                                String(
-                                    application.job_id
-                                )
-                            ) || null;
+                            getRelatedRecord(
+                                application
+                                    .job_postings
+                            );
+
+
+                        /* ---------------------------------
+                           SCREENING HISTORY
+                           --------------------------------- */
+
+                        const screenings =
+                            Array.isArray(
+                                application
+                                    .screenings
+                            )
+
+                                ? [
+                                    ...application
+                                        .screenings
+                                ]
+
+                                : [];
+
+
+                        /*
+                         * Newest screening first.
+                         */
+
+                        screenings.sort(
+                            (
+                                a,
+                                b
+                            ) => {
+
+                                const dateA =
+                                    new Date(
+                                        a.created_at ||
+                                        a.screening_date ||
+                                        0
+                                    ).getTime();
+
+
+                                const dateB =
+                                    new Date(
+                                        b.created_at ||
+                                        b.screening_date ||
+                                        0
+                                    ).getTime();
+
+
+                                return (
+                                    dateB -
+                                    dateA
+                                );
+
+                            }
+                        );
 
 
                         const screening =
-                            screeningMap.get(
-                                applicationId
-                            ) || null;
+                            screenings.length
+                                ? screenings[0]
+                                : null;
 
 
-                        const interview =
-                            interviewMap.get(
-                                applicationId
-                            ) || null;
+                        /* ---------------------------------
+                           INTERVIEW HISTORY
+                           --------------------------------- */
 
+                        const interviewRows =
+                            Array.isArray(
+                                application
+                                    .interviews
+                            )
+
+                                ? [
+                                    ...application
+                                        .interviews
+                                ]
+
+                                : [];
+
+
+                        /*
+                         * Sort newest first.
+                         */
+
+                        interviewRows.sort(
+                            (
+                                a,
+                                b
+                            ) => {
+
+                                const dateA =
+                                    getInterviewSortDate(
+                                        a
+                                    );
+
+
+                                const dateB =
+                                    getInterviewSortDate(
+                                        b
+                                    );
+
+
+                                return (
+                                    dateB -
+                                    dateA
+                                );
+
+                            }
+                        );
+
+
+                        /*
+                         * Lab 15 permits multiple
+                         * interviews.
+                         *
+                         * Select the newest completed
+                         * interview that has a score.
+                         */
+
+                        let interview =
+                            interviewRows.find(
+                                item =>
+
+                                    normalizeStatus(
+                                        item.status
+                                    ) ===
+                                    "COMPLETED"
+
+                                    &&
+
+                                    hasScore(
+                                        item.score
+                                    )
+                            )
+                            || null;
+
+
+                        /*
+                         * Fallback:
+                         * newest interview with score.
+                         */
+
+                        if (
+                            !interview
+                        ) {
+
+                            interview =
+                                interviewRows.find(
+                                    item =>
+                                        hasScore(
+                                            item.score
+                                        )
+                                )
+                                || null;
+
+                        }
+
+
+                        /* ---------------------------------
+                           HIRING HISTORY
+                           --------------------------------- */
+
+                        const hiringRows =
+                            Array.isArray(
+                                application
+                                    .hiring
+                            )
+
+                                ? [
+                                    ...application
+                                        .hiring
+                                ]
+
+                                : [];
+
+
+                        hiringRows.sort(
+                            (
+                                a,
+                                b
+                            ) => {
+
+                                const dateA =
+                                    new Date(
+                                        a.created_at ||
+                                        0
+                                    ).getTime();
+
+
+                                const dateB =
+                                    new Date(
+                                        b.created_at ||
+                                        0
+                                    ).getTime();
+
+
+                                return (
+                                    dateB -
+                                    dateA
+                                );
+
+                            }
+                        );
+
+
+                        const hiring =
+                            hiringRows.length
+                                ? hiringRows[0]
+                                : null;
+
+
+                        /* ---------------------------------
+                           SCORES
+                           --------------------------------- */
 
                         const screeningScore =
                             toNumberOrNull(
@@ -735,60 +768,51 @@ async function loadSelectionCandidates() {
                             );
 
 
+                        /* ---------------------------------
+                           RETURN CANDIDATE
+                           --------------------------------- */
+
                         return {
 
-                            application,
+                            application:
+                                application,
 
-                            applicant,
+                            applicant:
+                                applicant,
 
-                            job,
+                            job:
+                                job,
 
-                            screening,
+                            screening:
+                                screening,
 
-                            interview,
+                            interview:
+                                interview,
 
-                            screeningScore,
+                            hiring:
+                                hiring,
 
-                            interviewScore,
+                            screeningScore:
+                                screeningScore,
 
-                            overallScore
+                            interviewScore:
+                                interviewScore,
+
+                            overallScore:
+                                overallScore
 
                         };
-
-                    }
-                )
-                .filter(
-                    candidate => {
-
-                        const status =
-                            normalizeStatus(
-                                candidate
-                                    .application
-                                    ?.status
-                            );
-
-
-                        return (
-
-                            status ===
-                                "QUALIFIED" ||
-
-                            status ===
-                                "FOR INTERVIEW" ||
-
-                            status ===
-                                "INTERVIEWED" ||
-
-                            status ===
-                                "SELECTED FOR HIRING"
-
-                        );
 
                     }
                 );
 
 
+        /* =================================================
+           UPDATE UI
+           ================================================= */
+
         updateSelectionSummary();
+
 
         renderSelectionCandidates();
 
@@ -796,12 +820,13 @@ async function loadSelectionCandidates() {
     } catch (error) {
 
         console.error(
-            "Load selection candidates error:",
+            "Hiring data load error:",
             error
         );
 
 
-        selectionCandidates = [];
+        selectionCandidates =
+            [];
 
 
         updateSelectionSummary();
@@ -815,7 +840,7 @@ async function loadSelectionCandidates() {
                         colspan="7"
                         class="table-empty"
                     >
-                        Unable to load applicant selection data.
+                        Unable to load hiring data.
                     </td>
                 </tr>
             `;
@@ -823,11 +848,19 @@ async function loadSelectionCandidates() {
         }
 
 
-        showToast(
-            error?.message ||
-                "Unable to load applicant selection data.",
-            "error"
-        );
+        if (
+            typeof showToast ===
+            "function"
+        ) {
+
+            showToast(
+                getDatabaseErrorMessage(
+                    error
+                ),
+                "error"
+            );
+
+        }
 
     }
 
@@ -835,7 +868,131 @@ async function loadSelectionCandidates() {
 
 
 /* =========================================================
-   RENDER TABLE
+   RELATED RECORD HELPER
+   ========================================================= */
+
+function getRelatedRecord(
+    value
+) {
+
+    if (
+        Array.isArray(
+            value
+        )
+    ) {
+
+        return (
+            value[0] ||
+            null
+        );
+
+    }
+
+
+    return (
+        value ||
+        null
+    );
+
+}
+
+
+/* =========================================================
+   INTERVIEW SORT DATE
+   ========================================================= */
+
+function getInterviewSortDate(
+    interview
+) {
+
+    if (!interview) {
+        return 0;
+    }
+
+
+    if (
+        interview.updated_at
+    ) {
+
+        const updated =
+            new Date(
+                interview.updated_at
+            ).getTime();
+
+
+        if (
+            Number.isFinite(
+                updated
+            )
+        ) {
+
+            return updated;
+
+        }
+
+    }
+
+
+    if (
+        interview.created_at
+    ) {
+
+        const created =
+            new Date(
+                interview.created_at
+            ).getTime();
+
+
+        if (
+            Number.isFinite(
+                created
+            )
+        ) {
+
+            return created;
+
+        }
+
+    }
+
+
+    if (
+        interview.interview_date
+    ) {
+
+        const date =
+            new Date(
+                `${
+                    interview.interview_date
+                }T${
+                    normalizeTime(
+                        interview.interview_time
+                    ) ||
+                    "00:00"
+                }:00`
+            ).getTime();
+
+
+        if (
+            Number.isFinite(
+                date
+            )
+        ) {
+
+            return date;
+
+        }
+
+    }
+
+
+    return 0;
+
+}
+
+
+/* =========================================================
+   RENDER CANDIDATES
    ========================================================= */
 
 function renderSelectionCandidates() {
@@ -914,7 +1071,7 @@ function renderSelectionCandidates() {
                         .toLowerCase();
 
 
-                const position =
+                const jobTitle =
                     String(
                         job.job_title ||
                         ""
@@ -938,15 +1095,19 @@ function renderSelectionCandidates() {
 
                 const matchesSearch =
                     !search ||
+
                     applicantName.includes(
                         search
                     ) ||
+
                     applicantNo.includes(
                         search
                     ) ||
-                    position.includes(
+
+                    jobTitle.includes(
                         search
                     ) ||
+
                     jobCode.includes(
                         search
                     );
@@ -965,6 +1126,7 @@ function renderSelectionCandidates() {
                         status ===
                         "QUALIFIED";
 
+
                 } else if (
                     filter ===
                     "SELECTED"
@@ -974,12 +1136,54 @@ function renderSelectionCandidates() {
                         status ===
                         "SELECTED FOR HIRING";
 
+
+                } else if (
+                    filter ===
+                    "HIRED"
+                ) {
+
+                    matchesFilter =
+                        status ===
+                        "HIRED";
+
+
+                } else if (
+                    filter ===
+                    "DECLINED"
+                ) {
+
+                    matchesFilter =
+                        status ===
+                        "DECLINED";
+
+
+                } else if (
+                    filter ===
+                    "REJECTED"
+                ) {
+
+                    matchesFilter =
+                        status ===
+                        "REJECTED";
+
+
+                } else if (
+                    filter ===
+                    "ON HOLD"
+                ) {
+
+                    matchesFilter =
+                        status ===
+                        "ON HOLD";
+
                 }
 
 
                 return (
+
                     matchesSearch &&
                     matchesFilter
+
                 );
 
             }
@@ -1029,14 +1233,17 @@ function renderSelectionCandidates() {
                         );
 
 
-                    const selected =
-                        status ===
-                        "SELECTED FOR HIRING";
+                    const action =
+                        getCandidateAction(
+                            candidate
+                        );
 
 
                     return `
 
                         <tr>
+
+                            <!-- APPLICANT -->
 
                             <td>
 
@@ -1064,7 +1271,8 @@ function renderSelectionCandidates() {
 
                                     <span>
                                         ${escapeHtml(
-                                            applicant.applicant_no ||
+                                            applicant
+                                                .applicant_no ||
                                             "—"
                                         )}
                                     </span>
@@ -1073,6 +1281,8 @@ function renderSelectionCandidates() {
 
                             </td>
 
+
+                            <!-- POSITION -->
 
                             <td>
 
@@ -1099,60 +1309,54 @@ function renderSelectionCandidates() {
                             </td>
 
 
+                            <!-- SCREENING -->
+
                             <td>
+
                                 ${renderScore(
-                                    candidate.screeningScore
+                                    candidate
+                                        .screeningScore
                                 )}
+
                             </td>
 
 
+                            <!-- INTERVIEW -->
+
                             <td>
+
                                 ${renderScore(
-                                    candidate.interviewScore
+                                    candidate
+                                        .interviewScore
                                 )}
+
                             </td>
 
 
+                            <!-- OVERALL -->
+
                             <td>
+
                                 ${renderOverallScore(
-                                    candidate.overallScore
+                                    candidate
+                                        .overallScore
                                 )}
+
                             </td>
 
+
+                            <!-- STATUS -->
 
                             <td>
 
-                                ${
-                                    selected
-
-                                        ? `
-                                            <span
-                                                class="
-                                                    selection-status
-                                                    selection-status-selected
-                                                "
-                                            >
-                                                SELECTED FOR HIRING
-                                            </span>
-                                        `
-
-                                        : `
-                                            <span
-                                                class="
-                                                    selection-status
-                                                    selection-status-qualified
-                                                "
-                                            >
-                                                ${escapeHtml(
-                                                    application.status ||
-                                                    "QUALIFIED"
-                                                )}
-                                            </span>
-                                        `
-                                }
+                                ${renderCandidateStatus(
+                                    application.status
+                                )}
 
                             </td>
 
+
+                            <!-- ACTION -->
 
                             <td>
 
@@ -1163,16 +1367,13 @@ function renderSelectionCandidates() {
                                     <button
                                         type="button"
                                         class="table-action"
-                                        data-selection-action="review"
+                                        data-selection-action="${action.action}"
                                         data-id="${escapeHtml(
-                                            application.application_id
+                                            application
+                                                .application_id
                                         )}"
                                     >
-                                        ${
-                                            selected
-                                                ? "View"
-                                                : "Select"
-                                        }
+                                        ${action.label}
                                     </button>
 
                                 </div>
@@ -1186,6 +1387,93 @@ function renderSelectionCandidates() {
                 }
             )
             .join("");
+
+}
+
+
+/* =========================================================
+   CANDIDATE ACTION
+   ========================================================= */
+
+function getCandidateAction(
+    candidate
+) {
+
+    const status =
+        normalizeStatus(
+            candidate.application
+                ?.status
+        );
+
+
+    /* -----------------------------------------------------
+       SELECTED
+       ----------------------------------------------------- */
+
+    if (
+        status ===
+        "SELECTED FOR HIRING"
+    ) {
+
+        return {
+
+            action:
+                "hire",
+
+            label:
+                "Hiring Decision"
+
+        };
+
+    }
+
+
+    /* -----------------------------------------------------
+       FINAL DECISION ALREADY EXISTS
+       ----------------------------------------------------- */
+
+    if (
+
+        status ===
+            "HIRED" ||
+
+        status ===
+            "DECLINED" ||
+
+        status ===
+            "REJECTED" ||
+
+        status ===
+            "ON HOLD"
+
+    ) {
+
+        return {
+
+            action:
+                "hire",
+
+            label:
+                "View Decision"
+
+        };
+
+    }
+
+
+    /* -----------------------------------------------------
+       QUALIFIED
+       ----------------------------------------------------- */
+
+    return {
+
+        action:
+            "review",
+
+        label:
+            "Select"
+
+    };
 
 }
 
@@ -1242,6 +1530,24 @@ function handleSelectionTableAction(
     }
 
 
+    const action =
+        button.dataset
+            .selectionAction;
+
+
+    if (
+        action ===
+        "hire"
+    ) {
+
+        openHiringDecisionModal(
+            candidate
+        );
+
+        return;
+    }
+
+
     openSelectionModal(
         candidate
     );
@@ -1250,7 +1556,8 @@ function handleSelectionTableAction(
 
 
 /* =========================================================
-   OPEN MODAL
+   LAB 16
+   OPEN SELECTION MODAL
    ========================================================= */
 
 function openSelectionModal(
@@ -1291,58 +1598,129 @@ function openSelectionModal(
             .trim();
 
 
-    document.getElementById(
-        "selectionApplicant"
-    ).textContent =
-        applicantName ||
-        "—";
+    const applicantElement =
+        document.getElementById(
+            "selectionApplicant"
+        );
 
 
-    document.getElementById(
-        "selectionApplicantNo"
-    ).textContent =
-        applicant.applicant_no ||
-        "—";
+    const applicantNoElement =
+        document.getElementById(
+            "selectionApplicantNo"
+        );
 
 
-    document.getElementById(
-        "selectionPosition"
-    ).textContent =
-        job.job_title ||
-        "—";
+    const positionElement =
+        document.getElementById(
+            "selectionPosition"
+        );
 
 
-    document.getElementById(
-        "selectionApplicationStatus"
-    ).textContent =
-        application.status ||
-        "—";
+    const statusElement =
+        document.getElementById(
+            "selectionApplicationStatus"
+        );
 
 
-    document.getElementById(
-        "selectionScreeningScore"
-    ).textContent =
-        candidate.screeningScore ??
-        "—";
+    const screeningElement =
+        document.getElementById(
+            "selectionScreeningScore"
+        );
 
 
-    document.getElementById(
-        "selectionInterviewScore"
-    ).textContent =
-        candidate.interviewScore ??
-        "—";
+    const interviewElement =
+        document.getElementById(
+            "selectionInterviewScore"
+        );
 
 
-    document.getElementById(
-        "selectionOverallScore"
-    ).textContent =
-        candidate.overallScore !==
-            null
+    const overallElement =
+        document.getElementById(
+            "selectionOverallScore"
+        );
 
-            ? candidate.overallScore
-                .toFixed(1)
 
-            : "—";
+    if (
+        applicantElement
+    ) {
+
+        applicantElement.textContent =
+            applicantName ||
+            "—";
+
+    }
+
+
+    if (
+        applicantNoElement
+    ) {
+
+        applicantNoElement.textContent =
+            applicant.applicant_no ||
+            "—";
+
+    }
+
+
+    if (
+        positionElement
+    ) {
+
+        positionElement.textContent =
+            job.job_title ||
+            "—";
+
+    }
+
+
+    if (
+        statusElement
+    ) {
+
+        statusElement.textContent =
+            application.status ||
+            "—";
+
+    }
+
+
+    if (
+        screeningElement
+    ) {
+
+        screeningElement.textContent =
+            candidate.screeningScore ??
+            "—";
+
+    }
+
+
+    if (
+        interviewElement
+    ) {
+
+        interviewElement.textContent =
+            candidate.interviewScore ??
+            "—";
+
+    }
+
+
+    if (
+        overallElement
+    ) {
+
+        overallElement.textContent =
+            candidate.overallScore !==
+                null
+
+                ? candidate
+                    .overallScore
+                    .toFixed(1)
+
+                : "—";
+
+    }
 
 
     const recommendation =
@@ -1357,7 +1735,9 @@ function openSelectionModal(
         );
 
 
-    if (recommendation) {
+    if (
+        recommendation
+    ) {
 
         recommendation.value =
             alreadySelected
@@ -1382,6 +1762,7 @@ function openSelectionModal(
 
 
 /* =========================================================
+   LAB 16
    SAVE SELECTION
    ========================================================= */
 
@@ -1420,39 +1801,9 @@ async function saveApplicantSelection() {
     }
 
 
-    const applicationStatus =
-        normalizeStatus(
-            candidate.application
-                ?.status
-        );
-
-
-    const eligibleStatuses = [
-
-        "QUALIFIED",
-
-        "FOR INTERVIEW",
-
-        "INTERVIEWED",
-
-        "SELECTED FOR HIRING"
-
-    ];
-
-
-    if (
-        !eligibleStatuses.includes(
-            applicationStatus
-        )
-    ) {
-
-        setSelectionError(
-            "Only qualified applicants can be selected for hiring."
-        );
-
-        return;
-    }
-
+    /* -----------------------------------------------------
+       SCORE VALIDATION
+       ----------------------------------------------------- */
 
     if (
         candidate.screeningScore ===
@@ -1484,6 +1835,10 @@ async function saveApplicantSelection() {
     }
 
 
+    /* -----------------------------------------------------
+       RECOMMENDATION
+       ----------------------------------------------------- */
+
     const recommendation =
         String(
             document.getElementById(
@@ -1506,6 +1861,29 @@ async function saveApplicantSelection() {
     }
 
 
+    /* -----------------------------------------------------
+       IF ALREADY SELECTED
+       ----------------------------------------------------- */
+
+    if (
+        isSelectedStatus(
+            candidate.application
+                ?.status
+        )
+    ) {
+
+        closeSelectionModal();
+
+
+        openHiringDecisionModal(
+            candidate
+        );
+
+
+        return;
+    }
+
+
     const button =
         document.getElementById(
             "saveSelectionButton"
@@ -1521,26 +1899,13 @@ async function saveApplicantSelection() {
 
     try {
 
-        if (!window.rmsSupabase) {
-
-            throw new Error(
-                "Supabase client is not initialized."
-            );
-
-        }
-
-
-        /*
-         * Lab 16 expected output:
-         *
-         * SELECTED FOR HIRING
-         */
-
         const {
             error
         } =
             await window.rmsSupabase
-                .from("applications")
+                .from(
+                    "applications"
+                )
                 .update({
 
                     status:
@@ -1558,9 +1923,9 @@ async function saveApplicantSelection() {
         }
 
 
-        /*
-         * Update local copy immediately.
-         */
+        /* -------------------------------------------------
+           UPDATE LOCAL DATA
+           ------------------------------------------------- */
 
         const localCandidate =
             selectionCandidates.find(
@@ -1576,7 +1941,8 @@ async function saveApplicantSelection() {
 
 
         if (
-            localCandidate?.application
+            localCandidate
+                ?.application
         ) {
 
             localCandidate
@@ -1605,20 +1971,22 @@ async function saveApplicantSelection() {
     } catch (error) {
 
         console.error(
-            "Save applicant selection error:",
+            "Selection error:",
             error
         );
 
 
         setSelectionError(
-            error?.message ||
-                "Unable to save applicant selection."
+            getDatabaseErrorMessage(
+                error
+            )
         );
 
 
         showToast(
-            error?.message ||
-                "Unable to save applicant selection.",
+            getDatabaseErrorMessage(
+                error
+            ),
             "error"
         );
 
@@ -1636,77 +2004,1138 @@ async function saveApplicantSelection() {
 
 
 /* =========================================================
-   OVERALL SCORE
+   LAB 17
+   OPEN HIRING DECISION
    ========================================================= */
 
-function calculateOverallScore(
-    screeningScore,
-    interviewScore
+function openHiringDecisionModal(
+    candidate
 ) {
 
-    if (
-        screeningScore ===
-            null ||
-        screeningScore ===
-            undefined ||
-        interviewScore ===
-            null ||
-        interviewScore ===
-            undefined
-    ) {
+    if (!candidate) {
 
-        return null;
+        showToast(
+            "Candidate record not found.",
+            "error"
+        );
 
+        return;
     }
 
 
-    const screening =
-        Number(
-            screeningScore
+    const application =
+        candidate.application ||
+        {};
+
+
+    const applicant =
+        candidate.applicant ||
+        {};
+
+
+    const job =
+        candidate.job ||
+        {};
+
+
+    const status =
+        normalizeStatus(
+            application.status
         );
 
 
-    const interview =
-        Number(
-            interviewScore
-        );
+    const allowedStatuses = [
+
+        "SELECTED FOR HIRING",
+
+        "HIRED",
+
+        "DECLINED",
+
+        "REJECTED",
+
+        "ON HOLD"
+
+    ];
 
 
     if (
-        !Number.isFinite(
-            screening
-        ) ||
-        !Number.isFinite(
-            interview
+        !allowedStatuses.includes(
+            status
         )
     ) {
 
-        return null;
+        showToast(
+            "Only selected applicants can proceed to the hiring decision.",
+            "error"
+        );
+
+        return;
 
     }
 
 
-    return (
-        screening +
-        interview
-    ) / 2;
+    selectedApplicationId =
+        application.application_id;
+
+
+    const hiring =
+        candidate.hiring ||
+        null;
+
+
+    /* -----------------------------------------------------
+       APPLICANT
+       ----------------------------------------------------- */
+
+    const applicantName =
+        `${
+
+            applicant.first_name ||
+            ""
+
+        } ${
+
+            applicant.last_name ||
+            ""
+
+        }`
+            .trim();
+
+
+    const applicantElement =
+        document.getElementById(
+            "hiringApplicant"
+        );
+
+
+    const applicantNoElement =
+        document.getElementById(
+            "hiringApplicantNo"
+        );
+
+
+    const positionElement =
+        document.getElementById(
+            "hiringPosition"
+        );
+
+
+    const currentStatusElement =
+        document.getElementById(
+            "hiringCurrentStatus"
+        );
+
+
+    const screeningElement =
+        document.getElementById(
+            "hiringScreeningScore"
+        );
+
+
+    const interviewElement =
+        document.getElementById(
+            "hiringInterviewScore"
+        );
+
+
+    const overallElement =
+        document.getElementById(
+            "hiringOverallScore"
+        );
+
+
+    if (
+        applicantElement
+    ) {
+
+        applicantElement.textContent =
+            applicantName ||
+            "—";
+
+    }
+
+
+    if (
+        applicantNoElement
+    ) {
+
+        applicantNoElement.textContent =
+            applicant.applicant_no ||
+            "—";
+
+    }
+
+
+    if (
+        positionElement
+    ) {
+
+        positionElement.textContent =
+            job.job_title ||
+            hiring?.position ||
+            "—";
+
+    }
+
+
+    if (
+        currentStatusElement
+    ) {
+
+        currentStatusElement.textContent =
+            application.status ||
+            "—";
+
+    }
+
+
+    if (
+        screeningElement
+    ) {
+
+        screeningElement.textContent =
+            candidate.screeningScore ??
+            "—";
+
+    }
+
+
+    if (
+        interviewElement
+    ) {
+
+        interviewElement.textContent =
+            candidate.interviewScore ??
+            "—";
+
+    }
+
+
+    if (
+        overallElement
+    ) {
+
+        overallElement.textContent =
+            candidate.overallScore !==
+                null
+
+                ? candidate
+                    .overallScore
+                    .toFixed(1)
+
+                : "—";
+
+    }
+
+
+    /* =====================================================
+       FORM VALUES
+       ===================================================== */
+
+    const hiringDate =
+        document.getElementById(
+            "hiringDate"
+        );
+
+
+    const startDate =
+        document.getElementById(
+            "hiringStartDate"
+        );
+
+
+    const salary =
+        document.getElementById(
+            "hiringSalary"
+        );
+
+
+    const employmentStatus =
+        document.getElementById(
+            "hiringEmploymentStatus"
+        );
+
+
+    const decision =
+        document.getElementById(
+            "hiringDecision"
+        );
+
+
+    if (hiring) {
+
+        if (
+            hiringDate
+        ) {
+
+            hiringDate.value =
+                hiring.hiring_date ||
+                getTodayLocalDate();
+
+        }
+
+
+        if (
+            startDate
+        ) {
+
+            startDate.value =
+                hiring.start_date ||
+                "";
+
+        }
+
+
+        if (
+            salary
+        ) {
+
+            salary.value =
+                hiring.salary_offer ??
+                "";
+
+        }
+
+
+        if (
+            employmentStatus
+        ) {
+
+            employmentStatus.value =
+                hiring
+                    .employment_status ||
+                "";
+
+        }
+
+
+        if (
+            decision
+        ) {
+
+            decision.value =
+                normalizeHiringDecision(
+                    hiring.status
+                ) ||
+                "ON HOLD";
+
+        }
+
+    } else {
+
+        if (
+            hiringDate
+        ) {
+
+            hiringDate.value =
+                getTodayLocalDate();
+
+        }
+
+
+        if (
+            startDate
+        ) {
+
+            startDate.value =
+                "";
+
+        }
+
+
+        if (
+            salary
+        ) {
+
+            salary.value =
+                "";
+
+        }
+
+
+        if (
+            employmentStatus
+        ) {
+
+            employmentStatus.value =
+                "";
+
+        }
+
+
+        if (
+            decision
+        ) {
+
+            decision.value =
+                "ON HOLD";
+
+        }
+
+    }
+
+
+    clearHiringError();
+
+
+    toggleHiringDecisionModal(
+        true
+    );
 
 }
 
 
 /* =========================================================
-   SUMMARY
+   LAB 17
+   SAVE HIRING DECISION
+   ========================================================= */
+
+async function saveHiringDecision() {
+
+    if (!selectedApplicationId) {
+
+        setHiringError(
+            "No applicant is selected."
+        );
+
+        return;
+    }
+
+
+    const candidate =
+        selectionCandidates.find(
+            item =>
+                String(
+                    item.application
+                        ?.application_id
+                ) ===
+                String(
+                    selectedApplicationId
+                )
+        );
+
+
+    if (!candidate) {
+
+        setHiringError(
+            "Candidate record could not be found."
+        );
+
+        return;
+    }
+
+
+    const application =
+        candidate.application ||
+        {};
+
+
+    const job =
+        candidate.job ||
+        {};
+
+
+    const applicationStatus =
+        normalizeStatus(
+            application.status
+        );
+
+
+    /* -----------------------------------------------------
+       ONLY SELECTED CANDIDATES
+       ----------------------------------------------------- */
+
+    const validStatuses = [
+
+        "SELECTED FOR HIRING",
+
+        "HIRED",
+
+        "DECLINED",
+
+        "REJECTED",
+
+        "ON HOLD"
+
+    ];
+
+
+    if (
+        !validStatuses.includes(
+            applicationStatus
+        )
+    ) {
+
+        setHiringError(
+            "Only selected applicants can receive a hiring decision."
+        );
+
+        return;
+    }
+
+
+    /* -----------------------------------------------------
+       GET FORM DATA
+       ----------------------------------------------------- */
+
+    const hiringDate =
+        String(
+            document.getElementById(
+                "hiringDate"
+            )?.value ||
+                ""
+        ).trim();
+
+
+    const startDate =
+        String(
+            document.getElementById(
+                "hiringStartDate"
+            )?.value ||
+                ""
+        ).trim();
+
+
+    const salaryText =
+        String(
+            document.getElementById(
+                "hiringSalary"
+            )?.value ||
+                ""
+        ).trim();
+
+
+    const employmentStatus =
+        String(
+            document.getElementById(
+                "hiringEmploymentStatus"
+            )?.value ||
+                ""
+        ).trim();
+
+
+    const decision =
+        normalizeHiringDecision(
+            document.getElementById(
+                "hiringDecision"
+            )?.value ||
+                ""
+        );
+
+
+    /* -----------------------------------------------------
+       VALIDATE HIRING DATE
+       ----------------------------------------------------- */
+
+    if (!hiringDate) {
+
+        setHiringError(
+            "Hiring date is required."
+        );
+
+        return;
+    }
+
+
+    /* -----------------------------------------------------
+       VALIDATE START DATE
+       ----------------------------------------------------- */
+
+    if (!startDate) {
+
+        setHiringError(
+            "Start date is required."
+        );
+
+        return;
+    }
+
+
+    if (
+        startDate <
+        hiringDate
+    ) {
+
+        setHiringError(
+            "Start date cannot be earlier than the hiring date."
+        );
+
+        return;
+    }
+
+
+    /* -----------------------------------------------------
+       VALIDATE DECISION
+       ----------------------------------------------------- */
+
+    const validDecisions = [
+
+        "HIRED",
+
+        "DECLINED",
+
+        "REJECTED",
+
+        "ON HOLD"
+
+    ];
+
+
+    if (
+        !validDecisions.includes(
+            decision
+        )
+    ) {
+
+        setHiringError(
+            "Please select a valid hiring decision."
+        );
+
+        return;
+    }
+
+
+    /* -----------------------------------------------------
+       VALIDATE SALARY
+       ----------------------------------------------------- */
+
+    let salaryOffer =
+        null;
+
+
+    if (
+        salaryText !==
+        ""
+    ) {
+
+        salaryOffer =
+            Number(
+                salaryText
+            );
+
+
+        if (
+            !Number.isFinite(
+                salaryOffer
+            ) ||
+            salaryOffer < 0
+        ) {
+
+            setHiringError(
+                "Salary offer must be a valid amount."
+            );
+
+            return;
+        }
+
+    }
+
+
+    const button =
+        document.getElementById(
+            "saveHiringDecisionButton"
+        );
+
+
+    setButtonLoading(
+        button,
+        true,
+        "Saving..."
+    );
+
+
+    try {
+
+        /* =================================================
+           CHECK EXISTING HIRING RECORD
+           ================================================= */
+
+        const {
+            data: existingRows,
+            error: existingError
+        } =
+            await window.rmsSupabase
+                .from(
+                    "hiring"
+                )
+                .select(`
+                    hiring_id,
+                    application_id,
+                    hiring_date,
+                    position,
+                    salary_offer,
+                    employment_status,
+                    start_date,
+                    status,
+                    created_at,
+                    updated_at
+                `)
+                .eq(
+                    "application_id",
+                    selectedApplicationId
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending:
+                            false
+                    }
+                )
+                .limit(
+                    1
+                );
+
+
+        if (existingError) {
+            throw existingError;
+        }
+
+
+        const existingHiring =
+            Array.isArray(
+                existingRows
+            ) &&
+            existingRows.length
+                ? existingRows[0]
+                : null;
+
+
+        /* =================================================
+           HIRING DATA
+           ================================================= */
+
+        const hiringData = {
+
+            application_id:
+                selectedApplicationId,
+
+            hiring_date:
+                hiringDate,
+
+            position:
+                job.job_title ||
+                existingHiring?.position ||
+                "—",
+
+            salary_offer:
+                salaryOffer,
+
+            employment_status:
+                employmentStatus ||
+                null,
+
+            start_date:
+                startDate,
+
+            status:
+                decision,
+
+            updated_at:
+                new Date()
+                    .toISOString()
+
+        };
+
+
+        /* =================================================
+           INSERT OR UPDATE
+           ================================================= */
+
+        if (
+            existingHiring
+        ) {
+
+            const {
+                error
+            } =
+                await window.rmsSupabase
+                    .from(
+                        "hiring"
+                    )
+                    .update(
+                        hiringData
+                    )
+                    .eq(
+                        "hiring_id",
+                        existingHiring
+                            .hiring_id
+                    );
+
+
+            if (error) {
+                throw error;
+            }
+
+        } else {
+
+            const {
+                error
+            } =
+                await window.rmsSupabase
+                    .from(
+                        "hiring"
+                    )
+                    .insert({
+
+                        ...hiringData,
+
+                        created_at:
+                            new Date()
+                                .toISOString()
+
+                    });
+
+
+            if (error) {
+                throw error;
+            }
+
+        }
+
+
+        /* =================================================
+           UPDATE APPLICATION STATUS
+           ================================================= */
+
+        let applicationStatus =
+            "ON HOLD";
+
+
+        if (
+            decision ===
+            "HIRED"
+        ) {
+
+            applicationStatus =
+                "HIRED";
+
+        } else if (
+            decision ===
+            "DECLINED"
+        ) {
+
+            applicationStatus =
+                "DECLINED";
+
+        } else if (
+            decision ===
+            "REJECTED"
+        ) {
+
+            applicationStatus =
+                "REJECTED";
+
+        } else if (
+            decision ===
+            "ON HOLD"
+        ) {
+
+            applicationStatus =
+                "ON HOLD";
+
+        }
+
+
+        const {
+            error:
+                applicationError
+        } =
+            await window.rmsSupabase
+                .from(
+                    "applications"
+                )
+                .update({
+
+                    status:
+                        applicationStatus
+
+                })
+                .eq(
+                    "application_id",
+                    selectedApplicationId
+                );
+
+
+        if (applicationError) {
+            throw applicationError;
+        }
+
+
+        /* =================================================
+           UPDATE LOCAL DATA
+           ================================================= */
+
+        const localCandidate =
+            selectionCandidates.find(
+                item =>
+                    String(
+                        item.application
+                            ?.application_id
+                    ) ===
+                    String(
+                        selectedApplicationId
+                    )
+            );
+
+
+        if (
+            localCandidate
+                ?.application
+        ) {
+
+            localCandidate
+                .application
+                .status =
+                applicationStatus;
+
+        }
+
+
+        /* =================================================
+           SUCCESS
+           ================================================= */
+
+        showToast(
+            `Hiring decision saved: ${decision}.`,
+            "success"
+        );
+
+
+        closeHiringDecisionModal();
+
+
+        updateSelectionSummary();
+
+
+        renderSelectionCandidates();
+
+
+    } catch (error) {
+
+        console.error(
+            "Save hiring decision error:",
+            error
+        );
+
+
+        const message =
+            getHiringDatabaseErrorMessage(
+                error
+            );
+
+
+        setHiringError(
+            message
+        );
+
+
+        showToast(
+            message,
+            "error"
+        );
+
+
+    } finally {
+
+        setButtonLoading(
+            button,
+            false
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   DATABASE ERROR MESSAGE
+   ========================================================= */
+
+function getDatabaseErrorMessage(
+    error
+) {
+
+    const message =
+        String(
+            error?.message ||
+                ""
+        );
+
+
+    const lower =
+        message.toLowerCase();
+
+
+    if (
+        lower.includes(
+            "relation"
+        ) &&
+        lower.includes(
+            "hiring"
+        ) &&
+        lower.includes(
+            "does not exist"
+        )
+    ) {
+
+        return (
+            "The hiring table does not exist. Run the Lab 17 SQL first."
+        );
+
+    }
+
+
+    if (
+        lower.includes(
+            "foreign key"
+        )
+    ) {
+
+        return (
+            "The selected record is not properly linked to the hiring data."
+        );
+
+    }
+
+
+    if (
+        lower.includes(
+            "row-level security"
+        ) ||
+        lower.includes(
+            "rls"
+        )
+    ) {
+
+        return (
+            "The database blocked this action because of RLS permissions."
+        );
+
+    }
+
+
+    if (
+        lower.includes(
+            "applications_status_check"
+        )
+    ) {
+
+        return (
+            "The application status is not allowed by the database constraint."
+        );
+
+    }
+
+
+    return (
+        error?.message ||
+        error?.details ||
+        "Unable to complete the database request."
+    );
+
+}
+
+
+function getHiringDatabaseErrorMessage(
+    error
+) {
+
+    const message =
+        String(
+            error?.message ||
+                ""
+        );
+
+
+    const lower =
+        message.toLowerCase();
+
+
+    if (
+        lower.includes(
+            "relation"
+        ) &&
+        lower.includes(
+            "hiring"
+        ) &&
+        lower.includes(
+            "does not exist"
+        )
+    ) {
+
+        return (
+            "The hiring table does not exist. Run the Lab 17 SQL first."
+        );
+
+    }
+
+
+    if (
+        lower.includes(
+            "hiring_status_check"
+        )
+    ) {
+
+        return (
+            "The hiring decision is not allowed by the hiring status constraint."
+        );
+
+    }
+
+
+    if (
+        lower.includes(
+            "applications_status_check"
+        )
+    ) {
+
+        return (
+            "The application status is not allowed by the database constraint."
+        );
+
+    }
+
+
+    if (
+        lower.includes(
+            "row-level security"
+        ) ||
+        lower.includes(
+            "rls"
+        )
+    ) {
+
+        return (
+            "Database permissions blocked the hiring decision. Check the hiring table RLS policies."
+        );
+
+    }
+
+
+    return (
+        error?.message ||
+        error?.details ||
+        "Unable to save hiring decision."
+    );
+
+}
+
+
+/* =========================================================
+   LAB 16 SUMMARY
    ========================================================= */
 
 function updateSelectionSummary() {
 
-    const qualifiedCount =
+    const qualified =
         selectionCandidates.filter(
             candidate => {
 
                 const status =
                     normalizeStatus(
-                        candidate.application
+                        candidate
+                            .application
                             ?.status
                     );
 
@@ -1728,13 +3157,31 @@ function updateSelectionSummary() {
         ).length;
 
 
-    const selectedCount =
+    const selected =
         selectionCandidates.filter(
             candidate =>
-                isSelectedStatus(
-                    candidate.application
+
+                normalizeStatus(
+                    candidate
+                        .application
                         ?.status
-                )
+                ) ===
+                "SELECTED FOR HIRING"
+
+        ).length;
+
+
+    const hired =
+        selectionCandidates.filter(
+            candidate =>
+
+                normalizeStatus(
+                    candidate
+                        .application
+                        ?.status
+                ) ===
+                "HIRED"
+
         ).length;
 
 
@@ -1742,14 +3189,13 @@ function updateSelectionSummary() {
         selectionCandidates
             .map(
                 candidate =>
-                    candidate.overallScore
+                    candidate
+                        .overallScore
             )
             .filter(
                 score =>
-                    score !==
-                        null &&
-                    score !==
-                        undefined &&
+                    score !== null &&
+                    score !== undefined &&
                     Number.isFinite(
                         score
                     )
@@ -1761,11 +3207,10 @@ function updateSelectionSummary() {
 
             ? scores.reduce(
                 (
-                    total,
+                    sum,
                     score
                 ) =>
-                    total +
-                    score,
+                    sum + score,
                 0
             ) /
             scores.length
@@ -1785,29 +3230,51 @@ function updateSelectionSummary() {
         );
 
 
+    const hiredElement =
+        document.getElementById(
+            "hiredCount"
+        );
+
+
     const averageElement =
         document.getElementById(
             "averageScore"
         );
 
 
-    if (qualifiedElement) {
+    if (
+        qualifiedElement
+    ) {
 
         qualifiedElement.textContent =
-            qualifiedCount;
+            qualified;
 
     }
 
 
-    if (selectedElement) {
+    if (
+        selectedElement
+    ) {
 
         selectedElement.textContent =
-            selectedCount;
+            selected;
 
     }
 
 
-    if (averageElement) {
+    if (
+        hiredElement
+    ) {
+
+        hiredElement.textContent =
+            hired;
+
+    }
+
+
+    if (
+        averageElement
+    ) {
 
         averageElement.textContent =
             average.toFixed(
@@ -1815,6 +3282,114 @@ function updateSelectionSummary() {
             );
 
     }
+
+}
+
+
+/* =========================================================
+   STATUS DISPLAY
+   ========================================================= */
+
+function renderCandidateStatus(
+    status
+) {
+
+    const normalized =
+        normalizeStatus(
+            status
+        );
+
+
+    let className =
+        "selection-status-qualified";
+
+
+    let display =
+        status ||
+        "QUALIFIED";
+
+
+    if (
+        normalized ===
+        "SELECTED FOR HIRING"
+    ) {
+
+        className =
+            "selection-status-selected";
+
+
+        display =
+            "SELECTED FOR HIRING";
+
+
+    } else if (
+        normalized ===
+        "HIRED"
+    ) {
+
+        className =
+            "selection-status-hired";
+
+
+        display =
+            "HIRED";
+
+
+    } else if (
+        normalized ===
+        "DECLINED"
+    ) {
+
+        className =
+            "selection-status-declined";
+
+
+        display =
+            "DECLINED";
+
+
+    } else if (
+        normalized ===
+        "REJECTED"
+    ) {
+
+        className =
+            "selection-status-rejected";
+
+
+        display =
+            "REJECTED";
+
+
+    } else if (
+        normalized ===
+        "ON HOLD"
+    ) {
+
+        className =
+            "selection-status-hold";
+
+
+        display =
+            "ON HOLD";
+
+    }
+
+
+    return `
+
+        <span
+            class="
+                selection-status
+                ${className}
+            "
+        >
+            ${escapeHtml(
+                display
+            )}
+        </span>
+
+    `;
 
 }
 
@@ -1828,10 +3403,8 @@ function renderScore(
 ) {
 
     if (
-        score ===
-            null ||
-        score ===
-            undefined
+        score === null ||
+        score === undefined
     ) {
 
         return `
@@ -1897,10 +3470,8 @@ function renderOverallScore(
 ) {
 
     if (
-        score ===
-            null ||
-        score ===
-            undefined
+        score === null ||
+        score === undefined
     ) {
 
         return `
@@ -1920,39 +3491,18 @@ function renderOverallScore(
         );
 
 
-    let className =
-        "selection-score";
-
-
-    if (
-        value >= 80
-    ) {
-
-        className +=
-            " selection-score-high";
-
-    } else if (
-        value >= 70
-    ) {
-
-        className +=
-            " selection-score-medium";
-
-    } else {
-
-        className +=
-            " selection-score-low";
-
-    }
-
-
     return `
 
         <span
-            class="${className}"
+            class="
+                selection-score
+                selection-score-high
+            "
         >
             ${escapeHtml(
-                value.toFixed(1)
+                value.toFixed(
+                    1
+                )
             )}/100
         </span>
 
@@ -1962,7 +3512,60 @@ function renderOverallScore(
 
 
 /* =========================================================
-   HELPERS
+   SCORE CALCULATION
+   ========================================================= */
+
+function calculateOverallScore(
+    screeningScore,
+    interviewScore
+) {
+
+    if (
+        screeningScore === null ||
+        interviewScore === null
+    ) {
+
+        return null;
+
+    }
+
+
+    const screening =
+        Number(
+            screeningScore
+        );
+
+
+    const interview =
+        Number(
+            interviewScore
+        );
+
+
+    if (
+        !Number.isFinite(
+            screening
+        ) ||
+        !Number.isFinite(
+            interview
+        )
+    ) {
+
+        return null;
+
+    }
+
+
+    return (
+        screening +
+        interview
+    ) / 2;
+
+}
+
+
+/* =========================================================
+   SELECTED STATUS
    ========================================================= */
 
 function isSelectedStatus(
@@ -1979,33 +3582,62 @@ function isSelectedStatus(
 }
 
 
-function hasScore(
+/* =========================================================
+   NORMALIZE STATUS
+   ========================================================= */
+
+function normalizeStatus(
     value
 ) {
 
-    return (
-        value !==
-            null &&
-        value !==
-            undefined &&
-        value !==
+    return String(
+        value ||
             ""
-    );
+    )
+        .trim()
+        .toUpperCase()
+        .replace(
+            /_/g,
+            " "
+        );
 
 }
 
+
+/* =========================================================
+   NORMALIZE HIRING DECISION
+   ========================================================= */
+
+function normalizeHiringDecision(
+    value
+) {
+
+    return String(
+        value ||
+            ""
+    )
+        .trim()
+        .toUpperCase()
+        .replace(
+            /_/g,
+            " "
+        );
+
+}
+
+
+/* =========================================================
+   NUMBER
+   ========================================================= */
 
 function toNumberOrNull(
     value
 ) {
 
     if (
-        value ===
-            null ||
-        value ===
-            undefined ||
-        value ===
-            ""
+        value === null ||
+        value === undefined ||
+        value === ""
     ) {
 
         return null;
@@ -2028,26 +3660,64 @@ function toNumberOrNull(
 }
 
 
-function normalizeStatus(
+/* =========================================================
+   SCORE CHECK
+   ========================================================= */
+
+function hasScore(
     value
 ) {
 
-    return String(
-        value ||
-            ""
-    )
-        .trim()
-        .toUpperCase()
-        .replace(
-            /_/g,
-            " "
-        );
+    return (
+
+        value !== null &&
+        value !== undefined &&
+        value !== ""
+
+    );
 
 }
 
 
 /* =========================================================
-   MODAL
+   TODAY
+   ========================================================= */
+
+function getTodayLocalDate() {
+
+    const now =
+        new Date();
+
+
+    const year =
+        now.getFullYear();
+
+
+    const month =
+        String(
+            now.getMonth() + 1
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    const day =
+        String(
+            now.getDate()
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    return `${year}-${month}-${day}`;
+
+}
+
+
+/* =========================================================
+   SELECTION MODAL
    ========================================================= */
 
 function toggleSelectionModal(
@@ -2098,7 +3768,58 @@ function closeSelectionModal() {
 
 
 /* =========================================================
-   ERROR
+   HIRING MODAL
+   ========================================================= */
+
+function toggleHiringDecisionModal(
+    open
+) {
+
+    const modal =
+        document.getElementById(
+            "hiringDecisionModal"
+        );
+
+
+    if (!modal) {
+        return;
+    }
+
+
+    modal.classList.toggle(
+        "open",
+        open
+    );
+
+
+    modal.setAttribute(
+        "aria-hidden",
+        String(
+            !open
+        )
+    );
+
+}
+
+
+function closeHiringDecisionModal() {
+
+    selectedApplicationId =
+        null;
+
+
+    clearHiringError();
+
+
+    toggleHiringDecisionModal(
+        false
+    );
+
+}
+
+
+/* =========================================================
+   SELECTION ERRORS
    ========================================================= */
 
 function setSelectionError(
@@ -2111,7 +3832,9 @@ function setSelectionError(
         );
 
 
-    if (element) {
+    if (
+        element
+    ) {
 
         element.textContent =
             message ||
@@ -2132,75 +3855,49 @@ function clearSelectionError() {
 
 
 /* =========================================================
-   BUTTON LOADING
+   HIRING ERRORS
    ========================================================= */
 
-function setButtonLoading(
-    button,
-    loading,
-    text = "Processing..."
+function setHiringError(
+    message
 ) {
 
-    if (!button) {
-        return;
-    }
-
-
-    if (loading) {
-
-        if (
-            !button.dataset
-                .originalText
-        ) {
-
-            button.dataset
-                .originalText =
-                button.innerHTML;
-
-        }
-
-
-        button.disabled =
-            true;
-
-
-        button.innerHTML = `
-
-            <span
-                class="button-spinner"
-            ></span>
-
-            ${escapeHtml(
-                text
-            )}
-
-        `;
-
-
-        return;
-    }
-
-
-    button.disabled =
-        false;
+    const element =
+        document.getElementById(
+            "hiringFormError"
+        );
 
 
     if (
-        button.dataset
-            .originalText
+        element
     ) {
 
-        button.innerHTML =
-            button.dataset
-                .originalText;
-
-
-        delete button.dataset
-            .originalText;
+        element.textContent =
+            message ||
+            "";
 
     }
 
 }
+
+
+function clearHiringError() {
+
+    setHiringError(
+        ""
+    );
+
+}
+
+
+/* =========================================================
+   BUTTON LOADING
+   =========================================================
+
+   Uses the existing setButtonLoading()
+   from components.js.
+
+   ========================================================= */
 
 
 /* =========================================================
@@ -2212,10 +3909,8 @@ function escapeHtml(
 ) {
 
     if (
-        value ===
-            null ||
-        value ===
-            undefined
+        value === null ||
+        value === undefined
     ) {
 
         return "";

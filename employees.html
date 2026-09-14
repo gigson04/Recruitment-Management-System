@@ -1,0 +1,1248 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Employees - Recruitment Management System
+    </title>
+
+
+    <!-- =================================================
+         FONT
+         ================================================= -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =================================================
+         PROJECT CSS
+         ================================================= -->
+
+    <link
+        rel="stylesheet"
+        href="css/frost-ui.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/responsive.css"
+    >
+
+
+    <!-- =================================================
+         PAGE CSS
+         ================================================= -->
+
+    <style>
+
+        /* =================================================
+           SUMMARY
+           ================================================= */
+
+        .employee-summary {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    4,
+                    minmax(0, 1fr)
+                );
+
+            gap: 12px;
+
+            margin-bottom: 16px;
+
+        }
+
+
+        .employee-stat {
+
+            padding: 15px;
+
+            border:
+                1px solid
+                var(--line);
+
+            border-radius: 14px;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .03
+                );
+
+        }
+
+
+        .employee-stat small {
+
+            display: block;
+
+            margin-bottom: 6px;
+
+            color:
+                var(--muted);
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                .07em;
+
+        }
+
+
+        .employee-stat strong {
+
+            display: block;
+
+            color:
+                #c9d0d8;
+
+            font-size: 22px;
+
+        }
+
+
+        .employee-stat span {
+
+            display: block;
+
+            margin-top: 4px;
+
+            color:
+                var(--muted);
+
+            font-size: 11px;
+
+        }
+
+
+        /* =================================================
+           EMPLOYEE META
+           ================================================= */
+
+        .employee-meta {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 3px;
+
+        }
+
+
+        .employee-meta strong {
+
+            color:
+                #c9d0d8;
+
+            font-size: 12px;
+
+        }
+
+
+        .employee-meta span {
+
+            color:
+                var(--muted);
+
+            font-size: 10px;
+
+        }
+
+
+        /* =================================================
+           STATUS
+           ================================================= */
+
+        .employee-status {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            padding:
+                5px 9px;
+
+            border-radius:
+                999px;
+
+            border:
+                1px solid
+                var(--line);
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+        }
+
+
+        .employee-active {
+
+            color:
+                #75d3a5;
+
+            background:
+                rgba(
+                    37,
+                    134,
+                    90,
+                    .12
+                );
+
+        }
+
+
+        .employee-inactive {
+
+            color:
+                #e59a9a;
+
+            background:
+                rgba(
+                    181,
+                    71,
+                    71,
+                    .10
+                );
+
+        }
+
+
+        .employee-leave {
+
+            color:
+                #e1c47b;
+
+            background:
+                rgba(
+                    180,
+                    150,
+                    75,
+                    .10
+                );
+
+        }
+
+
+        .employee-other {
+
+            color:
+                #9fc6ee;
+
+            background:
+                rgba(
+                    53,
+                    95,
+                    138,
+                    .12
+                );
+
+        }
+
+
+        /* =================================================
+           MODAL
+           ================================================= */
+
+        .employee-modal {
+
+            width:
+                min(
+                    760px,
+                    100%
+                );
+
+            max-width:
+                760px;
+
+            max-height:
+                90vh;
+
+            overflow-y:
+                auto;
+
+        }
+
+
+        .employee-info-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    2,
+                    minmax(0, 1fr)
+                );
+
+            gap: 12px;
+
+            margin-bottom: 16px;
+
+        }
+
+
+        .employee-info-card {
+
+            padding: 13px;
+
+            border:
+                1px solid
+                var(--line);
+
+            border-radius: 12px;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .03
+                );
+
+        }
+
+
+        .employee-info-card small {
+
+            display: block;
+
+            margin-bottom: 5px;
+
+            color:
+                var(--muted);
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                .06em;
+
+        }
+
+
+        .employee-info-card strong {
+
+            color:
+                #c9d0d8;
+
+            font-size: 13px;
+
+        }
+
+
+        .employee-form-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    2,
+                    minmax(0, 1fr)
+                );
+
+            gap: 14px;
+
+        }
+
+
+        .employee-full {
+
+            grid-column:
+                1 / -1;
+
+        }
+
+
+        .employee-form-error {
+
+            min-height: 18px;
+
+            margin-bottom: 10px;
+
+            color:
+                #d88282;
+
+            font-size: 12px;
+
+            line-height: 1.45;
+
+        }
+
+
+        .employee-note {
+
+            margin-top: 12px;
+
+            padding:
+                10px 12px;
+
+            border:
+                1px solid
+                var(--line);
+
+            border-radius: 10px;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .03
+                );
+
+            color:
+                var(--muted);
+
+            font-size: 11px;
+
+            line-height: 1.5;
+
+        }
+
+
+        .employee-detail-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    2,
+                    minmax(0, 1fr)
+                );
+
+            gap: 10px;
+
+        }
+
+
+        .employee-detail-item {
+
+            padding: 12px;
+
+            border:
+                1px solid
+                var(--line);
+
+            border-radius: 11px;
+
+            background:
+                #15191d;
+
+        }
+
+
+        .employee-detail-item small {
+
+            display: block;
+
+            margin-bottom: 5px;
+
+            color:
+                var(--muted);
+
+            font-size: 9px;
+
+            font-weight: 700;
+
+            text-transform:
+                uppercase;
+
+        }
+
+
+        .employee-detail-item strong {
+
+            color:
+                #c9d0d8;
+
+            font-size: 12px;
+
+            line-height: 1.4;
+
+        }
+
+
+        /* =================================================
+           MOBILE
+           ================================================= */
+
+        @media (max-width: 900px) {
+
+            .employee-summary {
+
+                grid-template-columns:
+                    repeat(
+                        2,
+                        minmax(0, 1fr)
+                    );
+
+            }
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .employee-summary {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+
+            .employee-info-grid,
+
+            .employee-form-grid,
+
+            .employee-detail-grid {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+
+            .employee-full {
+
+                grid-column:
+                    auto;
+
+            }
+
+
+            .table-wrap table {
+
+                min-width:
+                    900px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body
+    class="app-page"
+    data-active="Employees"
+>
+
+
+    <!-- =================================================
+         SIDEBAR
+         ================================================= -->
+
+    <aside
+        id="appSidebar"
+        class="sidebar glass-panel"
+    ></aside>
+
+
+    <!-- =================================================
+         MAIN
+         ================================================= -->
+
+    <main class="app-main">
+
+
+        <!-- =================================================
+             TOPBAR
+             ================================================= -->
+
+        <header
+            id="appTopbar"
+            class="topbar glass-panel"
+        ></header>
+
+
+        <!-- =================================================
+             PAGE CONTENT
+             ================================================= -->
+
+        <section class="page-content">
+
+
+            <!-- HEADER -->
+
+            <div class="page-intro">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Stage 8 · Employee Conversion
+                    </p>
+
+                    <h2>
+                        Employees
+                    </h2>
+
+                    <p>
+                        Convert hired applicants into employee records.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 SUMMARY
+                 ================================================= -->
+
+            <section
+                class="employee-summary"
+            >
+
+
+                <div
+                    class="
+                        employee-stat
+                        glass-panel
+                    "
+                >
+
+                    <small>
+                        Total Employees
+                    </small>
+
+                    <strong
+                        id="totalEmployees"
+                    >
+                        0
+                    </strong>
+
+                    <span>
+                        Employee records
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="
+                        employee-stat
+                        glass-panel
+                    "
+                >
+
+                    <small>
+                        Active
+                    </small>
+
+                    <strong
+                        id="activeEmployees"
+                    >
+                        0
+                    </strong>
+
+                    <span>
+                        Active employees
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="
+                        employee-stat
+                        glass-panel
+                    "
+                >
+
+                    <small>
+                        Ready for Conversion
+                    </small>
+
+                    <strong
+                        id="readyForConversion"
+                    >
+                        0
+                    </strong>
+
+                    <span>
+                        Hired applicants
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="
+                        employee-stat
+                        glass-panel
+                    "
+                >
+
+                    <small>
+                        Positions
+                    </small>
+
+                    <strong
+                        id="employeePositions"
+                    >
+                        0
+                    </strong>
+
+                    <span>
+                        Unique positions
+                    </span>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 EMPLOYEES TABLE
+                 ================================================= -->
+
+            <section
+                class="
+                    glass-panel
+                    section-card
+                "
+            >
+
+                <div class="toolbar">
+
+
+                    <div class="search-wrap">
+
+                        <span
+                            class="search-icon"
+                            aria-hidden="true"
+                        >
+                            ⌕
+                        </span>
+
+                        <input
+                            id="employeeSearch"
+                            type="search"
+                            placeholder="Search employee, number, position..."
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <select
+                        id="employeeStatusFilter"
+                        class="select-control"
+                    >
+
+                        <option value="">
+                            All statuses
+                        </option>
+
+                        <option value="ACTIVE">
+                            Active
+                        </option>
+
+                        <option value="INACTIVE">
+                            Inactive
+                        </option>
+
+                        <option value="ON LEAVE">
+                            On Leave
+                        </option>
+
+                        <option value="RESIGNED">
+                            Resigned
+                        </option>
+
+                        <option value="TERMINATED">
+                            Terminated
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Employee No.
+                                </th>
+
+                                <th>
+                                    Employee
+                                </th>
+
+                                <th>
+                                    Position
+                                </th>
+
+                                <th>
+                                    Department
+                                </th>
+
+                                <th>
+                                    Start Date
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="employeesTable"
+                        >
+
+                            <tr>
+
+                                <td
+                                    colspan="7"
+                                    class="table-empty"
+                                >
+                                    Loading employees...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </section>
+
+    </main>
+
+
+    <!-- =================================================
+         TOAST
+         ================================================= -->
+
+    <div
+        id="toastRoot"
+        class="toast-root"
+    ></div>
+
+
+    <!-- =================================================
+         CONVERSION MODAL
+         ================================================= -->
+
+    <div
+        id="employeeConversionModal"
+        class="modal-backdrop"
+        aria-hidden="true"
+    >
+
+        <div
+            class="
+                modal
+                glass-panel
+                employee-modal
+            "
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="employeeConversionTitle"
+        >
+
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Lab 18 · Applicant Conversion
+                    </p>
+
+                    <h3
+                        id="employeeConversionTitle"
+                    >
+                        Convert Applicant to Employee
+                    </h3>
+
+                </div>
+
+
+                <button
+                    id="closeEmployeeConversionModal"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div
+                id="employeeFormError"
+                class="employee-form-error"
+                role="alert"
+            ></div>
+
+
+            <!-- =================================================
+                 APPLICANT INFORMATION
+                 ================================================= -->
+
+            <div
+                class="employee-info-grid"
+            >
+
+
+                <div
+                    class="employee-info-card"
+                >
+
+                    <small>
+                        Applicant
+                    </small>
+
+                    <strong
+                        id="conversionApplicant"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div
+                    class="employee-info-card"
+                >
+
+                    <small>
+                        Applicant No.
+                    </small>
+
+                    <strong
+                        id="conversionApplicantNo"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div
+                    class="employee-info-card"
+                >
+
+                    <small>
+                        Position
+                    </small>
+
+                    <strong
+                        id="conversionPosition"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div
+                    class="employee-info-card"
+                >
+
+                    <small>
+                        Department
+                    </small>
+
+                    <strong
+                        id="conversionDepartment"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 FORM
+                 ================================================= -->
+
+            <div
+                class="employee-form-grid"
+            >
+
+
+                <div class="form-group">
+
+                    <label
+                        for="employeeNumber"
+                    >
+                        Employee Number *
+                    </label>
+
+                    <input
+                        id="employeeNumber"
+                        type="text"
+                        readonly
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        for="employeeStartDate"
+                    >
+                        Start Date *
+                    </label>
+
+                    <input
+                        id="employeeStartDate"
+                        type="date"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        for="employeeEmploymentStatus"
+                    >
+                        Employment Status *
+                    </label>
+
+                    <select
+                        id="employeeEmploymentStatus"
+                    >
+
+                        <option value="ACTIVE">
+                            ACTIVE
+                        </option>
+
+                        <option value="INACTIVE">
+                            INACTIVE
+                        </option>
+
+                        <option value="ON LEAVE">
+                            ON LEAVE
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        for="employeeHiredDate"
+                    >
+                        Hired Date
+                    </label>
+
+                    <input
+                        id="employeeHiredDate"
+                        type="date"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="employee-note">
+
+                Applicant information is transferred automatically
+                from the applicant record. The employee number is
+                automatically assigned during conversion.
+
+            </div>
+
+
+            <div
+                class="button-row"
+                style="margin-top:18px;"
+            >
+
+                <button
+                    id="cancelEmployeeConversionModal"
+                    class="btn btn-secondary"
+                    type="button"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    id="convertEmployeeButton"
+                    class="btn btn-primary"
+                    type="button"
+                >
+                    Convert to Employee
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         VIEW EMPLOYEE MODAL
+         ================================================= -->
+
+    <div
+        id="viewEmployeeModal"
+        class="modal-backdrop"
+        aria-hidden="true"
+    >
+
+        <div
+            class="
+                modal
+                glass-panel
+                employee-modal
+            "
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="viewEmployeeTitle"
+        >
+
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Employee Record
+                    </p>
+
+                    <h3
+                        id="viewEmployeeTitle"
+                    >
+                        Employee Details
+                    </h3>
+
+                </div>
+
+
+                <button
+                    id="closeViewEmployee"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div
+                id="viewEmployeeBody"
+                class="employee-detail-grid"
+            ></div>
+
+
+            <div
+                class="button-row"
+                style="margin-top:18px;"
+            >
+
+                <button
+                    id="closeViewEmployeeBottom"
+                    class="btn btn-secondary"
+                    type="button"
+                >
+                    Close
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         SCRIPTS
+         ================================================= -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+    <script src="js/config.js"></script>
+
+    <script src="js/supabase.js"></script>
+
+    <script src="js/auth.js"></script>
+
+    <script src="js/components.js"></script>
+
+    <script src="js/employees.js"></script>
+
+</body>
+
+</html>

@@ -57,6 +57,12 @@ const RMS_COMPONENTS = {
         ],
 
         [
+            'employees.html',
+            'Employees',
+            '♙'
+        ],
+
+        [
             'reports.html',
             'Reports',
             '⌁'

@@ -15,7 +15,10 @@
     </title>
 
 
-    <!-- GOOGLE FONT -->
+    <!-- =================================================
+         GOOGLE FONT
+         ================================================= -->
+
     <link
         rel="preconnect"
         href="https://fonts.googleapis.com"
@@ -33,7 +36,10 @@
     >
 
 
-    <!-- PROJECT CSS -->
+    <!-- =================================================
+         PROJECT CSS
+         ================================================= -->
+
     <link
         rel="stylesheet"
         href="css/frost-ui.css"
@@ -53,13 +59,13 @@
     <style>
 
         /* =================================================
-           PAGE
+           SUMMARY
            ================================================= */
 
         .selection-summary {
             display: grid;
             grid-template-columns:
-                repeat(3, minmax(0, 1fr));
+                repeat(4, minmax(0, 1fr));
             gap: 12px;
             margin-bottom: 16px;
         }
@@ -101,7 +107,7 @@
 
 
         /* =================================================
-           TABLE
+           TABLE DATA
            ================================================= */
 
         .selection-applicant {
@@ -163,14 +169,19 @@
         }
 
 
+        /* =================================================
+           STATUS
+           ================================================= */
+
         .selection-status {
             display: inline-flex;
             align-items: center;
             padding: 5px 9px;
             border-radius: 999px;
+            border: 1px solid var(--line);
             font-size: 10px;
             font-weight: 700;
-            border: 1px solid var(--line);
+            white-space: nowrap;
         }
 
 
@@ -188,17 +199,44 @@
         }
 
 
+        .selection-status-hired {
+            color: #7bc8ff;
+            background:
+                rgba(55, 131, 190, .12);
+        }
+
+
+        .selection-status-declined,
+        .selection-status-rejected {
+            color: #e59a9a;
+            background:
+                rgba(181, 71, 71, .10);
+        }
+
+
+        .selection-status-hold {
+            color: #e1c47b;
+            background:
+                rgba(180, 150, 75, .10);
+        }
+
+
         /* =================================================
-           MODAL
+           MODALS
            ================================================= */
 
-        .selection-modal {
-            width: min(720px, 100%);
-            max-width: 720px;
+        .selection-modal,
+        .hiring-modal {
+            width: min(760px, 100%);
+            max-width: 760px;
             max-height: 90vh;
             overflow-y: auto;
         }
 
+
+        /* =================================================
+           SELECTION MODAL
+           ================================================= */
 
         .selection-summary-grid {
             display: grid;
@@ -240,7 +278,6 @@
             grid-template-columns:
                 repeat(3, minmax(0, 1fr));
             gap: 10px;
-            margin-top: 5px;
         }
 
 
@@ -288,45 +325,137 @@
         }
 
 
-        .selection-recommendation {
-            margin-top: 16px;
+        .selection-note,
+        .hiring-note {
+            margin-top: 14px;
+            padding: 10px 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background:
+                rgba(255,255,255,.03);
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.5;
         }
 
 
-        .selection-recommendation label {
+        .selection-form-error,
+        .hiring-form-error {
+            min-height: 18px;
+            margin-bottom: 10px;
+            color: #d88282;
+            font-size: 12px;
+        }
+
+
+        /* =================================================
+           HIRING MODAL
+           ================================================= */
+
+        .hiring-info-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+
+        .hiring-info-card {
+            padding: 13px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background:
+                rgba(255,255,255,.03);
+        }
+
+
+        .hiring-info-card small {
             display: block;
-            margin-bottom: 7px;
+            margin-bottom: 5px;
             color: var(--muted);
             font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+
+        .hiring-info-card strong {
+            color: #c9d0d8;
+            font-size: 13px;
+        }
+
+
+        .hiring-score-summary {
+            display: grid;
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+
+        .hiring-score-card {
+            padding: 13px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background:
+                #15191d;
+            text-align: center;
+        }
+
+
+        .hiring-score-card small {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--muted);
+            font-size: 9px;
             font-weight: 700;
             text-transform: uppercase;
         }
 
 
-        .selection-recommendation select {
-            width: 100%;
+        .hiring-score-card strong {
+            display: block;
+            color: #c9d0d8;
+            font-size: 21px;
         }
 
 
-        .selection-form-error {
-            min-height: 18px;
-            margin-bottom: 10px;
-            color: #d88282;
-            font-size: 12px;
-            line-height: 1.45;
+        .hiring-form-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 14px;
         }
 
 
-        .selection-note {
-            margin-top: 12px;
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: 1px solid var(--line);
-            background:
-                rgba(255, 255, 255, .03);
-            color: var(--muted);
+        .hiring-full {
+            grid-column: 1 / -1;
+        }
+
+
+        /* =================================================
+           TABLE HIRING INFORMATION
+           ================================================= */
+
+        .hiring-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+
+        .hiring-meta strong {
+            color: #c9d0d8;
             font-size: 11px;
-            line-height: 1.5;
+        }
+
+
+        .hiring-meta span {
+            color: var(--muted);
+            font-size: 9px;
         }
 
 
@@ -334,22 +463,43 @@
            MOBILE
            ================================================= */
 
-        @media (max-width: 800px) {
+        @media (max-width: 900px) {
+
+            .selection-summary {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+        }
+
+
+        @media (max-width: 700px) {
 
             .selection-summary {
                 grid-template-columns: 1fr;
             }
 
-            .selection-summary-grid {
+
+            .selection-summary-grid,
+            .hiring-info-grid,
+            .hiring-form-grid {
                 grid-template-columns: 1fr;
             }
 
-            .selection-score-panel {
+
+            .hiring-full {
+                grid-column: auto;
+            }
+
+
+            .selection-score-panel,
+            .hiring-score-summary {
                 grid-template-columns: 1fr;
             }
+
 
             .table-wrap table {
-                min-width: 900px;
+                min-width: 1000px;
             }
 
         }
@@ -382,7 +532,9 @@
     <main class="app-main">
 
 
-        <!-- TOPBAR -->
+        <!-- =================================================
+             TOPBAR
+             ================================================= -->
 
         <header
             id="appTopbar"
@@ -397,7 +549,9 @@
         <section class="page-content">
 
 
-            <!-- HEADER -->
+            <!-- =================================================
+                 HEADER
+                 ================================================= -->
 
             <div class="page-intro">
 
@@ -408,11 +562,11 @@
                     </p>
 
                     <h2>
-                        Applicant Selection
+                        Hiring
                     </h2>
 
                     <p>
-                        Review qualified applicants and identify candidates selected for hiring.
+                        Select qualified applicants and record final hiring decisions.
                     </p>
 
                 </div>
@@ -426,7 +580,10 @@
 
             <section class="selection-summary">
 
-                <div class="selection-stat glass-panel">
+
+                <div
+                    class="selection-stat glass-panel"
+                >
 
                     <small>
                         Qualified Applicants
@@ -439,13 +596,15 @@
                     </strong>
 
                     <span>
-                        Candidates eligible for selection
+                        Eligible for selection
                     </span>
 
                 </div>
 
 
-                <div class="selection-stat glass-panel">
+                <div
+                    class="selection-stat glass-panel"
+                >
 
                     <small>
                         Selected
@@ -458,13 +617,36 @@
                     </strong>
 
                     <span>
-                        Marked for hiring
+                        Selected for hiring
                     </span>
 
                 </div>
 
 
-                <div class="selection-stat glass-panel">
+                <div
+                    class="selection-stat glass-panel"
+                >
+
+                    <small>
+                        Hired
+                    </small>
+
+                    <strong
+                        id="hiredCount"
+                    >
+                        0
+                    </strong>
+
+                    <span>
+                        Final hiring decisions
+                    </span>
+
+                </div>
+
+
+                <div
+                    class="selection-stat glass-panel"
+                >
 
                     <small>
                         Average Overall Score
@@ -477,7 +659,7 @@
                     </strong>
 
                     <span>
-                        Qualified candidates
+                        Screening + interview
                     </span>
 
                 </div>
@@ -530,6 +712,22 @@
 
                         <option value="SELECTED">
                             Selected for Hiring
+                        </option>
+
+                        <option value="HIRED">
+                            Hired
+                        </option>
+
+                        <option value="DECLINED">
+                            Declined
+                        </option>
+
+                        <option value="REJECTED">
+                            Rejected
+                        </option>
+
+                        <option value="ON HOLD">
+                            On Hold
                         </option>
 
                     </select>
@@ -617,7 +815,7 @@
 
 
     <!-- =================================================
-         SELECTION MODAL
+         LAB 16 - SELECTION MODAL
          ================================================= -->
 
     <div
@@ -633,8 +831,6 @@
             aria-labelledby="selectionModalTitle"
         >
 
-
-            <!-- MODAL HEADER -->
 
             <div class="modal-head">
 
@@ -657,15 +853,12 @@
                     id="closeSelectionModal"
                     class="icon-button"
                     type="button"
-                    aria-label="Close"
                 >
                     ×
                 </button>
 
             </div>
 
-
-            <!-- ERROR -->
 
             <div
                 id="selectionFormError"
@@ -674,14 +867,9 @@
             ></div>
 
 
-            <!-- =================================================
-                 APPLICANT INFORMATION
-                 ================================================= -->
-
             <div
                 class="selection-summary-grid"
             >
-
 
                 <div class="selection-info-card">
 
@@ -745,14 +933,9 @@
             </div>
 
 
-            <!-- =================================================
-                 SCORE SUMMARY
-                 ================================================= -->
-
             <div
                 class="selection-score-panel"
             >
-
 
                 <div class="selection-score-card">
 
@@ -763,7 +946,7 @@
                     <strong
                         id="selectionScreeningScore"
                     >
-                        0
+                        —
                     </strong>
 
                     <span>
@@ -782,7 +965,7 @@
                     <strong
                         id="selectionInterviewScore"
                     >
-                        0
+                        —
                     </strong>
 
                     <span>
@@ -806,7 +989,7 @@
                     <strong
                         id="selectionOverallScore"
                     >
-                        0.0
+                        —
                     </strong>
 
                     <span>
@@ -818,12 +1001,9 @@
             </div>
 
 
-            <!-- =================================================
-                 RECOMMENDATION
-                 ================================================= -->
-
             <div
-                class="selection-recommendation"
+                class="form-group"
+                style="margin-top:15px;"
             >
 
                 <label
@@ -837,7 +1017,7 @@
                 >
 
                     <option value="QUALIFIED">
-                        Qualified
+                        QUALIFIED
                     </option>
 
                     <option value="SELECTED">
@@ -849,19 +1029,18 @@
             </div>
 
 
-            <div
-                class="selection-note"
-            >
-                The overall score is calculated using the screening
-                and interview scores. Selecting <strong>SELECTED</strong>
+            <div class="selection-note">
+
+                The overall score is calculated from the screening
+                and interview scores.
+
+                Selecting
+                <strong>SELECTED</strong>
                 changes the application status to
                 <strong>SELECTED FOR HIRING</strong>.
+
             </div>
 
-
-            <!-- =================================================
-                 BUTTONS
-                 ================================================= -->
 
             <div
                 class="button-row"
@@ -883,6 +1062,367 @@
                     type="button"
                 >
                     Save Selection
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         LAB 17 - HIRING DECISION MODAL
+         ================================================= -->
+
+    <div
+        id="hiringDecisionModal"
+        class="modal-backdrop"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal glass-panel hiring-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="hiringDecisionTitle"
+        >
+
+
+            <div class="modal-head">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Hiring Decision
+                    </p>
+
+                    <h3
+                        id="hiringDecisionTitle"
+                    >
+                        Record Hiring Decision
+                    </h3>
+
+                </div>
+
+
+                <button
+                    id="closeHiringDecisionModal"
+                    class="icon-button"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div
+                id="hiringFormError"
+                class="hiring-form-error"
+                role="alert"
+            ></div>
+
+
+            <!-- =================================================
+                 APPLICANT INFO
+                 ================================================= -->
+
+            <div
+                class="hiring-info-grid"
+            >
+
+                <div
+                    class="hiring-info-card"
+                >
+
+                    <small>
+                        Applicant
+                    </small>
+
+                    <strong
+                        id="hiringApplicant"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div
+                    class="hiring-info-card"
+                >
+
+                    <small>
+                        Applicant No.
+                    </small>
+
+                    <strong
+                        id="hiringApplicantNo"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div
+                    class="hiring-info-card"
+                >
+
+                    <small>
+                        Position
+                    </small>
+
+                    <strong
+                        id="hiringPosition"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div
+                    class="hiring-info-card"
+                >
+
+                    <small>
+                        Current Status
+                    </small>
+
+                    <strong
+                        id="hiringCurrentStatus"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 SCORE SUMMARY
+                 ================================================= -->
+
+            <div
+                class="hiring-score-summary"
+            >
+
+                <div
+                    class="hiring-score-card"
+                >
+
+                    <small>
+                        Screening
+                    </small>
+
+                    <strong
+                        id="hiringScreeningScore"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div
+                    class="hiring-score-card"
+                >
+
+                    <small>
+                        Interview
+                    </small>
+
+                    <strong
+                        id="hiringInterviewScore"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div
+                    class="hiring-score-card"
+                >
+
+                    <small>
+                        Overall
+                    </small>
+
+                    <strong
+                        id="hiringOverallScore"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 HIRING FORM
+                 ================================================= -->
+
+            <div
+                class="hiring-form-grid"
+            >
+
+
+                <div class="form-group">
+
+                    <label
+                        for="hiringDate"
+                    >
+                        Hiring Date *
+                    </label>
+
+                    <input
+                        id="hiringDate"
+                        type="date"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        for="hiringStartDate"
+                    >
+                        Start Date *
+                    </label>
+
+                    <input
+                        id="hiringStartDate"
+                        type="date"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        for="hiringSalary"
+                    >
+                        Salary Offer
+                    </label>
+
+                    <input
+                        id="hiringSalary"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="35000"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        for="hiringEmploymentStatus"
+                    >
+                        Employment Status
+                    </label>
+
+                    <input
+                        id="hiringEmploymentStatus"
+                        type="text"
+                        placeholder="Full-time"
+                    >
+
+                </div>
+
+
+                <div
+                    class="
+                        form-group
+                        hiring-full
+                    "
+                >
+
+                    <label
+                        for="hiringDecision"
+                    >
+                        Decision *
+                    </label>
+
+                    <select
+                        id="hiringDecision"
+                        required
+                    >
+
+                        <option
+                            value="ON HOLD"
+                        >
+                            ON HOLD
+                        </option>
+
+                        <option
+                            value="HIRED"
+                        >
+                            HIRED
+                        </option>
+
+                        <option
+                            value="DECLINED"
+                        >
+                            DECLINED
+                        </option>
+
+                        <option
+                            value="REJECTED"
+                        >
+                            REJECTED
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="hiring-note">
+
+                For a
+                <strong>HIRED</strong>
+                decision, the application status will
+                automatically become
+                <strong>HIRED</strong>.
+
+            </div>
+
+
+            <div
+                class="button-row"
+                style="margin-top:18px;"
+            >
+
+                <button
+                    id="cancelHiringDecisionModal"
+                    class="btn btn-secondary"
+                    type="button"
+                >
+                    Cancel
+                </button>
+
+
+                <button
+                    id="saveHiringDecisionButton"
+                    class="btn btn-primary"
+                    type="button"
+                >
+                    Save Hiring Decision
                 </button>
 
             </div>
