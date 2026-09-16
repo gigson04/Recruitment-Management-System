@@ -1,0 +1,267 @@
+/* =========================================================
+   RECRUITMENT MANAGEMENT SYSTEM
+   LABORATORY ACTIVITY 19
+   STAGE 9 - RECRUITMENT REPORTS
+   ========================================================= */
+
+
+/* =========================================================
+   PAGE LAYOUT FIX
+   ========================================================= */
+
+.app-page {
+    overflow-x: hidden;
+}
+
+.app-main {
+    min-width: 0;
+}
+
+.page-content {
+    width: 100%;
+    max-width: 100%;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+
+.page-header {
+    margin-bottom: 24px;
+}
+
+.page-header h1 {
+    margin: 6px 0 8px;
+}
+
+.page-header p {
+    margin: 0;
+    opacity: 0.7;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+   ========================================================= */
+
+.report-summary {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, minmax(0, 1fr));
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+}
+
+
+.report-card {
+    min-width: 0;
+
+    padding: 22px;
+
+    border-radius: 18px;
+
+    box-sizing: border-box;
+}
+
+
+.report-card-label {
+    display: block;
+
+    margin-bottom: 10px;
+
+    font-size: 13px;
+
+    line-height: 1.4;
+
+    opacity: 0.7;
+}
+
+
+.report-card strong {
+    display: block;
+
+    font-size: 30px;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   REPORT PANELS
+   ========================================================= */
+
+.report-panel {
+    width: 100%;
+
+    margin-bottom: 24px;
+
+    box-sizing: border-box;
+}
+
+
+.report-panel .panel-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+
+/* =========================================================
+   TABLE CONTAINER
+   ========================================================= */
+
+.report-panel .table-wrap {
+    width: 100%;
+
+    max-width: 100%;
+
+    overflow-x: auto;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.report-panel table {
+    width: 100%;
+
+    min-width: 700px;
+
+    border-collapse: collapse;
+}
+
+
+.report-panel th,
+.report-panel td {
+    padding: 14px 16px;
+
+    text-align: left;
+
+    vertical-align: middle;
+}
+
+
+.report-panel th {
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   EMPTY TABLE
+   ========================================================= */
+
+.table-empty {
+    text-align: center !important;
+
+    padding: 40px 20px !important;
+
+    opacity: 0.65;
+}
+
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+@media print {
+
+    .app-sidebar,
+    .app-topbar,
+    .mobile-sidebar-overlay,
+    #printReportButton,
+    .toast-root {
+        display: none !important;
+    }
+
+    .app-main {
+        width: 100% !important;
+
+        margin: 0 !important;
+
+        padding: 0 !important;
+    }
+
+    .page-content {
+        width: 100% !important;
+
+        margin: 0 !important;
+
+        padding: 0 !important;
+    }
+
+    .report-panel {
+        break-inside: avoid;
+    }
+
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    .report-summary {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+    .report-summary {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    .report-panel .panel-header {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 520px) {
+
+    .report-summary {
+        grid-template-columns: 1fr;
+    }
+
+
+    .report-card {
+        padding: 18px;
+    }
+
+
+    .report-card strong {
+        font-size: 26px;
+    }
+
+}
