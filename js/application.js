@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", init);
 
 /* =========================================================
    INITIALIZE
-========================================================= */
+   ========================================================= */
 
 async function init() {
     renderShell({
@@ -32,90 +32,144 @@ async function init() {
 
 /* =========================================================
    EVENTS
-========================================================= */
+   ========================================================= */
 
 function setupEvents() {
     document
         .getElementById("openApplicationModal")
-        ?.addEventListener("click", openApplicationForm);
+        ?.addEventListener(
+            "click",
+            openApplicationForm
+        );
 
     document
         .getElementById("closeApplicationModal")
-        ?.addEventListener("click", closeApplicationForm);
+        ?.addEventListener(
+            "click",
+            closeApplicationForm
+        );
 
     document
         .getElementById("cancelApplicationModal")
-        ?.addEventListener("click", closeApplicationForm);
+        ?.addEventListener(
+            "click",
+            closeApplicationForm
+        );
 
     document
         .getElementById("applicationForm")
-        ?.addEventListener("submit", submitApplication);
+        ?.addEventListener(
+            "submit",
+            submitApplication
+        );
 
     document
         .getElementById("applicationApplicant")
-        ?.addEventListener("change", handleApplicantChange);
+        ?.addEventListener(
+            "change",
+            handleApplicantChange
+        );
 
     document
         .getElementById("applicationJob")
-        ?.addEventListener("change", handleJobChange);
+        ?.addEventListener(
+            "change",
+            handleJobChange
+        );
 
     document
         .getElementById("applicationSearch")
-        ?.addEventListener("input", renderApplications);
+        ?.addEventListener(
+            "input",
+            renderApplications
+        );
 
     document
         .getElementById("applicationStatusFilter")
-        ?.addEventListener("change", renderApplications);
+        ?.addEventListener(
+            "change",
+            renderApplications
+        );
 
     document
         .getElementById("applicationsTable")
-        ?.addEventListener("click", handleApplicationAction);
+        ?.addEventListener(
+            "click",
+            handleApplicationAction
+        );
 
     document
         .getElementById("closeViewApplication")
-        ?.addEventListener("click", closeViewApplication);
+        ?.addEventListener(
+            "click",
+            closeViewApplication
+        );
 
     document
         .getElementById("closeViewApplicationBottom")
-        ?.addEventListener("click", closeViewApplication);
+        ?.addEventListener(
+            "click",
+            closeViewApplication
+        );
 
     document
         .querySelectorAll(".modal-backdrop")
         .forEach(modal => {
-            modal.addEventListener("click", event => {
-                if (event.target === modal) {
-                    toggleModal(modal.id, false);
+            modal.addEventListener(
+                "click",
+                event => {
+                    if (
+                        event.target === modal
+                    ) {
+                        toggleModal(
+                            modal.id,
+                            false
+                        );
+                    }
                 }
-            });
+            );
         });
 
-    document.addEventListener("keydown", event => {
-        if (event.key !== "Escape") {
-            return;
-        }
+    document.addEventListener(
+        "keydown",
+        event => {
+            if (event.key !== "Escape") {
+                return;
+            }
 
-        document
-            .querySelectorAll(".modal-backdrop.open")
-            .forEach(modal => {
-                toggleModal(modal.id, false);
-            });
-    });
+            document
+                .querySelectorAll(
+                    ".modal-backdrop.open"
+                )
+                .forEach(modal => {
+                    toggleModal(
+                        modal.id,
+                        false
+                    );
+                });
+        }
+    );
 }
 
 /* =========================================================
    LOAD APPLICANTS
-========================================================= */
+   ========================================================= */
 
 async function loadApplicants() {
     const select =
-        document.getElementById("applicationApplicant");
+        document.getElementById(
+            "applicationApplicant"
+        );
 
     if (!select) {
         return;
     }
 
     try {
-        const { data, error } =
+        const {
+            data,
+            error
+        } =
             await window.rmsSupabase
                 .from("applicants")
                 .select(`
@@ -128,13 +182,16 @@ async function loadApplicants() {
                     address,
                     education,
                     experience,
-                    skills,
                     resume_file,
-                    status
+                    status,
+                    skills
                 `)
-                .order("last_name", {
-                    ascending: true
-                });
+                .order(
+                    "last_name",
+                    {
+                        ascending: true
+                    }
+                );
 
         if (error) {
             throw error;
@@ -161,8 +218,8 @@ async function loadApplicants() {
 }
 
 /* =========================================================
-   RENDER APPLICANT OPTIONS
-========================================================= */
+   RENDER APPLICANTS
+   ========================================================= */
 
 function renderApplicantOptions() {
     const select =
@@ -181,14 +238,11 @@ function renderApplicantOptions() {
     `;
 
     applicants
-        .filter(
-            applicant =>
-                applicant.status !== "Inactive"
-        )
         .forEach(applicant => {
-
             const option =
-                document.createElement("option");
+                document.createElement(
+                    "option"
+                );
 
             option.value =
                 applicant.applicant_id;
@@ -198,13 +252,15 @@ function renderApplicantOptions() {
                 `${applicant.first_name} ` +
                 `${applicant.last_name}`;
 
-            select.appendChild(option);
+            select.appendChild(
+                option
+            );
         });
 }
 
 /* =========================================================
    LOAD JOBS
-========================================================= */
+   ========================================================= */
 
 async function loadJobs() {
     const select =
@@ -217,7 +273,16 @@ async function loadJobs() {
     }
 
     try {
-        const { data, error } =
+        select.innerHTML = `
+            <option value="">
+                Loading jobs...
+            </option>
+        `;
+
+        const {
+            data,
+            error
+        } =
             await window.rmsSupabase
                 .from("job_postings")
                 .select(`
@@ -233,9 +298,12 @@ async function loadJobs() {
                     vacancies,
                     status
                 `)
-                .order("closing_date", {
-                    ascending: true
-                });
+                .order(
+                    "posting_date",
+                    {
+                        ascending: false
+                    }
+                );
 
         if (error) {
             throw error;
@@ -246,6 +314,11 @@ async function loadJobs() {
                 ? data
                 : [];
 
+        console.log(
+            "Job postings loaded:",
+            jobs
+        );
+
         renderJobOptions();
 
     } catch (error) {
@@ -253,6 +326,12 @@ async function loadJobs() {
             "Load jobs error:",
             error
         );
+
+        select.innerHTML = `
+            <option value="">
+                Unable to load jobs
+            </option>
+        `;
 
         showToast(
             "Unable to load job postings.",
@@ -262,8 +341,8 @@ async function loadJobs() {
 }
 
 /* =========================================================
-   RENDER AVAILABLE JOBS
-========================================================= */
+   RENDER JOB OPTIONS
+   ========================================================= */
 
 function renderJobOptions() {
     const select =
@@ -277,57 +356,33 @@ function renderJobOptions() {
 
     select.innerHTML = `
         <option value="">
-            Select available job
+            Select a job
         </option>
     `;
 
-    const now =
-        new Date();
+    /*
+       IMPORTANT:
 
-    const availableJobs =
-        jobs.filter(job => {
+       We do NOT filter jobs here.
 
-            const status =
-                String(
-                    job.status || ""
-                )
-                    .trim()
-                    .toLowerCase();
+       Every job returned from Supabase
+       will appear in the dropdown.
 
-            const closingDate =
-                job.closing_date
-                    ? new Date(
-                        `${job.closing_date}T23:59:59`
-                    )
-                    : null;
+       Status, closing date, and vacancies
+       are checked during submission.
+    */
 
-            const isOpen =
-                status === "active" ||
-                status === "open";
+    if (jobs.length === 0) {
+        select.innerHTML = `
+            <option value="">
+                No job postings found
+            </option>
+        `;
 
-            const deadlineValid =
-                !closingDate ||
-                (
-                    !Number.isNaN(
-                        closingDate.getTime()
-                    ) &&
-                    closingDate >= now
-                );
+        return;
+    }
 
-            const hasVacancies =
-                Number(
-                    job.vacancies || 0
-                ) > 0;
-
-            return (
-                isOpen &&
-                deadlineValid &&
-                hasVacancies
-            );
-        });
-
-    availableJobs.forEach(job => {
-
+    jobs.forEach(job => {
         const option =
             document.createElement(
                 "option"
@@ -339,32 +394,15 @@ function renderJobOptions() {
         option.textContent =
             `${job.job_code} — ${job.job_title}`;
 
-        select.appendChild(option);
+        select.appendChild(
+            option
+        );
     });
-
-    if (
-        availableJobs.length === 0
-    ) {
-
-        const option =
-            document.createElement(
-                "option"
-            );
-
-        option.value = "";
-
-        option.textContent =
-            "No available job postings";
-
-        option.disabled = true;
-
-        select.appendChild(option);
-    }
 }
 
 /* =========================================================
    LOAD APPLICATIONS
-========================================================= */
+   ========================================================= */
 
 async function loadApplications() {
     const table =
@@ -388,8 +426,10 @@ async function loadApplications() {
     `;
 
     try {
-
-        const { data, error } =
+        const {
+            data,
+            error
+        } =
             await window.rmsSupabase
                 .from("applications")
                 .select(`
@@ -401,12 +441,14 @@ async function loadApplications() {
                     status,
                     created_at,
                     updated_at,
+
                     applicants (
                         applicant_no,
                         first_name,
                         last_name,
                         email
                     ),
+
                     job_postings (
                         job_code,
                         job_title,
@@ -415,9 +457,12 @@ async function loadApplications() {
                         closing_date
                     )
                 `)
-                .order("created_at", {
-                    ascending: false
-                });
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
 
         if (error) {
             throw error;
@@ -431,7 +476,6 @@ async function loadApplications() {
         renderApplications();
 
     } catch (error) {
-
         console.error(
             "Load applications error:",
             error
@@ -457,7 +501,7 @@ async function loadApplications() {
 
 /* =========================================================
    RENDER APPLICATIONS
-========================================================= */
+   ========================================================= */
 
 function renderApplications() {
     const table =
@@ -486,60 +530,77 @@ function renderApplications() {
             ?.value || "";
 
     const filtered =
-        applications.filter(application => {
+        applications.filter(
+            application => {
+                const applicant =
+                    application.applicants;
 
-            const applicant =
-                application.applicants;
+                const job =
+                    application.job_postings;
 
-            const job =
-                application.job_postings;
+                const applicantName =
+                    `${applicant?.first_name || ""} ` +
+                    `${applicant?.last_name || ""}`
+                        .trim()
+                        .toLowerCase();
 
-            const applicantName =
-                `${applicant?.first_name || ""} ` +
-                `${applicant?.last_name || ""}`
-                    .trim()
-                    .toLowerCase();
+                const applicantNo =
+                    String(
+                        applicant?.applicant_no ||
+                        ""
+                    ).toLowerCase();
 
-            const applicantNo =
-                String(
-                    applicant?.applicant_no || ""
-                ).toLowerCase();
+                const jobTitle =
+                    String(
+                        job?.job_title ||
+                        ""
+                    ).toLowerCase();
 
-            const jobTitle =
-                String(
-                    job?.job_title || ""
-                ).toLowerCase();
+                const jobCode =
+                    String(
+                        job?.job_code ||
+                        ""
+                    ).toLowerCase();
 
-            const jobCode =
-                String(
-                    job?.job_code || ""
-                ).toLowerCase();
+                const applicationId =
+                    String(
+                        application.application_id ||
+                        ""
+                    ).toLowerCase();
 
-            const applicationId =
-                String(
-                    application.application_id || ""
-                ).toLowerCase();
+                const matchesSearch =
+                    !search ||
+                    applicantName.includes(
+                        search
+                    ) ||
+                    applicantNo.includes(
+                        search
+                    ) ||
+                    jobTitle.includes(
+                        search
+                    ) ||
+                    jobCode.includes(
+                        search
+                    ) ||
+                    applicationId.includes(
+                        search
+                    );
 
-            const matchesSearch =
-                !search ||
-                applicantName.includes(search) ||
-                applicantNo.includes(search) ||
-                jobTitle.includes(search) ||
-                jobCode.includes(search) ||
-                applicationId.includes(search);
+                const matchesStatus =
+                    !status ||
+                    application.status ===
+                        status;
 
-            const matchesStatus =
-                !status ||
-                application.status === status;
+                return (
+                    matchesSearch &&
+                    matchesStatus
+                );
+            }
+        );
 
-            return (
-                matchesSearch &&
-                matchesStatus
-            );
-        });
-
-    if (!filtered.length) {
-
+    if (
+        filtered.length === 0
+    ) {
         table.innerHTML = `
             <tr>
                 <td
@@ -557,7 +618,6 @@ function renderApplications() {
     table.innerHTML =
         filtered
             .map(application => {
-
                 const applicant =
                     application.applicants;
 
@@ -574,6 +634,7 @@ function renderApplications() {
 
                         <td>
                             <div class="application-meta">
+
                                 <strong>
                                     ${escapeHtml(
                                         shortApplicationId(
@@ -585,12 +646,14 @@ function renderApplications() {
                                 <span>
                                     Application
                                 </span>
+
                             </div>
                         </td>
 
                         <td>
                             ${escapeHtml(
-                                applicantName
+                                applicantName ||
+                                "—"
                             )}
                         </td>
 
@@ -599,13 +662,15 @@ function renderApplications() {
 
                                 <strong>
                                     ${escapeHtml(
-                                        job?.job_title || "—"
+                                        job?.job_title ||
+                                        "—"
                                     )}
                                 </strong>
 
                                 <span>
                                     ${escapeHtml(
-                                        job?.job_code || ""
+                                        job?.job_code ||
+                                        ""
                                     )}
                                 </span>
 
@@ -620,7 +685,8 @@ function renderApplications() {
 
                         <td>
                             ${statusBadge(
-                                application.status || ""
+                                application.status ||
+                                ""
                             )}
                         </td>
 
@@ -631,7 +697,9 @@ function renderApplications() {
                                     type="button"
                                     class="table-action"
                                     data-action="view"
-                                    data-id="${application.application_id}"
+                                    data-id="${escapeHtml(
+                                        application.application_id
+                                    )}"
                                 >
                                     View
                                 </button>
@@ -647,7 +715,7 @@ function renderApplications() {
 
 /* =========================================================
    OPEN APPLICATION FORM
-========================================================= */
+   ========================================================= */
 
 function openApplicationForm() {
     const form =
@@ -670,6 +738,14 @@ function openApplicationForm() {
         errorBox.textContent = "";
     }
 
+    /*
+       Re-render the dropdowns every time
+       the modal opens.
+    */
+
+    renderApplicantOptions();
+    renderJobOptions();
+
     hideSelectedJob();
 
     toggleModal(
@@ -680,7 +756,7 @@ function openApplicationForm() {
 
 /* =========================================================
    CLOSE APPLICATION FORM
-========================================================= */
+   ========================================================= */
 
 function closeApplicationForm() {
     toggleModal(
@@ -691,7 +767,7 @@ function closeApplicationForm() {
 
 /* =========================================================
    APPLICANT CHANGE
-========================================================= */
+   ========================================================= */
 
 function handleApplicantChange() {
     const applicantId =
@@ -709,17 +785,24 @@ function handleApplicantChange() {
                 String(
                     item.applicant_id
                 ) ===
-                String(applicantId)
+                String(
+                    applicantId
+                )
         );
 
     if (!applicant) {
         return;
     }
+
+    console.log(
+        "Selected applicant:",
+        applicant
+    );
 }
 
 /* =========================================================
    JOB CHANGE
-========================================================= */
+   ========================================================= */
 
 function handleJobChange() {
     const jobId =
@@ -747,7 +830,9 @@ function handleJobChange() {
                 String(
                     item.job_id
                 ) ===
-                String(jobId)
+                String(
+                    jobId
+                )
         );
 
     if (!job) {
@@ -755,64 +840,105 @@ function handleJobChange() {
         return;
     }
 
-    document.getElementById(
-        "selectedJobTitle"
-    ).textContent =
-        job.job_title ||
-        "Job Details";
-
-    document.getElementById(
-        "selectedJobCode"
-    ).textContent =
-        job.job_code ||
-        "";
-
-    document.getElementById(
-        "selectedJobDepartment"
-    ).textContent =
-        job.department ||
-        "—";
-
-    document.getElementById(
-        "selectedJobEmploymentType"
-    ).textContent =
-        job.employment_type ||
-        "—";
-
-    document.getElementById(
-        "selectedJobClosingDate"
-    ).textContent =
-        job.closing_date
-            ? formatDate(
-                job.closing_date
-            )
-            : "No deadline";
-
-    document.getElementById(
-        "selectedJobVacancies"
-    ).textContent =
-        String(
-            job.vacancies ?? "—"
+    const title =
+        document.getElementById(
+            "selectedJobTitle"
         );
 
-    document.getElementById(
-        "selectedJobDescription"
-    ).textContent =
-        job.description ||
-        "No description provided.";
+    const code =
+        document.getElementById(
+            "selectedJobCode"
+        );
 
-    document.getElementById(
-        "selectedJobQualifications"
-    ).textContent =
-        job.qualifications ||
-        "No qualifications provided.";
+    const department =
+        document.getElementById(
+            "selectedJobDepartment"
+        );
+
+    const employmentType =
+        document.getElementById(
+            "selectedJobEmploymentType"
+        );
+
+    const closingDate =
+        document.getElementById(
+            "selectedJobClosingDate"
+        );
+
+    const vacancies =
+        document.getElementById(
+            "selectedJobVacancies"
+        );
+
+    const description =
+        document.getElementById(
+            "selectedJobDescription"
+        );
+
+    const qualifications =
+        document.getElementById(
+            "selectedJobQualifications"
+        );
+
+    if (title) {
+        title.textContent =
+            job.job_title ||
+            "Job Details";
+    }
+
+    if (code) {
+        code.textContent =
+            job.job_code ||
+            "";
+    }
+
+    if (department) {
+        department.textContent =
+            job.department ||
+            "—";
+    }
+
+    if (employmentType) {
+        employmentType.textContent =
+            job.employment_type ||
+            "—";
+    }
+
+    if (closingDate) {
+        closingDate.textContent =
+            job.closing_date
+                ? formatDate(
+                    job.closing_date
+                )
+                : "No deadline";
+    }
+
+    if (vacancies) {
+        vacancies.textContent =
+            String(
+                job.vacancies ??
+                "—"
+            );
+    }
+
+    if (description) {
+        description.textContent =
+            job.description ||
+            "No description provided.";
+    }
+
+    if (qualifications) {
+        qualifications.textContent =
+            job.qualifications ||
+            "No qualifications provided.";
+    }
 
     section.hidden = false;
 }
 
 /* =========================================================
-   HIDE JOB DETAILS
-========================================================= */
+   HIDE SELECTED JOB
+   ========================================================= */
 
 function hideSelectedJob() {
     const section =
@@ -826,122 +952,188 @@ function hideSelectedJob() {
 
     section.hidden = true;
 
-    document.getElementById(
-        "selectedJobTitle"
-    ).textContent =
-        "Job Details";
+    const title =
+        document.getElementById(
+            "selectedJobTitle"
+        );
 
-    document.getElementById(
-        "selectedJobCode"
-    ).textContent =
-        "Select a job to view details.";
+    const code =
+        document.getElementById(
+            "selectedJobCode"
+        );
 
-    document.getElementById(
-        "selectedJobDepartment"
-    ).textContent =
-        "—";
+    const department =
+        document.getElementById(
+            "selectedJobDepartment"
+        );
 
-    document.getElementById(
-        "selectedJobEmploymentType"
-    ).textContent =
-        "—";
+    const employmentType =
+        document.getElementById(
+            "selectedJobEmploymentType"
+        );
 
-    document.getElementById(
-        "selectedJobClosingDate"
-    ).textContent =
-        "—";
+    const closingDate =
+        document.getElementById(
+            "selectedJobClosingDate"
+        );
 
-    document.getElementById(
-        "selectedJobVacancies"
-    ).textContent =
-        "—";
+    const vacancies =
+        document.getElementById(
+            "selectedJobVacancies"
+        );
 
-    document.getElementById(
-        "selectedJobDescription"
-    ).textContent =
-        "—";
+    const description =
+        document.getElementById(
+            "selectedJobDescription"
+        );
 
-    document.getElementById(
-        "selectedJobQualifications"
-    ).textContent =
-        "—";
+    const qualifications =
+        document.getElementById(
+            "selectedJobQualifications"
+        );
+
+    if (title) {
+        title.textContent =
+            "Job Details";
+    }
+
+    if (code) {
+        code.textContent =
+            "Select a job to view details.";
+    }
+
+    if (department) {
+        department.textContent =
+            "—";
+    }
+
+    if (employmentType) {
+        employmentType.textContent =
+            "—";
+    }
+
+    if (closingDate) {
+        closingDate.textContent =
+            "—";
+    }
+
+    if (vacancies) {
+        vacancies.textContent =
+            "—";
+    }
+
+    if (description) {
+        description.textContent =
+            "—";
+    }
+
+    if (qualifications) {
+        qualifications.textContent =
+            "—";
+    }
 }
 
 /* =========================================================
-   LAB 8 — PROFILE VALIDATION
-========================================================= */
+   VALIDATE APPLICANT PROFILE
+   ========================================================= */
 
-function validateApplicantProfile(applicant) {
-
+function validateApplicantProfile(
+    applicant
+) {
     if (!applicant) {
         return {
             valid: false,
-            message: "Applicant does not exist."
+            message:
+                "Applicant does not exist."
         };
     }
 
     const requiredFields = [
         {
-            value: applicant.applicant_no,
-            name: "Applicant number"
+            value:
+                applicant.applicant_no,
+            name:
+                "Applicant number"
         },
         {
-            value: applicant.first_name,
-            name: "First name"
+            value:
+                applicant.first_name,
+            name:
+                "First name"
         },
         {
-            value: applicant.last_name,
-            name: "Last name"
+            value:
+                applicant.last_name,
+            name:
+                "Last name"
         },
         {
-            value: applicant.email,
-            name: "Email"
+            value:
+                applicant.email,
+            name:
+                "Email"
         },
         {
-            value: applicant.contact_no,
-            name: "Contact number"
+            value:
+                applicant.contact_no,
+            name:
+                "Contact number"
         },
         {
-            value: applicant.address,
-            name: "Address"
+            value:
+                applicant.address,
+            name:
+                "Address"
         },
         {
-            value: applicant.education,
-            name: "Education"
+            value:
+                applicant.education,
+            name:
+                "Education"
         },
         {
-            value: applicant.experience,
-            name: "Work experience"
+            value:
+                applicant.experience,
+            name:
+                "Work experience"
         },
         {
-            value: applicant.skills,
-            name: "Skills"
+            value:
+                applicant.skills,
+            name:
+                "Skills"
         },
         {
-            value: applicant.resume_file,
-            name: "Resume"
+            value:
+                applicant.resume_file,
+            name:
+                "Resume"
         }
     ];
 
     const missing =
         requiredFields
-            .filter(
-                field =>
+            .filter(field => {
+                return (
                     !field.value ||
                     String(
                         field.value
                     ).trim() === ""
-            )
+                );
+            })
             .map(
                 field =>
                     field.name
             );
 
-    if (missing.length) {
+    if (
+        missing.length > 0
+    ) {
         return {
             valid: false,
             message:
-                `Applicant profile is incomplete. Missing: ${missing.join(", ")}.`
+                `Applicant profile is incomplete. ` +
+                `Missing: ${missing.join(", ")}.`
         };
     }
 
@@ -952,15 +1144,15 @@ function validateApplicantProfile(applicant) {
 }
 
 /* =========================================================
-   LAB 8 — JOB VALIDATION
-========================================================= */
+   VALIDATE JOB
+   ========================================================= */
 
 function validateJob(job) {
-
     if (!job) {
         return {
             valid: false,
-            message: "Job posting does not exist."
+            message:
+                "Job posting does not exist."
         };
     }
 
@@ -971,18 +1163,36 @@ function validateJob(job) {
             .trim()
             .toLowerCase();
 
+    /*
+       Your database may use:
+       Open
+       Active
+       Published
+       Available
+    */
+
+    const validStatuses = [
+        "open",
+        "active",
+        "opened",
+        "published",
+        "available"
+    ];
+
     if (
-        status !== "active" &&
-        status !== "open"
+        !validStatuses.includes(
+            status
+        )
     ) {
         return {
             valid: false,
-            message: "Job posting is not open."
+            message:
+                `This job is not currently open for applications. ` +
+                `Current status: ${job.status || "Unknown"}`
         };
     }
 
     if (job.closing_date) {
-
         const closingDate =
             new Date(
                 `${job.closing_date}T23:59:59`
@@ -995,7 +1205,8 @@ function validateJob(job) {
         ) {
             return {
                 valid: false,
-                message: "Job closing date is invalid."
+                message:
+                    "Job closing date is invalid."
             };
         }
 
@@ -1005,13 +1216,16 @@ function validateJob(job) {
         ) {
             return {
                 valid: false,
-                message: "Application deadline has passed."
+                message:
+                    "Application deadline has passed."
             };
         }
     }
 
     if (
-        Number(job.vacancies || 0) <= 0
+        job.vacancies !== null &&
+        job.vacancies !== undefined &&
+        Number(job.vacancies) <= 0
     ) {
         return {
             valid: false,
@@ -1027,8 +1241,8 @@ function validateJob(job) {
 }
 
 /* =========================================================
-   LAB 8 — CHECK DUPLICATE
-========================================================= */
+   CHECK DUPLICATE APPLICATION
+   ========================================================= */
 
 async function checkDuplicateApplication(
     applicantId,
@@ -1037,18 +1251,21 @@ async function checkDuplicateApplication(
     const {
         data,
         error
-    } = await window.rmsSupabase
-        .from("applications")
-        .select("application_id")
-        .eq(
-            "applicant_id",
-            applicantId
-        )
-        .eq(
-            "job_id",
-            jobId
-        )
-        .limit(1);
+    } =
+        await window.rmsSupabase
+            .from("applications")
+            .select(
+                "application_id"
+            )
+            .eq(
+                "applicant_id",
+                applicantId
+            )
+            .eq(
+                "job_id",
+                jobId
+            )
+            .limit(1);
 
     if (error) {
         throw error;
@@ -1062,9 +1279,11 @@ async function checkDuplicateApplication(
 
 /* =========================================================
    SUBMIT APPLICATION
-========================================================= */
+   ========================================================= */
 
-async function submitApplication(event) {
+async function submitApplication(
+    event
+) {
     event.preventDefault();
 
     const errorBox =
@@ -1093,25 +1312,35 @@ async function submitApplication(event) {
             .trim() || "";
 
     if (!applicantId) {
-        errorBox.textContent =
-            "Please select an applicant.";
+        if (errorBox) {
+            errorBox.textContent =
+                "Please select an applicant.";
+        }
 
         return;
     }
 
     if (!jobId) {
-        errorBox.textContent =
-            "Please select a job.";
+        if (errorBox) {
+            errorBox.textContent =
+                "Please select a job.";
+        }
 
         return;
     }
 
     if (!coverLetter) {
-        errorBox.textContent =
-            "Please enter a cover letter.";
+        if (errorBox) {
+            errorBox.textContent =
+                "Please enter a cover letter.";
+        }
 
         return;
     }
+
+    /* =====================================================
+       FIND APPLICANT
+       ===================================================== */
 
     const applicant =
         applicants.find(
@@ -1119,7 +1348,9 @@ async function submitApplication(event) {
                 String(
                     item.applicant_id
                 ) ===
-                String(applicantId)
+                String(
+                    applicantId
+                )
         );
 
     const applicantValidation =
@@ -1127,12 +1358,20 @@ async function submitApplication(event) {
             applicant
         );
 
-    if (!applicantValidation.valid) {
-        errorBox.textContent =
-            applicantValidation.message;
+    if (
+        !applicantValidation.valid
+    ) {
+        if (errorBox) {
+            errorBox.textContent =
+                applicantValidation.message;
+        }
 
         return;
     }
+
+    /* =====================================================
+       FIND JOB
+       ===================================================== */
 
     const job =
         jobs.find(
@@ -1140,21 +1379,30 @@ async function submitApplication(event) {
                 String(
                     item.job_id
                 ) ===
-                String(jobId)
+                String(
+                    jobId
+                )
         );
 
     const jobValidation =
         validateJob(job);
 
-    if (!jobValidation.valid) {
-        errorBox.textContent =
-            jobValidation.message;
+    if (
+        !jobValidation.valid
+    ) {
+        if (errorBox) {
+            errorBox.textContent =
+                jobValidation.message;
+        }
 
         return;
     }
 
-    try {
+    /* =====================================================
+       DUPLICATE APPLICATION
+       ===================================================== */
 
+    try {
         const duplicate =
             await checkDuplicateApplication(
                 applicantId,
@@ -1162,25 +1410,32 @@ async function submitApplication(event) {
             );
 
         if (duplicate) {
-
-            errorBox.textContent =
-                `The applicant has already applied for ${job.job_code}.`;
+            if (errorBox) {
+                errorBox.textContent =
+                    `The applicant has already applied ` +
+                    `for ${job.job_code}.`;
+            }
 
             return;
         }
 
     } catch (error) {
-
         console.error(
             "Duplicate check error:",
             error
         );
 
-        errorBox.textContent =
-            "Unable to validate duplicate application.";
+        if (errorBox) {
+            errorBox.textContent =
+                "Unable to validate duplicate application.";
+        }
 
         return;
     }
+
+    /* =====================================================
+       SUBMIT
+       ===================================================== */
 
     const button =
         document.getElementById(
@@ -1194,7 +1449,6 @@ async function submitApplication(event) {
     );
 
     try {
-
         const application = {
             applicant_id:
                 applicantId,
@@ -1214,11 +1468,12 @@ async function submitApplication(event) {
 
         const {
             error
-        } = await window.rmsSupabase
-            .from("applications")
-            .insert([
-                application
-            ]);
+        } =
+            await window.rmsSupabase
+                .from("applications")
+                .insert([
+                    application
+                ]);
 
         if (error) {
             throw error;
@@ -1233,18 +1488,18 @@ async function submitApplication(event) {
         await loadApplications();
 
     } catch (error) {
-
         console.error(
             "Submit application error:",
             error
         );
 
-        errorBox.textContent =
-            error?.message ||
-            "Unable to submit application. Please try again.";
+        if (errorBox) {
+            errorBox.textContent =
+                error?.message ||
+                "Unable to submit application. Please try again.";
+        }
 
     } finally {
-
         setButtonLoading(
             button,
             false
@@ -1254,10 +1509,11 @@ async function submitApplication(event) {
 
 /* =========================================================
    APPLICATION ACTION
-========================================================= */
+   ========================================================= */
 
-function handleApplicationAction(event) {
-
+function handleApplicationAction(
+    event
+) {
     const button =
         event.target.closest(
             "[data-action]"
@@ -1294,12 +1550,11 @@ function handleApplicationAction(event) {
 
 /* =========================================================
    VIEW APPLICATION
-========================================================= */
+   ========================================================= */
 
 function openViewApplication(
     application
 ) {
-
     const applicant =
         application.applicants;
 
@@ -1333,37 +1588,32 @@ function openViewApplication(
         <div class="profile-grid">
 
             <div class="profile-item">
-
                 <small>
                     Application ID
                 </small>
 
                 <div>
                     ${escapeHtml(
-                        application.application_id || ""
+                        application.application_id ||
+                        ""
                     )}
                 </div>
-
             </div>
 
-
             <div class="profile-item">
-
                 <small>
                     Status
                 </small>
 
                 <div>
                     ${statusBadge(
-                        application.status || ""
+                        application.status ||
+                        ""
                     )}
                 </div>
-
             </div>
 
-
             <div class="profile-item">
-
                 <small>
                     Applicant
                 </small>
@@ -1373,87 +1623,87 @@ function openViewApplication(
                         applicantName
                     )}
                 </div>
-
             </div>
 
-
             <div class="profile-item">
-
                 <small>
                     Applicant No.
                 </small>
 
                 <div>
                     ${escapeHtml(
-                        applicant?.applicant_no || ""
+                        applicant?.applicant_no ||
+                        ""
                     )}
                 </div>
-
             </div>
 
+            <div class="profile-item">
+                <small>
+                    Email
+                </small>
+
+                <div>
+                    ${escapeHtml(
+                        applicant?.email ||
+                        "—"
+                    )}
+                </div>
+            </div>
 
             <div class="profile-item">
-
                 <small>
                     Position
                 </small>
 
                 <div>
                     ${escapeHtml(
-                        job?.job_title || ""
+                        job?.job_title ||
+                        ""
                     )}
                 </div>
-
             </div>
 
-
             <div class="profile-item">
-
                 <small>
                     Job Code
                 </small>
 
                 <div>
                     ${escapeHtml(
-                        job?.job_code || ""
+                        job?.job_code ||
+                        ""
                     )}
                 </div>
-
             </div>
 
-
             <div class="profile-item">
-
                 <small>
                     Department
                 </small>
 
                 <div>
                     ${escapeHtml(
-                        job?.department || ""
+                        job?.department ||
+                        ""
                     )}
                 </div>
-
             </div>
 
-
             <div class="profile-item">
-
                 <small>
                     Employment Type
                 </small>
 
                 <div>
                     ${escapeHtml(
-                        job?.employment_type || ""
+                        job?.employment_type ||
+                        ""
                     )}
                 </div>
-
             </div>
 
-
             <div class="profile-item">
-
                 <small>
                     Date Applied
                 </small>
@@ -1463,12 +1713,9 @@ function openViewApplication(
                         application.application_date
                     )}
                 </div>
-
             </div>
 
-
             <div class="profile-item">
-
                 <small>
                     Closing Date
                 </small>
@@ -1482,26 +1729,21 @@ function openViewApplication(
                             : "No deadline"
                     }
                 </div>
-
             </div>
 
-
-            <div
-                class="profile-item profile-item-full"
-            >
-
+            <div class="profile-item profile-item-full">
                 <small>
                     Cover Letter
                 </small>
 
                 <div
-                    style="white-space:pre-wrap;"
+                    style="white-space: pre-wrap;"
                 >
                     ${escapeHtml(
-                        application.cover_letter || ""
+                        application.cover_letter ||
+                        ""
                     )}
                 </div>
-
             </div>
 
         </div>
@@ -1514,8 +1756,8 @@ function openViewApplication(
 }
 
 /* =========================================================
-   CLOSE VIEW
-========================================================= */
+   CLOSE VIEW APPLICATION
+   ========================================================= */
 
 function closeViewApplication() {
     toggleModal(
@@ -1526,9 +1768,12 @@ function closeViewApplication() {
 
 /* =========================================================
    MODAL
-========================================================= */
+   ========================================================= */
 
-function toggleModal(id, open) {
+function toggleModal(
+    id,
+    open
+) {
     const modal =
         document.getElementById(id);
 
@@ -1545,11 +1790,27 @@ function toggleModal(id, open) {
         "aria-hidden",
         String(!open)
     );
+
+    if (open) {
+        document.body.classList.add(
+            "modal-open"
+        );
+    } else {
+        if (
+            !document.querySelector(
+                ".modal-backdrop.open"
+            )
+        ) {
+            document.body.classList.remove(
+                "modal-open"
+            );
+        }
+    }
 }
 
 /* =========================================================
-   LOCAL DATE
-========================================================= */
+   GET TODAY
+   ========================================================= */
 
 function getTodayLocalDate() {
     const now =
@@ -1561,19 +1822,25 @@ function getTodayLocalDate() {
     const month =
         String(
             now.getMonth() + 1
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
 
     const day =
         String(
             now.getDate()
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
 
     return `${year}-${month}-${day}`;
 }
 
 /* =========================================================
    SHORT APPLICATION ID
-========================================================= */
+   ========================================================= */
 
 function shortApplicationId(id) {
     if (!id) {
@@ -1584,4 +1851,142 @@ function shortApplicationId(id) {
         .split("-")
         .pop()
         .toUpperCase();
+}
+
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
+
+function escapeHtml(value) {
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return "";
+    }
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
+
+/* =========================================================
+   FORMAT DATE
+   ========================================================= */
+
+function formatDate(value) {
+    if (!value) {
+        return "—";
+    }
+
+    const date =
+        new Date(value);
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return "—";
+    }
+
+    return date.toLocaleDateString(
+        "en-US",
+        {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+        }
+    );
+}
+
+/* =========================================================
+   STATUS BADGE
+   ========================================================= */
+
+function statusBadge(status) {
+    const cleanStatus =
+        String(
+            status ||
+            "Unknown"
+        ).trim();
+
+    const normalized =
+        cleanStatus
+            .toLowerCase()
+            .replace(
+                /\s+/g,
+                "-"
+            );
+
+    return `
+        <span
+            class="status-text status-${escapeHtml(
+                normalized
+            )}"
+        >
+            ${escapeHtml(
+                cleanStatus
+            )}
+        </span>
+    `;
+}
+
+/* =========================================================
+   BUTTON LOADING
+   ========================================================= */
+
+function setButtonLoading(
+    button,
+    loading,
+    loadingText = "Loading..."
+) {
+    if (!button) {
+        return;
+    }
+
+    if (loading) {
+        if (
+            !button.dataset.originalText
+        ) {
+            button.dataset.originalText =
+                button.textContent;
+        }
+
+        button.disabled = true;
+
+        button.textContent =
+            loadingText;
+
+    } else {
+        button.disabled = false;
+
+        if (
+            button.dataset.originalText
+        ) {
+            button.textContent =
+                button.dataset.originalText;
+
+            delete button.dataset
+                .originalText;
+        }
+    }
 }

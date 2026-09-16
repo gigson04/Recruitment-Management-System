@@ -129,18 +129,6 @@
 
 
         /* =================================================
-           SCORE
-           ================================================= */
-
-        .interview-score {
-            margin-top: 5px;
-            color: var(--muted);
-            font-size: 10px;
-            font-weight: 700;
-        }
-
-
-        /* =================================================
            STATUS
            ================================================= */
 
@@ -344,8 +332,7 @@
 
         .evaluation-summary {
             display: grid;
-            grid-template-columns:
-                repeat(5, minmax(0, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 10px;
             margin-bottom: 14px;
         }
@@ -354,8 +341,7 @@
             padding: 11px 12px;
             border: 1px solid var(--line);
             border-radius: 11px;
-            background:
-                rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.18);
         }
 
         .evaluation-summary-item small {
@@ -376,13 +362,11 @@
 
         .evaluation-score-grid {
             display: grid;
-            grid-template-columns:
-                repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 14px;
         }
 
-        .evaluation-score-grid
-        .form-group:last-child {
+        .evaluation-score-grid .form-group:last-child {
             grid-column: 1 / -1;
         }
 
@@ -405,8 +389,7 @@
 
         .evaluation-result-box {
             display: grid;
-            grid-template-columns:
-                1fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-top: 14px;
         }
@@ -415,8 +398,7 @@
             padding: 13px;
             border: 1px solid var(--line);
             border-radius: 12px;
-            background:
-                #15191d;
+            background: #15191d;
         }
 
         .evaluation-result-item small {
@@ -435,8 +417,7 @@
 
         .evaluation-view-grid {
             display: grid;
-            grid-template-columns:
-                repeat(5, minmax(0, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 8px;
             margin-top: 2px;
         }
@@ -445,8 +426,7 @@
             padding: 8px;
             border: 1px solid var(--line);
             border-radius: 9px;
-            background:
-                rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .evaluation-view-item span {
@@ -463,104 +443,8 @@
 
 
         /* =================================================
-           LAB 15 - INTERVIEW HISTORY
-           ================================================= */
-
-        .interview-history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .interview-history-item {
-            padding: 14px;
-            border: 1px solid var(--line);
-            border-radius: 13px;
-            background:
-                #15191d;
-        }
-
-        .interview-history-number {
-            margin-bottom: 10px;
-            color: #c9d0d8;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .interview-history-details {
-            display: grid;
-            grid-template-columns:
-                repeat(3, minmax(0, 1fr));
-            gap: 10px;
-        }
-
-        .interview-history-details > div {
-            min-width: 0;
-            padding: 9px 10px;
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            background:
-                rgba(255, 255, 255, 0.04);
-        }
-
-        .interview-history-details small {
-            display: block;
-            margin-bottom: 4px;
-            color: var(--muted);
-            font-size: 9px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-
-        .interview-history-details strong {
-            display: block;
-            color: #c9d0d8;
-            font-size: 11px;
-            line-height: 1.4;
-            word-break: break-word;
-        }
-
-        .interview-history-details
-        .history-remarks {
-            grid-column: 1 / -1;
-        }
-
-        .interview-history-details
-        .history-remarks p {
-            margin: 0;
-            color: var(--muted);
-            font-size: 11px;
-            line-height: 1.5;
-        }
-
-        .history-result-passed {
-            color: #75d3a5 !important;
-        }
-
-        .history-result-failed {
-            color: #e59a9a !important;
-        }
-
-
-        /* =================================================
            MOBILE
            ================================================= */
-
-        @media (max-width: 1000px) {
-
-            .evaluation-summary {
-                grid-template-columns:
-                    repeat(3, minmax(0, 1fr));
-            }
-
-            .evaluation-view-grid {
-                grid-template-columns:
-                    repeat(3, minmax(0, 1fr));
-            }
-
-        }
-
 
         @media (max-width: 900px) {
 
@@ -593,41 +477,109 @@
                 grid-column: auto;
             }
 
-            .evaluation-summary {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .evaluation-score-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .evaluation-score-grid
-            .form-group:last-child {
-                grid-column: auto;
-            }
-
-            .evaluation-result-box {
-                grid-template-columns: 1fr;
-            }
-
-            .evaluation-view-grid {
-                grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
-            }
-
-            .interview-history-details {
-                grid-template-columns: 1fr;
-            }
-
-            .interview-history-details
-            .history-remarks {
-                grid-column: auto;
-            }
-
             .table-wrap table {
                 min-width: 850px;
             }
 
+        }
+
+    
+        /* =================================================
+           VIEW INTERVIEW - MATCH SCHEDULE INTERVIEW
+           ONLY THE VIEW MODAL IS CHANGED
+           ================================================= */
+
+        #viewInterviewModal {
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 20px !important;
+        }
+
+        /* Keep the exact same .interview-modal sizing used by
+           the Schedule Interview modal. */
+        #viewInterviewModal > .interview-modal {
+            width: min(760px, 100%) !important;
+            max-width: 760px !important;
+            max-height: 90vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+        }
+
+        /*
+         * IMPORTANT:
+         * Do NOT turn #viewInterviewBody itself into another grid.
+         * JavaScript already places .interview-details-grid inside it.
+         */
+        #viewInterviewModal #viewInterviewBody {
+            display: block !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* The actual content grid */
+        #viewInterviewModal #viewInterviewBody > .interview-details-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 14px !important;
+            width: 100% !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Each information card fills its column */
+        #viewInterviewModal #viewInterviewBody > .interview-details-grid > .interview-detail-item {
+            width: 100% !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Remarks / full-width details */
+        #viewInterviewModal #viewInterviewBody > .interview-details-grid > .interview-detail-item-full {
+            grid-column: 1 / -1 !important;
+        }
+
+        /* Make the View modal content readable */
+        #viewInterviewModal .interview-detail-item small {
+            display: block !important;
+        }
+
+        #viewInterviewModal .interview-detail-item > div {
+            width: 100% !important;
+            word-break: break-word !important;
+        }
+
+        /* Close button row */
+        #viewInterviewModal > .interview-modal > .button-row {
+            width: 100% !important;
+            display: flex !important;
+            justify-content: flex-end !important;
+            align-items: center !important;
+            gap: 10px !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Mobile */
+        @media (max-width: 700px) {
+            #viewInterviewModal {
+                padding: 12px !important;
+            }
+
+            #viewInterviewModal > .interview-modal {
+                width: calc(100vw - 24px) !important;
+                max-width: none !important;
+                max-height: 92vh !important;
+                padding: 18px !important;
+            }
+
+            #viewInterviewModal #viewInterviewBody > .interview-details-grid {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
+
+            #viewInterviewModal #viewInterviewBody > .interview-details-grid > .interview-detail-item-full {
+                grid-column: auto !important;
+            }
         }
 
     </style>
@@ -814,10 +766,6 @@
 
                         <option value="Scheduled">
                             Scheduled
-                        </option>
-
-                        <option value="Rescheduled">
-                            Rescheduled
                         </option>
 
                         <option value="Cancelled">
@@ -1007,7 +955,7 @@
                         </select>
 
                         <small class="interview-help">
-                            Qualified and active interview applications can be scheduled.
+                            Only qualified applications can be scheduled.
                         </small>
 
                     </div>
@@ -1400,113 +1348,40 @@
             </div>
 
 
-            <!-- =================================================
-                 EVALUATION SUMMARY
-                 ================================================= -->
-
             <div class="evaluation-summary">
 
                 <div class="evaluation-summary-item">
-
-                    <small>
-                        Applicant
-                    </small>
-
-                    <strong id="evaluationApplicant">
-                        —
-                    </strong>
-
+                    <small>Applicant</small>
+                    <strong id="evaluationApplicant">—</strong>
                 </div>
 
-
                 <div class="evaluation-summary-item">
-
-                    <small>
-                        Position
-                    </small>
-
-                    <strong id="evaluationPosition">
-                        —
-                    </strong>
-
+                    <small>Position</small>
+                    <strong id="evaluationPosition">—</strong>
                 </div>
 
-
                 <div class="evaluation-summary-item">
-
-                    <small>
-                        Interview Date
-                    </small>
-
-                    <strong id="evaluationDate">
-                        —
-                    </strong>
-
+                    <small>Interview Date</small>
+                    <strong id="evaluationDate">—</strong>
                 </div>
 
-
                 <div class="evaluation-summary-item">
-
-                    <small>
-                        Interview Time
-                    </small>
-
-                    <strong id="evaluationTime">
-                        —
-                    </strong>
-
-                </div>
-
-
-                <div class="evaluation-summary-item">
-
-                    <small>
-                        Interviewer
-                    </small>
-
-                    <strong id="evaluationInterviewer">
-                        —
-                    </strong>
-
+                    <small>Interviewer</small>
+                    <strong id="evaluationInterviewer">—</strong>
                 </div>
 
             </div>
 
 
-            <!-- =================================================
-                 EVALUATION FORM
-                 ================================================= -->
-
-            <form
-                id="interviewEvaluationForm"
-                novalidate
-            >
-
-
-                <!-- =================================================
-                     FORM ERROR
-                     ================================================= -->
-
-                <div
-                    id="evaluationFormError"
-                    class="interview-form-error"
-                    role="alert"
-                ></div>
-
+            <form id="interviewEvaluationForm" novalidate>
 
                 <div class="evaluation-score-grid">
 
-
-                    <!-- COMMUNICATION -->
-
                     <div class="form-group">
-
                         <label for="communicationScore">
                             Communication *
                         </label>
-
                         <div class="evaluation-score-input">
-
                             <input
                                 id="communicationScore"
                                 type="number"
@@ -1515,26 +1390,15 @@
                                 step="1"
                                 required
                             >
-
-                            <span class="evaluation-max">
-                                / 20
-                            </span>
-
+                            <span class="evaluation-max">/ 20</span>
                         </div>
-
                     </div>
 
-
-                    <!-- TECHNICAL -->
-
                     <div class="form-group">
-
                         <label for="technicalKnowledgeScore">
                             Technical Knowledge *
                         </label>
-
                         <div class="evaluation-score-input">
-
                             <input
                                 id="technicalKnowledgeScore"
                                 type="number"
@@ -1543,26 +1407,15 @@
                                 step="1"
                                 required
                             >
-
-                            <span class="evaluation-max">
-                                / 30
-                            </span>
-
+                            <span class="evaluation-max">/ 30</span>
                         </div>
-
                     </div>
 
-
-                    <!-- PROBLEM SOLVING -->
-
                     <div class="form-group">
-
                         <label for="problemSolvingScore">
                             Problem Solving *
                         </label>
-
                         <div class="evaluation-score-input">
-
                             <input
                                 id="problemSolvingScore"
                                 type="number"
@@ -1571,26 +1424,15 @@
                                 step="1"
                                 required
                             >
-
-                            <span class="evaluation-max">
-                                / 20
-                            </span>
-
+                            <span class="evaluation-max">/ 20</span>
                         </div>
-
                     </div>
 
-
-                    <!-- TEAMWORK -->
-
                     <div class="form-group">
-
                         <label for="teamworkScore">
                             Teamwork *
                         </label>
-
                         <div class="evaluation-score-input">
-
                             <input
                                 id="teamworkScore"
                                 type="number"
@@ -1599,26 +1441,15 @@
                                 step="1"
                                 required
                             >
-
-                            <span class="evaluation-max">
-                                / 15
-                            </span>
-
+                            <span class="evaluation-max">/ 15</span>
                         </div>
-
                     </div>
 
-
-                    <!-- PROFESSIONALISM -->
-
                     <div class="form-group">
-
                         <label for="professionalismScore">
                             Professionalism *
                         </label>
-
                         <div class="evaluation-score-input">
-
                             <input
                                 id="professionalismScore"
                                 type="number"
@@ -1627,63 +1458,33 @@
                                 step="1"
                                 required
                             >
-
-                            <span class="evaluation-max">
-                                / 15
-                            </span>
-
+                            <span class="evaluation-max">/ 15</span>
                         </div>
-
                     </div>
 
                 </div>
 
-
-                <!-- =================================================
-                     RESULT
-                     ================================================= -->
 
                 <div class="evaluation-result-box">
 
                     <div class="evaluation-result-item">
-
-                        <small>
-                            Total Score
-                        </small>
-
+                        <small>Total Score</small>
                         <strong>
-                            <span id="evaluationTotal">
-                                0
-                            </span>/100
+                            <span id="evaluationTotal">0</span>/100
                         </strong>
-
                     </div>
 
-
                     <div class="evaluation-result-item">
-
-                        <small>
-                            Interview Result
-                        </small>
-
+                        <small>Interview Result</small>
                         <strong id="evaluationResult">
                             —
                         </strong>
-
                     </div>
 
                 </div>
 
 
-                <!-- =================================================
-                     REMARKS
-                     ================================================= -->
-
-                <div
-                    class="form-group"
-                    style="margin-top:14px;"
-                >
-
+                <div class="form-group" style="margin-top:14px;">
                     <label for="evaluationRemarks">
                         Remarks
                     </label>
@@ -1693,13 +1494,8 @@
                         rows="4"
                         placeholder="Applicant demonstrated strong technical and communication skills."
                     ></textarea>
-
                 </div>
 
-
-                <!-- =================================================
-                     BUTTONS
-                     ================================================= -->
 
                 <div
                     class="button-row"
@@ -1713,7 +1509,6 @@
                     >
                         Cancel
                     </button>
-
 
                     <button
                         id="saveEvaluationButton"
@@ -1746,14 +1541,96 @@
          ================================================= -->
 
     <script src="js/config.js"></script>
-
     <script src="js/supabase.js"></script>
-
     <script src="js/auth.js"></script>
-
     <script src="js/components.js"></script>
-
     <script src="js/interviews.js"></script>
+
+
+    <script>
+document.addEventListener(
+    "click",
+    async function (event) {
+
+        const button = event.target.closest(
+            '#interviewsTable button[data-action="cancel"]'
+        );
+
+        if (!button) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        const interviewId =
+            button.dataset.id;
+
+        if (!interviewId) {
+            alert("Interview ID is missing.");
+            return;
+        }
+
+        const confirmed = confirm(
+            "Are you sure you want to cancel this interview?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            button.disabled = true;
+            button.textContent = "Cancelling...";
+
+            if (!window.rmsSupabase) {
+                throw new Error(
+                    "Supabase client is not initialized."
+                );
+            }
+
+            const { error } =
+                await window.rmsSupabase
+                    .from("interviews")
+                    .update({
+                        status: "Cancelled"
+                    })
+                    .eq(
+                        "interview_id",
+                        interviewId
+                    );
+
+            if (error) {
+                throw error;
+            }
+
+            alert(
+                "Interview cancelled successfully."
+            );
+
+            location.reload();
+
+        } catch (error) {
+
+            console.error(
+                "Cancel interview error:",
+                error
+            );
+
+            alert(
+                error.message ||
+                "Unable to cancel interview."
+            );
+
+            button.disabled = false;
+            button.textContent = "Cancel";
+        }
+
+    },
+    true
+);
+</script>
 
 </body>
 

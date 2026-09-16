@@ -2315,3 +2315,425 @@ textarea {
 
 }
 
+/* =========================================================
+   HIRING PAGE — DARKER + READABLE TEXT
+   ========================================================= */
+
+body[data-active="Hiring"] {
+    color: #111827;
+}
+
+
+/* Page heading */
+body[data-active="Hiring"] .page-intro h2 {
+    color: #111827 !important;
+    font-size: 30px;
+}
+
+
+body[data-active="Hiring"] .page-intro p:not(.eyebrow) {
+    color: #374151 !important;
+    font-size: 14px;
+}
+
+
+/* Eyebrow */
+body[data-active="Hiring"] .eyebrow {
+    color: #1d4ed8;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+   ========================================================= */
+
+body[data-active="Hiring"] .metric-card {
+    color: #111827;
+}
+
+
+body[data-active="Hiring"] .metric-label {
+    color: #374151 !important;
+    font-size: 13px;
+}
+
+
+body[data-active="Hiring"] .metric-value {
+    color: #111827 !important;
+    font-size: 32px;
+    opacity: 1 !important;
+}
+
+
+body[data-active="Hiring"] .metric-hint {
+    color: #4b5563 !important;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+body[data-active="Hiring"] .search-wrap input {
+    color: #111827 !important;
+    font-size: 14px;
+}
+
+
+body[data-active="Hiring"] .search-wrap input::placeholder {
+    color: #6b7280 !important;
+    opacity: 1;
+}
+
+
+body[data-active="Hiring"] .select-control {
+    color: #111827 !important;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   TABLE HEADERS
+   ========================================================= */
+
+body[data-active="Hiring"] .table-wrap th {
+    color: #374151 !important;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   TABLE CONTENT
+   ========================================================= */
+
+body[data-active="Hiring"] .table-wrap td {
+    color: #111827 !important;
+    font-size: 14px;
+}
+
+
+/* Applicant name */
+body[data-active="Hiring"] .table-wrap td strong {
+    color: #111827 !important;
+    opacity: 1 !important;
+    font-size: 14px;
+}
+
+
+/* Secondary applicant/job text */
+body[data-active="Hiring"] .table-wrap td span {
+    opacity: 1;
+}
+
+
+/* Position */
+body[data-active="Hiring"] .table-wrap td:nth-child(2) {
+    color: #111827 !important;
+}
+
+
+/* Scores */
+body[data-active="Hiring"] .table-wrap td:nth-child(3),
+body[data-active="Hiring"] .table-wrap td:nth-child(4),
+body[data-active="Hiring"] .table-wrap td:nth-child(5) {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+body[data-active="Hiring"] .table-action {
+    color: #111827 !important;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
+
+body[data-active="Hiring"] .status-badge {
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    body[data-active="Hiring"] .page-intro h2 {
+        font-size: 27px;
+    }
+
+    body[data-active="Hiring"] .page-intro p:not(.eyebrow) {
+        font-size: 14px;
+    }
+
+    body[data-active="Hiring"] .metric-value {
+        font-size: 30px;
+    }
+
+    body[data-active="Hiring"] .table-wrap td {
+        font-size: 13px;
+    }
+
+    body[data-active="Hiring"] .table-wrap td strong {
+        font-size: 14px;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    body[data-active="Hiring"] .page-intro h2 {
+        font-size: 25px;
+    }
+
+    body[data-active="Hiring"] .metric-value {
+        font-size: 28px;
+    }
+
+}
+
+/* =========================================================
+   HIRING PAGE — FINAL READABILITY OVERRIDE
+   ========================================================= */
+
+body[data-active="Hiring"] .page-intro h2 {
+    color: #111827 !important;
+    font-size: 30px !important;
+    font-weight: 700 !important;
+}
+
+
+body[data-active="Hiring"] .page-intro p:not(.eyebrow) {
+    color: #374151 !important;
+    font-size: 14px !important;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+   ========================================================= */
+
+body[data-active="Hiring"] .metric-card {
+    color: #111827 !important;
+}
+
+
+body[data-active="Hiring"] .metric-card .metric-label {
+    color: #374151 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+
+
+body[data-active="Hiring"] .metric-card .metric-value {
+    color: #111827 !important;
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+}
+
+
+body[data-active="Hiring"] .metric-card .metric-hint {
+    color: #4b5563 !important;
+    font-size: 12px !important;
+}
+
+
+/* =========================================================
+   SEARCH / FILTER
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionSearch {
+    color: #111827 !important;
+    font-size: 14px !important;
+}
+
+
+body[data-active="Hiring"] #selectionSearch::placeholder {
+    color: #6b7280 !important;
+    opacity: 1 !important;
+}
+
+
+body[data-active="Hiring"] #selectionFilter {
+    color: #111827 !important;
+    font-size: 14px !important;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionTable th {
+    color: #374151 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   TABLE TEXT
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionTable td {
+    color: #111827 !important;
+    font-size: 14px !important;
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   APPLICANT NAME
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionTable td strong {
+    color: #111827 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+}
+
+
+/* Applicant number / secondary text */
+body[data-active="Hiring"] #selectionTable td span {
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   POSITION
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionTable td:nth-child(2) {
+    color: #111827 !important;
+}
+
+
+body[data-active="Hiring"] #selectionTable td:nth-child(2) strong {
+    color: #111827 !important;
+}
+
+
+/* =========================================================
+   SCORES
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionTable td:nth-child(3),
+body[data-active="Hiring"] #selectionTable td:nth-child(4),
+body[data-active="Hiring"] #selectionTable td:nth-child(5) {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionTable .table-action {
+    color: #111827 !important;
+    font-size: 12px !important;
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionTable .status-badge {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    body[data-active="Hiring"] .page-intro h2 {
+        font-size: 27px !important;
+    }
+
+
+    body[data-active="Hiring"] .page-intro p:not(.eyebrow) {
+        font-size: 14px !important;
+    }
+
+
+    body[data-active="Hiring"] .metric-card .metric-value {
+        font-size: 30px !important;
+    }
+
+
+    body[data-active="Hiring"] #selectionTable td {
+        font-size: 13px !important;
+    }
+
+
+    body[data-active="Hiring"] #selectionTable td strong {
+        font-size: 14px !important;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    body[data-active="Hiring"] .page-intro h2 {
+        font-size: 25px !important;
+    }
+
+
+    body[data-active="Hiring"] .metric-card .metric-value {
+        font-size: 28px !important;
+    }
+
+}
+
+/* =========================================================
+   FINAL GLOBAL MODAL SAFETY
+   ========================================================= */
+
+.modal-backdrop {
+    z-index: 1000;
+    overscroll-behavior: contain;
+}
+
+.modal {
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+}
+
+@media (min-width: 701px) {
+    body:has(.modal-backdrop.open) {
+        overflow: hidden;
+    }
+}

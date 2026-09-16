@@ -698,7 +698,6 @@ async function handleJobSubmit(event) {
     if (submitButton) {
 
         submitButton.disabled = true;
-
         submitButton.textContent =
             editingJobId
                 ? "Saving..."
@@ -762,10 +761,23 @@ async function handleJobSubmit(event) {
             error
         );
 
-        // Show the actual Supabase error
-        const message =
+
+        let message =
             error?.message ||
             "Failed to save job posting.";
+
+
+        if (
+            error?.code === "23505" ||
+            String(error?.message || "")
+                .toLowerCase()
+                .includes("duplicate")
+        ) {
+
+            message =
+                "Job Code already exists.";
+        }
+
 
         showToast(
             message,
@@ -1702,3 +1714,168 @@ window.closeDeleteConfirm =
 
 window.confirmDeleteJob =
     confirmDeleteJob;
+
+/* =========================================================
+   RMS MODAL / ACTION VISUAL FIXES
+   - Keeps existing functionality and layout.
+   - View/Edit/Delete actions use the project's blue accent.
+   - Delete confirmation remains readable in both themes.
+   ========================================================= */
+(function injectJobPostingVisualFixes() {
+    if (document.getElementById("rmsJobPostingVisualFixes")) return;
+
+    const style = document.createElement("style");
+    style.id = "rmsJobPostingVisualFixes";
+    style.textContent = `
+        /* TABLE ACTION BUTTONS */
+        .table-actions .action-btn.view,
+        .table-actions .action-btn.edit,
+        .table-actions .action-btn.delete {
+            color: #2563eb !important;
+            border-color: rgba(37, 99, 235, 0.35) !important;
+            background: rgba(37, 99, 235, 0.10) !important;
+        }
+
+        .table-actions .action-btn.view:hover,
+        .table-actions .action-btn.edit:hover,
+        .table-actions .action-btn.delete:hover {
+            color: #1d4ed8 !important;
+            border-color: rgba(37, 99, 235, 0.65) !important;
+            background: rgba(37, 99, 235, 0.18) !important;
+        }
+
+        /* DELETE MODAL - common layout */
+        #deleteConfirmModal {
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 20px !important;
+        }
+
+        #deleteConfirmModal .delete-confirm-modal {
+            width: min(520px, calc(100vw - 40px)) !important;
+            max-width: 520px !important;
+            max-height: min(90vh, 520px) !important;
+            margin: auto !important;
+            overflow: hidden !important;
+        }
+
+        #deleteConfirmModal .delete-confirm-content {
+            padding: 6px 0 4px !important;
+        }
+
+        #deleteConfirmModal #deleteConfirmMessage {
+            margin: 0 !important;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+            font-weight: 500 !important;
+            word-break: break-word !important;
+        }
+
+        #deleteConfirmModal .delete-confirm-actions {
+            display: flex !important;
+            justify-content: flex-end !important;
+            align-items: center !important;
+            gap: 10px !important;
+            flex-wrap: wrap !important;
+        }
+
+        /* Light mode */
+        @media (prefers-color-scheme: light) {
+            #deleteConfirmModal .delete-confirm-modal {
+                background: rgba(255,255,255,0.96) !important;
+                color: #111827 !important;
+                border-color: rgba(17,24,39,0.12) !important;
+                box-shadow: 0 24px 70px rgba(15,23,42,0.20) !important;
+            }
+
+            #deleteConfirmModal .delete-confirm-modal h2,
+            #deleteConfirmModal .delete-confirm-modal p,
+            #deleteConfirmModal .delete-confirm-content,
+            #deleteConfirmModal .modal-head {
+                color: #111827 !important;
+            }
+
+            #deleteConfirmModal .delete-confirm-modal .modal-eyebrow,
+            #deleteConfirmModal .delete-confirm-modal .eyebrow {
+                color: #2563eb !important;
+            }
+
+            #deleteConfirmModal #deleteConfirmMessage {
+                color: #374151 !important;
+            }
+
+            #deleteConfirmModal .icon-button {
+                color: #374151 !important;
+            }
+
+            #deleteConfirmModal .btn.secondary {
+                color: #374151 !important;
+                background: #f3f4f6 !important;
+                border-color: #d1d5db !important;
+            }
+
+            #deleteConfirmModal .btn.danger {
+                color: #b91c1c !important;
+                background: #fef2f2 !important;
+                border-color: rgba(185,28,28,0.28) !important;
+            }
+        }
+
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+            #deleteConfirmModal .delete-confirm-modal {
+                background: rgba(21,25,29,0.98) !important;
+                color: #f3f4f6 !important;
+                border-color: rgba(255,255,255,0.10) !important;
+                box-shadow: 0 24px 70px rgba(0,0,0,0.45) !important;
+            }
+
+            #deleteConfirmModal .delete-confirm-modal h2,
+            #deleteConfirmModal .delete-confirm-modal p,
+            #deleteConfirmModal .delete-confirm-content,
+            #deleteConfirmModal .modal-head {
+                color: #f3f4f6 !important;
+            }
+
+            #deleteConfirmModal .delete-confirm-modal .modal-eyebrow,
+            #deleteConfirmModal .delete-confirm-modal .eyebrow {
+                color: #60a5fa !important;
+            }
+
+            #deleteConfirmModal #deleteConfirmMessage {
+                color: #e5e7eb !important;
+            }
+
+            #deleteConfirmModal .icon-button {
+                color: #d1d5db !important;
+            }
+        }
+
+        /* Explicit data-theme support when the project theme switcher is used */
+        html[data-theme="light"] #deleteConfirmModal .delete-confirm-modal {
+            background: rgba(255,255,255,0.96) !important;
+            color: #111827 !important;
+            border-color: rgba(17,24,39,0.12) !important;
+        }
+        html[data-theme="light"] #deleteConfirmModal #deleteConfirmMessage {
+            color: #374151 !important;
+        }
+        html[data-theme="light"] #deleteConfirmModal .modal-eyebrow,
+        html[data-theme="light"] #deleteConfirmModal .eyebrow {
+            color: #2563eb !important;
+        }
+        html[data-theme="dark"] #deleteConfirmModal .delete-confirm-modal {
+            background: rgba(21,25,29,0.98) !important;
+            color: #f3f4f6 !important;
+            border-color: rgba(255,255,255,0.10) !important;
+        }
+        html[data-theme="dark"] #deleteConfirmModal #deleteConfirmMessage {
+            color: #e5e7eb !important;
+        }
+        html[data-theme="dark"] #deleteConfirmModal .modal-eyebrow,
+        html[data-theme="dark"] #deleteConfirmModal .eyebrow {
+            color: #60a5fa !important;
+        }
+    `;
+    document.head.appendChild(style);
+})();

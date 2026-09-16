@@ -1,87 +1,152 @@
 /* =========================================================
    RECRUITMENT MANAGEMENT SYSTEM
    GLOBAL RESPONSIVE LAYOUT
-   DESKTOP + TABLET + MOBILE
-========================================================= */
+   ========================================================= */
 
-html,
+
+/* =========================================================
+   GLOBAL SAFETY
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+
+html {
+    width: 100%;
+    min-width: 0;
+}
+
+
 body {
     width: 100%;
+    min-width: 0;
     max-width: 100%;
-    margin: 0;
     overflow-x: hidden;
 }
 
-* {
-    box-sizing: border-box;
-}
 
 img,
 svg,
 video,
 canvas {
     max-width: 100%;
+    height: auto;
+}
+
+
+button,
+input,
+select,
+textarea {
+    max-width: 100%;
+}
+
+
+input,
+select,
+textarea {
+    min-width: 0;
 }
 
 
 /* =========================================================
-   SHARED APP LAYOUT
-========================================================= */
+   MAIN APP LAYOUT
+   ========================================================= */
 
 .app-page {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     min-height: 100vh;
-    overflow-x: hidden;
 }
+
 
 .app-main {
-    min-width: 0;
-    width: 100%;
-}
-
-.page-content {
     width: 100%;
     min-width: 0;
+    max-width: 100%;
 }
 
 
 /* =========================================================
    SIDEBAR
-========================================================= */
+   ========================================================= */
 
 .sidebar {
-    transition:
-        transform 0.25s ease,
-        opacity 0.25s ease;
+    flex-shrink: 0;
+}
+
+
+/* Prevent long names/roles from pushing layout */
+
+.brand-block,
+.user-mini,
+.user-mini-text {
+    min-width: 0;
+}
+
+
+.brand-title,
+.brand-subtitle,
+.user-mini-text strong,
+.user-mini-text span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.sidebar-nav {
+    min-width: 0;
+}
+
+
+.nav-item {
+    min-width: 0;
+}
+
+
+.nav-item > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 
 /* =========================================================
    TOPBAR
-========================================================= */
+   ========================================================= */
 
 .topbar {
     width: 100%;
     min-width: 0;
 }
 
+
 .topbar-left {
+    min-width: 0;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+}
+
+
+.topbar-left > div:last-child {
     min-width: 0;
 }
 
-.topbar-title-wrap {
-    min-width: 0;
-}
 
-.topbar-left .eyebrow,
-.topbar-left h1 {
+.topbar h1 {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 
 .topbar-actions {
     flex-shrink: 0;
@@ -89,658 +154,653 @@ canvas {
 
 
 /* =========================================================
-   UNIVERSAL MENU BUTTON
-   Works on PC, tablet and mobile
-========================================================= */
+   PAGE CONTENT
+   ========================================================= */
 
-.mobile-menu-button {
-    width: 38px;
-    height: 38px;
-
-    flex: 0 0 38px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 0;
-
-    border: 1px solid var(--line);
-    border-radius: 10px;
-
-    background: rgba(255, 255, 255, 0.70);
-
-    color: var(--text);
-
-    font-family: inherit;
-    font-size: 19px;
-    line-height: 1;
-
-    cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease;
-}
-
-.mobile-menu-button:hover {
-    background: rgba(255, 255, 255, 0.92);
-}
-
-.mobile-menu-button:active {
-    transform: scale(0.96);
-}
-
-
-/* =========================================================
-   PAGE HEADER
-========================================================= */
-
-.page-intro {
+.page-content {
     width: 100%;
     min-width: 0;
+    max-width: 100%;
 }
+
+
+.page-intro {
+    min-width: 0;
+}
+
 
 .page-intro > div {
     min-width: 0;
 }
 
+
 .page-intro h2,
 .page-intro p {
-    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   RESPONSIVE CONTAINERS
+   ========================================================= */
+
+.content-grid,
+.two-column,
+.metric-grid,
+.form-grid,
+.profile-grid,
+.details-grid {
+    width: 100%;
+    min-width: 0;
+}
+
+
+.metric-card,
+.section-card,
+.profile-item,
+.detail-block,
+.form-group {
+    min-width: 0;
 }
 
 
 /* =========================================================
    TOOLBAR
-========================================================= */
+   ========================================================= */
 
 .toolbar {
     width: 100%;
     min-width: 0;
 }
 
+
 .search-wrap {
     min-width: 0;
+    width: 100%;
 }
+
 
 .search-wrap input {
     min-width: 0;
 }
 
 
-/* =========================================================
-   CONTENT GRIDS
-========================================================= */
-
-.content-grid,
-.metric-grid,
-.form-grid,
-.application-grid,
-.profile-grid,
-.job-summary {
-    width: 100%;
-    min-width: 0;
+.select-control {
+    max-width: 100%;
 }
 
 
 /* =========================================================
    TABLES
-========================================================= */
+   ========================================================= */
+
+/*
+   Tables remain readable.
+
+   On smaller screens the table scrolls horizontally
+   inside its own container rather than breaking the
+   entire page layout.
+*/
 
 .table-wrap {
     width: 100%;
     max-width: 100%;
+    min-width: 0;
     overflow-x: auto;
     overflow-y: hidden;
-
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
 }
+
 
 .table-wrap table {
     width: 100%;
 }
 
 
-/* =========================================================
-   FORMS
-========================================================= */
+/*
+   Do NOT let a large table create page-level
+   horizontal scrolling.
+*/
 
-.form-grid > *,
-.application-grid > *,
-.profile-grid > * {
+.table-wrap th,
+.table-wrap td {
+    max-width: 320px;
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   BUTTON GROUPS
+   ========================================================= */
+
+.button-row,
+.form-footer,
+.table-actions {
     min-width: 0;
 }
 
-input,
-select,
-textarea,
-button {
-    max-width: 100%;
-}
 
-textarea {
-    width: 100%;
-}
-
-
-/* =========================================================
-   BUTTONS
-========================================================= */
-
-.button-row {
+.table-actions {
     flex-wrap: wrap;
-}
-
-.button-row .btn {
-    flex-shrink: 0;
 }
 
 
 /* =========================================================
    MODALS
-========================================================= */
+   ========================================================= */
 
 .modal-backdrop {
-    overflow-y: auto;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100vh;
+    padding: 20px;
+    overflow: auto;
+    overscroll-behavior: contain;
 }
+
 
 .modal {
     width: min(760px, 100%);
     max-width: 100%;
-    max-height: calc(100vh - 30px);
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: auto;
 }
 
-.application-modal-body {
-    max-height: calc(100vh - 30px);
+
+/*
+   Allow large modal contents to shrink instead
+   of pushing outside the screen.
+*/
+
+.modal *,
+.modal-content,
+.modal-body {
+    min-width: 0;
 }
 
 
-/* =========================================================
-   DESKTOP
-   1200px+
-========================================================= */
+.modal-head {
+    min-width: 0;
+}
 
-@media (min-width: 1200px) {
 
-    /*
-       Existing style.css already reserves the sidebar
-       with 292px left padding.
-    */
+.modal-head > div {
+    min-width: 0;
+}
 
-    .app-main {
-        width: 100%;
-        margin-left: 0;
-        padding-left: 292px;
-        padding-right: 22px;
-    }
 
-    .page-content {
-        width: 100%;
-    }
-
-    .sidebar {
-        transform: translateX(0);
-    }
-
-    /*
-       Sidebar is visible by default.
-    */
-
-    .mobile-sidebar-overlay {
-        display: none;
-    }
-
+.modal-head h3 {
+    overflow-wrap: anywhere;
 }
 
 
 /* =========================================================
-   STANDARD LAPTOP / SMALL DESKTOP
-   901px - 1199px
-========================================================= */
+   1200px — SMALL DESKTOP / LAPTOP
+   ========================================================= */
 
-@media (min-width: 901px) and (max-width: 1199px) {
-
-    .app-main {
-        width: 100%;
-        margin-left: 0;
-
-        padding-left: 270px !important;
-        padding-right: 18px !important;
-    }
-
-    .page-content {
-        width: 100%;
-        padding: 24px 0 28px;
-    }
+@media (max-width: 1200px) {
 
     .sidebar {
         width: 238px;
-        inset: 14px auto 14px 14px;
+        left: 16px;
+        top: 16px;
+        bottom: 16px;
     }
+
+
+    .app-main {
+        padding-left: 270px;
+        padding-right: 18px;
+    }
+
 
     .metric-grid {
         grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+            repeat(
+                3,
+                minmax(0, 1fr)
+            );
     }
+
 
     .two-column {
         grid-template-columns:
-            minmax(0, 1.4fr)
-            minmax(260px, 0.9fr);
+            1.4fr 1fr;
+    }
+
+
+    .page-intro h2 {
+        font-size: 27px;
     }
 
 }
 
 
 /* =========================================================
-   TABLET
-   601px - 900px
-========================================================= */
+   1024px — TABLET LANDSCAPE / SMALL LAPTOP
+   ========================================================= */
 
-@media (max-width: 900px) {
-
-    /* Main application */
-
-    .app-main {
-        width: 100%;
-        margin-left: 0;
-
-        padding-left: 18px !important;
-        padding-right: 18px !important;
-    }
-
-    .page-content {
-        width: 100%;
-        padding: 20px 0 28px;
-    }
-
-
-    /* Sidebar becomes drawer */
+@media (max-width: 1024px) {
 
     .sidebar {
-        width: 270px;
-
-        inset: 12px auto 12px 12px;
-
-        transform: translateX(
-            calc(-100% - 30px)
-        );
-
-        z-index: 40;
-    }
-
-    .sidebar.sidebar-open {
-        transform: translateX(0);
+        width: 230px;
     }
 
 
-    /* Overlay */
-
-    .mobile-sidebar-overlay {
-        position: fixed;
-        inset: 0;
-
-        background:
-            rgba(20, 31, 44, 0.20);
-
-        opacity: 0;
-        visibility: hidden;
-
-        pointer-events: none;
-
-        transition:
-            opacity 0.25s ease,
-            visibility 0.25s ease;
-
-        z-index: 39;
-    }
-
-    .mobile-sidebar-overlay.visible {
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
+    .app-main {
+        padding-left: 260px;
+        padding-right: 16px;
     }
 
 
-    /* Page header */
-
-    .page-intro {
-        align-items: flex-start;
-    }
-
-
-    /* Metric cards */
-
-    .metric-grid,
-    .stats-grid,
-    .dashboard-grid,
-    .cards-grid {
+    .metric-grid {
         grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
     }
 
-
-    /* Content grids */
 
     .two-column {
         grid-template-columns: 1fr;
     }
 
 
-    /* Forms */
-
-    .form-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
-
-
-    /* Applications */
-
-    .application-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
-
-
-    /* Profile */
-
-    .profile-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-    }
-
-
-    /* Toolbar */
-
-    .toolbar {
-        flex-wrap: wrap;
-    }
-
-    .search-wrap {
-        flex: 1 1 300px;
-    }
-
-    .select-control {
-        flex: 0 1 220px;
-    }
-
-
-    /* Tables */
-
-    .table-wrap table {
-        min-width: 700px;
-    }
-
-
-    /* Modals */
-
-    .modal {
-        width: calc(100% - 30px);
-        max-width: 760px;
-
-        max-height:
-            calc(100vh - 30px);
-
-        margin: 15px;
-    }
-
-}
-
-
-/* =========================================================
-   LARGE PHONE / SMALL TABLET
-   481px - 600px
-========================================================= */
-
-@media (max-width: 600px) {
-
-    .app-main {
-        padding-left: 12px !important;
-        padding-right: 12px !important;
-    }
-
-    .page-content {
-        padding: 16px 0 24px;
-    }
-
-
-    /* Topbar */
-
-    .topbar {
-        min-height: 68px;
-        padding: 12px 14px;
-    }
-
-    .topbar-left {
-        gap: 9px;
-    }
-
-    .mobile-menu-button {
-        width: 36px;
-        height: 36px;
-        flex-basis: 36px;
-        font-size: 18px;
-    }
-
-    .topbar h1 {
-        font-size: 18px;
-    }
-
-    .topbar-left .eyebrow {
-        font-size: 9px;
-    }
-
-    .topbar-actions .status-pill {
-        display: none;
-    }
-
-
-    /* Header */
-
     .page-intro {
-        flex-direction: column;
-        align-items: stretch;
+        gap: 14px;
     }
 
-    .page-intro .btn {
-        width: 100%;
-    }
 
     .page-intro h2 {
         font-size: 26px;
     }
 
 
-    /* Metric cards */
-
-    .metric-grid,
-    .stats-grid,
-    .dashboard-grid,
-    .cards-grid {
-        grid-template-columns: 1fr;
+    .section-card {
+        padding: 16px;
     }
 
-
-    /* Content grids */
-
-    .content-grid,
-    .two-column {
-        grid-template-columns: 1fr;
-    }
-
-
-    /* Forms */
-
-    .form-grid,
-    .application-grid,
-    .profile-grid {
-        grid-template-columns: 1fr;
-    }
-
-
-    .full-width,
-    .full-field,
-    .application-section-full,
-    .profile-item-full {
-        grid-column: auto;
-    }
-
-
-    /* Toolbar */
-
-    .toolbar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .search-wrap,
-    .select-control {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .select-control {
-        min-width: 0;
-    }
-
-
-    /* Job details */
-
-    .job-summary {
-        grid-template-columns: 1fr;
-    }
-
-
-    /* Buttons */
-
-    .button-row {
-        flex-direction: column;
-        align-items: stretch;
-        width: 100%;
-    }
-
-    .button-row .btn {
-        width: 100%;
-    }
-
-
-    /* Tables */
 
     .table-wrap {
-        margin-right: 0;
-        padding-bottom: 3px;
-    }
-
-    .table-wrap table {
-        min-width: 700px;
-    }
-
-
-    /* Modal */
-
-    .modal-backdrop {
-        align-items: flex-start;
-        padding: 10px;
-    }
-
-    .modal {
-        width: 100%;
-        max-width: none;
-
-        max-height:
-            calc(100vh - 20px);
-
-        margin: 0;
-
-        border-radius: 18px;
-    }
-
-    .application-modal-body {
-        max-height:
-            calc(100vh - 20px);
-    }
-
-
-    /* Sidebar */
-
-    .sidebar {
-        width: min(
-            290px,
-            calc(100vw - 20px)
-        );
-
-        inset: 10px auto 10px 10px;
+        overflow-x: auto;
     }
 
 }
 
 
 /* =========================================================
-   MOBILE
-   480px and below
-========================================================= */
+   900px — MOBILE SIDEBAR MODE
+   ========================================================= */
 
-@media (max-width: 480px) {
+@media (max-width: 900px) {
+
+    body {
+        overflow-x: hidden;
+    }
+
+
+    /* -----------------------------------------------------
+       SIDEBAR
+       ----------------------------------------------------- */
+
+    .sidebar {
+        width: min(
+            280px,
+            calc(100vw - 24px)
+        );
+
+        left: 12px;
+        top: 12px;
+        bottom: 12px;
+
+        transform:
+            translateX(
+                calc(
+                    -100% -
+                    40px
+                )
+            );
+
+        transition:
+            transform
+            .25s
+            ease;
+
+        z-index: 100;
+    }
+
+
+    .sidebar.mobile-open,
+    .sidebar.sidebar-open {
+        transform:
+            translateX(0);
+    }
+
+
+    /* -----------------------------------------------------
+       MAIN
+       ----------------------------------------------------- */
 
     .app-main {
-        padding-left: 8px !important;
-        padding-right: 8px !important;
+        width: 100%;
+        padding:
+            14px
+            14px
+            24px;
     }
 
-    .page-content {
-        padding-left: 4px;
-        padding-right: 4px;
-    }
 
-
-    /* Topbar */
+    /* -----------------------------------------------------
+       TOPBAR
+       ----------------------------------------------------- */
 
     .topbar {
-        padding: 11px 12px;
-        border-radius: 15px;
+        top: 12px;
+        min-height: 68px;
+        padding:
+            12px
+            14px;
     }
 
-    .topbar h1 {
-        font-size: 16px;
-    }
-
-    .topbar-left .eyebrow {
-        font-size: 8px;
-        letter-spacing: 0.08em;
-    }
 
     .mobile-menu-button {
-        width: 34px;
-        height: 34px;
-        flex-basis: 34px;
+        display: grid;
+        flex-shrink: 0;
     }
 
 
-    /* Page */
+    .status-pill {
+        display: none;
+    }
+
+
+    .topbar h1 {
+        font-size: 19px;
+    }
+
+
+    /* -----------------------------------------------------
+       CONTENT
+       ----------------------------------------------------- */
+
+    .page-content {
+        padding:
+            20px
+            0
+            10px;
+    }
+
+
+    .page-intro {
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+        width: 100%;
+    }
+
+
+    .page-intro .btn {
+        width: 100%;
+    }
+
+
+    /* -----------------------------------------------------
+       METRICS
+       ----------------------------------------------------- */
+
+    .metric-grid {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+
+        gap: 12px;
+    }
+
+
+    /* -----------------------------------------------------
+       FORMS
+       ----------------------------------------------------- */
+
+    .form-grid {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+    }
+
+
+    /* -----------------------------------------------------
+       PROFILE / DETAILS
+       ----------------------------------------------------- */
+
+    .profile-grid,
+    .details-grid {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+    }
+
+
+    /* -----------------------------------------------------
+       TOOLBAR
+       ----------------------------------------------------- */
+
+    .toolbar {
+        flex-direction:
+            column;
+
+        align-items:
+            stretch;
+    }
+
+
+    .select-control {
+        width: 100%;
+        min-width: 0;
+    }
+
+
+    /* -----------------------------------------------------
+       MODAL
+       ----------------------------------------------------- */
+
+    .modal-backdrop {
+        padding: 14px;
+    }
+
+
+    .modal {
+        width: 100%;
+        max-width: 100%;
+        max-height:
+            calc(
+                100dvh - 28px
+            );
+
+        padding: 17px;
+        border-radius: 18px;
+    }
+
+
+    /* -----------------------------------------------------
+       OVERLAY
+       ----------------------------------------------------- */
+
+    .mobile-sidebar-overlay {
+        position: fixed;
+        inset: 0;
+
+        background:
+            rgba(
+                12,
+                18,
+                25,
+                .42
+            );
+
+        backdrop-filter:
+            blur(2px);
+
+        -webkit-backdrop-filter:
+            blur(2px);
+
+        opacity: 0;
+        visibility: hidden;
+
+        transition:
+            opacity
+            .25s
+            ease;
+
+        z-index: 90;
+    }
+
+
+    .mobile-sidebar-overlay.visible,
+    .mobile-sidebar-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+}
+
+
+/* =========================================================
+   768px — TABLET PORTRAIT
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .app-main {
+        padding:
+            12px
+            12px
+            22px;
+    }
+
+
+    .topbar {
+        min-height: 64px;
+        padding:
+            11px
+            13px;
+        border-radius: 16px;
+    }
+
+
+    .page-content {
+        padding:
+            18px
+            0
+            8px;
+    }
+
+
+    .page-intro {
+        margin-bottom: 16px;
+    }
+
 
     .page-intro h2 {
-        font-size: 24px;
-    }
-
-    .page-intro p {
-        font-size: 12px;
+        font-size: 25px;
     }
 
 
-    /* Cards */
+    .eyebrow {
+        font-size: 10px;
+    }
+
+
+    /* -----------------------------------------------------
+       METRICS
+       ----------------------------------------------------- */
+
+    .metric-grid {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+    }
+
 
     .metric-card {
-        padding: 16px;
+        padding: 15px;
     }
+
 
     .metric-value {
-        font-size: 27px;
+        font-size: 28px;
     }
 
 
-    /* Section cards */
+    /* -----------------------------------------------------
+       FORMS
+       ----------------------------------------------------- */
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .full-field {
+        grid-column:
+            auto;
+    }
+
+
+    /* -----------------------------------------------------
+       DETAILS
+       ----------------------------------------------------- */
+
+    .profile-grid,
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .profile-item-full,
+    .detail-full {
+        grid-column:
+            auto;
+    }
+
+
+    /* -----------------------------------------------------
+       BUTTONS
+       ----------------------------------------------------- */
+
+    .button-row,
+    .form-footer {
+        flex-direction:
+            column;
+
+        align-items:
+            stretch;
+    }
+
+
+    .button-row .btn,
+    .form-footer .btn {
+        width: 100%;
+    }
+
+
+    /* -----------------------------------------------------
+       SECTIONS
+       ----------------------------------------------------- */
 
     .section-card {
         padding: 14px;
@@ -748,30 +808,392 @@ textarea {
     }
 
 
-    /* Tables */
+    .section-header {
+        align-items:
+            flex-start;
 
-    .table-wrap table {
-        min-width: 650px;
+        flex-direction:
+            column;
+
+        gap: 8px;
     }
 
 
-    /* Application */
+    /* -----------------------------------------------------
+       TABLE
+       ----------------------------------------------------- */
 
-    .application-section {
+    .table-wrap {
+        margin-inline:
+            -2px;
+    }
+
+
+    .table-wrap table {
+        min-width:
+            720px;
+    }
+
+
+    /* -----------------------------------------------------
+       LOGIN
+       ----------------------------------------------------- */
+
+    .login-wrap {
+        width:
+            min(
+                450px,
+                calc(
+                    100vw - 28px
+                )
+            );
+    }
+
+
+    .login-card {
+        padding: 24px;
+        border-radius: 20px;
+    }
+
+
+    .login-heading h1 {
+        font-size: 26px;
+    }
+
+}
+
+
+/* =========================================================
+   600px — MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .app-main {
+        padding:
+            10px
+            10px
+            20px;
+    }
+
+
+    .topbar {
+        top: 10px;
+        min-height: 62px;
+        padding:
+            10px
+            11px;
+    }
+
+
+    .topbar h1 {
+        font-size: 18px;
+    }
+
+
+    .topbar-actions {
+        gap: 6px;
+    }
+
+
+    .avatar-top {
+        margin-left: 0;
+    }
+
+
+    .page-content {
+        padding:
+            16px
+            0
+            8px;
+    }
+
+
+    .page-intro h2 {
+        font-size: 23px;
+    }
+
+
+    .page-intro p:not(.eyebrow) {
+        font-size: 12px;
+    }
+
+
+    /* -----------------------------------------------------
+       METRICS
+       ----------------------------------------------------- */
+
+    .metric-grid {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .metric-card {
         padding: 14px;
     }
 
 
-    /* Profile */
-
-    .profile-item {
-        padding: 12px;
+    .metric-value {
+        font-size: 27px;
     }
 
 
-    /* Forms */
+    /* -----------------------------------------------------
+       TOOLBAR
+       ----------------------------------------------------- */
+
+    .toolbar {
+        gap: 9px;
+    }
+
+
+    /* -----------------------------------------------------
+       TABLE
+       ----------------------------------------------------- */
+
+    .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+
+    .table-wrap table {
+        min-width:
+            680px;
+    }
+
+
+    .table-wrap th,
+    .table-wrap td {
+        padding:
+            10px
+            9px;
+
+        font-size: 11px;
+    }
+
+
+    .table-actions {
+        flex-wrap: wrap;
+    }
+
+
+    /* -----------------------------------------------------
+       MODAL
+       ----------------------------------------------------- */
+
+    .modal-backdrop {
+        padding: 10px;
+    }
+
 
     .modal {
+        width: 100%;
+        padding: 15px;
+        border-radius: 16px;
+    }
+
+
+    .modal-head {
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+
+    .modal-head h3 {
+        font-size: 19px;
+    }
+
+
+    /* -----------------------------------------------------
+       LOGIN
+       ----------------------------------------------------- */
+
+    .login-card {
+        padding: 21px;
+    }
+
+
+    .login-heading h1 {
+        font-size: 24px;
+    }
+
+}
+
+
+/* =========================================================
+   480px — SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .sidebar {
+        width:
+            calc(
+                100vw - 20px
+            );
+
+        left: 10px;
+        top: 10px;
+        bottom: 10px;
+    }
+
+
+    .app-main {
+        padding:
+            8px
+            8px
+            18px;
+    }
+
+
+    .topbar {
+        top: 8px;
+        min-height: 60px;
+        padding:
+            9px
+            10px;
+        border-radius: 14px;
+    }
+
+
+    .topbar h1 {
+        font-size: 17px;
+    }
+
+
+    .page-content {
+        padding:
+            14px
+            0
+            6px;
+    }
+
+
+    .page-intro h2 {
+        font-size: 22px;
+    }
+
+
+    .section-card {
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+
+    /* -----------------------------------------------------
+       TABLE
+       ----------------------------------------------------- */
+
+    .table-wrap table {
+        min-width:
+            640px;
+    }
+
+
+    /* -----------------------------------------------------
+       MODAL
+       ----------------------------------------------------- */
+
+    .modal {
+        padding: 14px;
+    }
+
+
+    .icon-button {
+        width: 32px;
+        height: 32px;
+    }
+
+
+    /* -----------------------------------------------------
+       LOGIN
+       ----------------------------------------------------- */
+
+    .login-wrap {
+        width:
+            calc(
+                100vw - 20px
+            );
+    }
+
+
+    .login-card {
+        padding: 18px;
+        border-radius: 18px;
+    }
+
+}
+
+
+/* =========================================================
+   380px — VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    .app-main {
+        padding-inline: 6px;
+    }
+
+
+    .topbar {
+        padding-inline: 8px;
+    }
+
+
+    .topbar h1 {
+        font-size: 16px;
+    }
+
+
+    .page-content {
+        padding-inline: 0;
+    }
+
+
+    .page-intro h2 {
+        font-size: 20px;
+    }
+
+
+    .metric-card {
+        padding: 13px;
+    }
+
+
+    .metric-value {
+        font-size: 25px;
+    }
+
+
+    .table-wrap table {
+        min-width:
+            600px;
+    }
+
+
+    .modal-backdrop {
+        padding: 6px;
+    }
+
+
+    .modal {
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+
+    .login-wrap {
+        width:
+            calc(
+                100vw - 12px
+            );
+    }
+
+
+    .login-card {
         padding: 16px;
     }
 
@@ -779,48 +1201,36 @@ textarea {
 
 
 /* =========================================================
-   VERY SMALL PHONES
-   380px and below
-========================================================= */
+   LANDSCAPE PHONE
+   ========================================================= */
 
-@media (max-width: 380px) {
+@media (
+    max-width: 900px
+) and (
+    orientation: landscape
+) {
 
-    .app-main {
-        padding-left: 5px !important;
-        padding-right: 5px !important;
+    .sidebar {
+        width:
+            min(
+                300px,
+                72vw
+            );
     }
 
-    .page-content {
-        padding-left: 3px;
-        padding-right: 3px;
-    }
-
-
-    .topbar {
-        padding: 9px 10px;
-    }
-
-    .mobile-menu-button {
-        width: 32px;
-        height: 32px;
-        flex-basis: 32px;
-        font-size: 17px;
-    }
-
-    .topbar h1 {
-        font-size: 15px;
-    }
-
-    .page-intro h2 {
-        font-size: 22px;
-    }
-
-    .section-card {
-        padding: 12px;
-    }
 
     .modal {
-        padding: 14px;
+        max-height:
+            calc(
+                100dvh - 16px
+            );
+    }
+
+
+    .modal-backdrop {
+        padding: 8px;
+        align-items:
+            flex-start;
     }
 
 }
@@ -828,25 +1238,19 @@ textarea {
 
 /* =========================================================
    TOUCH DEVICES
-========================================================= */
+   ========================================================= */
 
 @media (hover: none) and (pointer: coarse) {
 
-    .nav-item,
     .btn,
+    .nav-item,
     .table-action,
-    .mobile-menu-button,
-    .icon-button {
-        -webkit-tap-highlight-color: transparent;
+    .icon-button,
+    button,
+    select {
+        min-height: 40px;
     }
 
-    .nav-item {
-        min-height: 44px;
-    }
-
-    .btn {
-        min-height: 42px;
-    }
 
     .table-action {
         min-height: 38px;
@@ -856,8 +1260,8 @@ textarea {
 
 
 /* =========================================================
-   ACCESSIBILITY / REDUCED MOTION
-========================================================= */
+   REDUCED MOTION
+   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
 
@@ -865,15 +1269,1010 @@ textarea {
     *::before,
     *::after {
         scroll-behavior: auto !important;
-
-        transition-duration:
-            0.01ms !important;
-
         animation-duration:
             0.01ms !important;
-
         animation-iteration-count:
             1 !important;
+        transition-duration:
+            0.01ms !important;
     }
 
+}
+
+/* =========================================================
+   GLOBAL READABILITY — LARGE VERSION
+   ========================================================= */
+
+/* Navigation */
+.nav-item {
+    font-size: 16px;
+    padding: 13px 12px;
+}
+
+.nav-icon {
+    width: 24px;
+    font-size: 18px;
+}
+
+
+/* Brand */
+.brand-title {
+    font-size: 17px;
+}
+
+.brand-subtitle {
+    font-size: 12px;
+}
+
+
+/* Topbar */
+.topbar h1 {
+    font-size: 24px;
+}
+
+.topbar .eyebrow {
+    font-size: 12px;
+}
+
+
+/* Page header */
+.page-intro h2 {
+    font-size: 32px;
+}
+
+.page-intro p:not(.eyebrow) {
+    font-size: 15px;
+}
+
+
+/* Section headers */
+.section-header h3 {
+    font-size: 19px;
+}
+
+.section-header p {
+    font-size: 14px;
+}
+
+
+/* Metric cards */
+.metric-label {
+    font-size: 14px;
+}
+
+.metric-value {
+    font-size: 36px;
+}
+
+.metric-hint {
+    font-size: 13px;
+}
+
+
+/* Search / forms */
+input,
+select,
+textarea,
+.select-control {
+    font-size: 15px;
+    padding: 12px 13px;
+}
+
+
+.form-grid label,
+.form-stack label {
+    font-size: 14px;
+}
+
+
+/* Buttons */
+.btn {
+    font-size: 15px;
+    padding: 12px 17px;
+}
+
+
+/* Tables */
+th {
+    font-size: 12px;
+}
+
+td {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.table-action {
+    font-size: 12px;
+    padding: 9px 11px;
+}
+
+
+/* Status */
+.status-badge {
+    font-size: 12px;
+    padding: 6px 10px;
+}
+
+
+/* Profile / details */
+.profile-item small,
+.detail-block small {
+    font-size: 12px;
+}
+
+.profile-item > div,
+.detail-block strong {
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+
+/* Modal */
+.modal-head h3 {
+    font-size: 25px;
+}
+
+
+/* Sidebar user */
+.user-mini-text strong {
+    font-size: 14px;
+}
+
+.user-mini-text span {
+    font-size: 12px;
+}
+
+
+/* Toast */
+.toast {
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .nav-item {
+        font-size: 15px;
+    }
+
+    .topbar h1 {
+        font-size: 22px;
+    }
+
+    .page-intro h2 {
+        font-size: 29px;
+    }
+
+    .page-intro p:not(.eyebrow) {
+        font-size: 14px;
+    }
+
+    .metric-label {
+        font-size: 14px;
+    }
+
+    .metric-value {
+        font-size: 32px;
+    }
+
+    th {
+        font-size: 12px;
+    }
+
+    td {
+        font-size: 14px;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .nav-item {
+        font-size: 15px;
+        padding: 13px 12px;
+    }
+
+    .brand-title {
+        font-size: 16px;
+    }
+
+    .brand-subtitle {
+        font-size: 11px;
+    }
+
+    .topbar h1 {
+        font-size: 21px;
+    }
+
+    .page-intro h2 {
+        font-size: 27px;
+    }
+
+    .page-intro p:not(.eyebrow) {
+        font-size: 14px;
+    }
+
+    .metric-label {
+        font-size: 14px;
+    }
+
+    .metric-value {
+        font-size: 31px;
+    }
+
+    input,
+    select,
+    textarea,
+    .select-control {
+        font-size: 15px;
+    }
+
+    .btn {
+        font-size: 14px;
+    }
+
+    th {
+        font-size: 12px;
+    }
+
+    td {
+        font-size: 14px;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .nav-item {
+        font-size: 15px;
+    }
+
+    .topbar h1 {
+        font-size: 20px;
+    }
+
+    .page-intro h2 {
+        font-size: 25px;
+    }
+
+    .page-intro p:not(.eyebrow) {
+        font-size: 14px;
+    }
+
+    .metric-value {
+        font-size: 30px;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 15px;
+    }
+
+    .btn {
+        font-size: 14px;
+    }
+
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    .nav-item {
+        font-size: 14px;
+    }
+
+    .topbar h1 {
+        font-size: 19px;
+    }
+
+    .page-intro h2 {
+        font-size: 24px;
+    }
+
+    .metric-value {
+        font-size: 28px;
+    }
+
+}
+
+
+/* =========================================================
+   EMPLOYEE DETAILS MODAL
+   ========================================================= */
+
+.employee-modal {
+    width: min(760px, calc(100vw - 40px));
+    max-width: 760px;
+}
+
+
+#viewEmployeeBody.employee-detail-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0, 1fr)
+        );
+    gap: 12px;
+}
+
+
+#viewEmployeeBody .employee-detail-item {
+    width: 100%;
+    min-width: 0;
+    padding: 15px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+
+#viewEmployeeBody .employee-detail-item small {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+
+#viewEmployeeBody .employee-detail-item strong {
+    display: block;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+
+#viewEmployeeBody .employee-detail-full {
+    grid-column: 1 / -1;
+}
+
+
+/* =========================================================
+   EMPLOYEE MODAL MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .employee-modal {
+        width:
+            calc(
+                100vw - 24px
+            );
+
+        max-width:
+            calc(
+                100vw - 24px
+            );
+
+        max-height:
+            calc(
+                100dvh - 24px
+            );
+    }
+
+
+    #viewEmployeeBody.employee-detail-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+
+    #viewEmployeeBody .employee-detail-full {
+        grid-column: auto;
+    }
+
+
+    #viewEmployeeBody .employee-detail-item {
+        padding: 14px;
+    }
+
+
+    #viewEmployeeBody .employee-detail-item strong {
+        font-size: 14px;
+    }
+
+}
+
+
+/* =========================================================
+   RMS TEXT READABILITY FIX
+   MAKE IMPORTANT TEXT DARK / BLACK
+   ========================================================= */
+
+/* Main page text */
+body {
+    color: #111827;
+}
+
+
+/* Sidebar */
+.nav-item {
+    color: #111827;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    color: #111827;
+}
+
+
+/* Brand */
+.brand-title {
+    color: #111827;
+}
+
+.brand-subtitle {
+    color: #374151;
+}
+
+
+/* Topbar */
+.topbar h1 {
+    color: #111827;
+}
+
+.topbar .eyebrow {
+    color: #1d4ed8;
+}
+
+
+/* Page heading */
+.page-intro h2 {
+    color: #111827;
+}
+
+.page-intro p:not(.eyebrow) {
+    color: #374151;
+}
+
+
+/* Section headings */
+.section-header h3 {
+    color: #111827;
+}
+
+.section-header p {
+    color: #374151;
+}
+
+
+/* Metric cards */
+.metric-label {
+    color: #374151;
+}
+
+.metric-value {
+    color: #111827;
+}
+
+.metric-hint {
+    color: #4b5563;
+}
+
+
+/* Table headers */
+.table-wrap th {
+    color: #374151;
+}
+
+
+/* Table text */
+.table-wrap td {
+    color: #111827;
+}
+
+
+/* Employee names */
+.employee-meta strong {
+    color: #111827 !important;
+    opacity: 1 !important;
+}
+
+
+/* Employee email / secondary information */
+.employee-meta span {
+    color: #4b5563 !important;
+    opacity: 1 !important;
+}
+
+
+/* Employee number */
+.table-wrap td:first-child strong {
+    color: #111827 !important;
+}
+
+
+/* Position / department / dates */
+.table-wrap td {
+    color: #111827;
+}
+
+
+/* Form labels */
+.form-grid label,
+.form-stack label,
+.form-group label {
+    color: #111827;
+}
+
+
+/* Form inputs */
+input,
+select,
+textarea {
+    color: #111827;
+}
+
+
+/* Buttons */
+.btn-secondary {
+    color: #111827;
+}
+
+
+/* Profile / details */
+.profile-item small,
+.detail-block small {
+    color: #374151;
+}
+
+.profile-item > div,
+.detail-block strong {
+    color: #111827;
+}
+
+
+/* Sidebar user */
+.user-mini-text strong {
+    color: #111827;
+}
+
+.user-mini-text span {
+    color: #374151;
+}
+
+
+/* Search placeholder */
+input::placeholder,
+textarea::placeholder {
+    color: #6b7280;
+    opacity: 1;
+}
+
+
+/* =========================================================
+   EMPLOYEES PAGE
+   ========================================================= */
+
+body[data-active="Employees"] .employee-stat small {
+    color: #374151;
+}
+
+body[data-active="Employees"] .employee-stat strong {
+    color: #111827 !important;
+    opacity: 1 !important;
+}
+
+body[data-active="Employees"] .employee-stat span {
+    color: #4b5563;
+}
+
+body[data-active="Employees"] .table-wrap th {
+    color: #374151;
+}
+
+body[data-active="Employees"] .table-wrap td {
+    color: #111827;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .nav-item {
+        color: #111827;
+    }
+
+    .page-intro h2 {
+        color: #111827;
+    }
+
+    .page-intro p:not(.eyebrow) {
+        color: #374151;
+    }
+
+    .metric-label {
+        color: #374151;
+    }
+
+    .metric-value {
+        color: #111827;
+    }
+
+    .table-wrap td {
+        color: #111827;
+    }
+
+}
+
+/* =========================================================
+   HIRING PAGE — FINAL READABILITY OVERRIDE
+   ========================================================= */
+
+body[data-active="Hiring"] .page-intro h2 {
+    color: #111827 !important;
+    font-size: 30px !important;
+    font-weight: 700 !important;
+}
+
+
+body[data-active="Hiring"] .page-intro p:not(.eyebrow) {
+    color: #374151 !important;
+    font-size: 14px !important;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+   ========================================================= */
+
+body[data-active="Hiring"] .metric-card {
+    color: #111827 !important;
+}
+
+
+body[data-active="Hiring"] .metric-card .metric-label {
+    color: #374151 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+}
+
+
+body[data-active="Hiring"] .metric-card .metric-value {
+    color: #111827 !important;
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+}
+
+
+body[data-active="Hiring"] .metric-card .metric-hint {
+    color: #4b5563 !important;
+    font-size: 12px !important;
+}
+
+
+/* =========================================================
+   SEARCH / FILTER
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionSearch {
+    color: #111827 !important;
+    font-size: 14px !important;
+}
+
+
+body[data-active="Hiring"] #selectionSearch::placeholder {
+    color: #6b7280 !important;
+    opacity: 1 !important;
+}
+
+
+body[data-active="Hiring"] #selectionFilter {
+    color: #111827 !important;
+    font-size: 14px !important;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionTable th {
+    color: #374151 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   TABLE TEXT
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionTable td {
+    color: #111827 !important;
+    font-size: 14px !important;
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   APPLICANT NAME
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionTable td strong {
+    color: #111827 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+}
+
+
+/* Applicant number / secondary text */
+body[data-active="Hiring"] #selectionTable td span {
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   POSITION
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionTable td:nth-child(2) {
+    color: #111827 !important;
+}
+
+
+body[data-active="Hiring"] #selectionTable td:nth-child(2) strong {
+    color: #111827 !important;
+}
+
+
+/* =========================================================
+   SCORES
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionTable td:nth-child(3),
+body[data-active="Hiring"] #selectionTable td:nth-child(4),
+body[data-active="Hiring"] #selectionTable td:nth-child(5) {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionTable .table-action {
+    color: #111827 !important;
+    font-size: 12px !important;
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
+
+body[data-active="Hiring"] #selectionTable .status-badge {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    body[data-active="Hiring"] .page-intro h2 {
+        font-size: 27px !important;
+    }
+
+
+    body[data-active="Hiring"] .page-intro p:not(.eyebrow) {
+        font-size: 14px !important;
+    }
+
+
+    body[data-active="Hiring"] .metric-card .metric-value {
+        font-size: 30px !important;
+    }
+
+
+    body[data-active="Hiring"] #selectionTable td {
+        font-size: 13px !important;
+    }
+
+
+    body[data-active="Hiring"] #selectionTable td strong {
+        font-size: 14px !important;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    body[data-active="Hiring"] .page-intro h2 {
+        font-size: 25px !important;
+    }
+
+
+    body[data-active="Hiring"] .metric-card .metric-value {
+        font-size: 28px !important;
+    }
+
+}
+
+/* =========================================================
+   GLOBAL MODAL HARDENING
+   Applied to every RMS modal without changing module logic.
+   ========================================================= */
+
+.modal-backdrop {
+    z-index: 1000;
+    padding: clamp(10px, 2vw, 22px);
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+
+.modal {
+    width: min(760px, 100%);
+    max-width: 760px;
+    max-height: min(92vh, calc(100dvh - 24px));
+    margin: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modal-head {
+    flex-shrink: 0;
+}
+
+.modal-head h2,
+.modal-head h3,
+.modal-head p,
+.modal p,
+.modal strong,
+.modal label,
+.modal span,
+.modal div {
+    overflow-wrap: anywhere;
+}
+
+.modal-head h2,
+.modal-head h3 {
+    line-height: 1.2;
+}
+
+.modal .button-row,
+.modal .form-footer {
+    flex-wrap: wrap;
+}
+
+.modal .button-row .btn,
+.modal .form-footer .btn {
+    min-width: 0;
+}
+
+.modal .table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.modal input,
+.modal select,
+.modal textarea,
+.modal button {
+    max-width: 100%;
+}
+
+/* Keep important modal content readable. */
+.modal .form-group label,
+.modal .selection-info-card small,
+.modal .hiring-info-card small,
+.modal .evaluation-result-item small,
+.modal .interview-detail-item span,
+.modal .detail-block small,
+.modal .profile-label {
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+/* Light modal cards use dark readable text. */
+.modal .selection-info-card strong,
+.modal .hiring-info-card strong,
+.modal .detail-block strong:not([class*="score"]),
+.modal .profile-item > div,
+.modal .profile-item strong {
+    color: #111827;
+    opacity: 1;
+}
+
+/* Dark inner score/result cards keep light text for contrast. */
+.modal .selection-score-card strong,
+.modal .hiring-score-card strong,
+.modal .evaluation-result-item strong {
+    color: #f3f4f6;
+    opacity: 1;
+}
+
+/* Small-screen modal rules shared by every page. */
+@media (max-width: 700px) {
+    .modal-backdrop {
+        align-items: flex-start;
+    }
+
+    .modal {
+        width: 100%;
+        max-width: 100%;
+        max-height: calc(100dvh - 20px);
+        border-radius: 18px;
+        padding: 16px;
+    }
+
+    .modal .button-row,
+    .modal .form-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .modal .button-row .btn,
+    .modal .form-footer .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-backdrop {
+        padding: 8px;
+    }
+
+    .modal {
+        padding: 14px;
+        border-radius: 16px;
+    }
+}
+
+@media (max-height: 560px) {
+    .modal-backdrop {
+        align-items: flex-start;
+    }
+
+    .modal {
+        max-height: calc(100dvh - 16px);
+    }
 }

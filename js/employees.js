@@ -1971,15 +1971,12 @@ function generateEmployeeNumber() {
    VIEW EMPLOYEE
    ========================================================= */
 
-function openViewEmployee(
-    employee
-) {
+function openViewEmployee(employee) {
 
     const body =
         document.getElementById(
             "viewEmployeeBody"
         );
-
 
     if (!body) {
         return;
@@ -1987,245 +1984,193 @@ function openViewEmployee(
 
 
     const fullName =
-        `${
-
-            employee.first_name ||
-            ""
-
-        } ${
-
-            employee.last_name ||
-            ""
-
+        `${employee.first_name || ""} ${
+            employee.last_name || ""
         }`
-            .trim();
+        .trim();
 
 
     body.innerHTML = `
 
-        <div
-            class="employee-detail-grid"
-        >
+        <div class="employee-detail-item">
 
-            <div
-                class="employee-detail-item"
-            >
+            <small>
+                Employee Number
+            </small>
 
-                <small>
-                    Employee Number
-                </small>
+            <strong>
+                ${escapeHtml(
+                    employee.employee_number ||
+                    "—"
+                )}
+            </strong>
 
-                <strong>
-                    ${escapeHtml(
-                        employee
-                            .employee_number ||
-                        "—"
-                    )}
-                </strong>
-
-            </div>
+        </div>
 
 
-            <div
-                class="employee-detail-item"
-            >
+        <div class="employee-detail-item">
 
-                <small>
-                    Employment Status
-                </small>
+            <small>
+                Employment Status
+            </small>
 
-                <strong>
-                    ${renderEmployeeStatus(
-                        employee
-                            .employment_status
-                    )}
-                </strong>
+            ${renderEmployeeStatus(
+                employee.employment_status
+            )}
 
-            </div>
+        </div>
 
 
-            <div
-                class="employee-detail-item"
-            >
+        <div class="employee-detail-item">
 
-                <small>
-                    Employee Name
-                </small>
+            <small>
+                Employee Name
+            </small>
 
-                <strong>
-                    ${escapeHtml(
-                        fullName ||
-                        "—"
-                    )}
-                </strong>
+            <strong>
+                ${escapeHtml(
+                    fullName ||
+                    "—"
+                )}
+            </strong>
 
-            </div>
+        </div>
 
 
-            <div
-                class="employee-detail-item"
-            >
+        <div class="employee-detail-item">
 
-                <small>
-                    Applicant ID
-                </small>
+            <small>
+                Applicant ID
+            </small>
 
-                <strong>
-                    ${escapeHtml(
-                        employee
-                            .applicant_id ||
-                        "—"
-                    )}
-                </strong>
+            <strong>
+                ${escapeHtml(
+                    employee.applicant_id ||
+                    "—"
+                )}
+            </strong>
 
-            </div>
+        </div>
 
 
-            <div
-                class="employee-detail-item"
-            >
+        <div class="employee-detail-item">
 
-                <small>
-                    Position
-                </small>
+            <small>
+                Position
+            </small>
 
-                <strong>
-                    ${escapeHtml(
-                        employee
-                            .position ||
-                        "—"
-                    )}
-                </strong>
+            <strong>
+                ${escapeHtml(
+                    employee.position ||
+                    "—"
+                )}
+            </strong>
 
-            </div>
+        </div>
 
 
-            <div
-                class="employee-detail-item"
-            >
+        <div class="employee-detail-item">
 
-                <small>
-                    Department
-                </small>
+            <small>
+                Department
+            </small>
 
-                <strong>
-                    ${escapeHtml(
-                        employee
-                            .department ||
-                        "—"
-                    )}
-                </strong>
+            <strong>
+                ${escapeHtml(
+                    employee.department ||
+                    "—"
+                )}
+            </strong>
 
-            </div>
+        </div>
 
 
-            <div
-                class="employee-detail-item"
-            >
+        <div class="employee-detail-item">
 
-                <small>
-                    Email
-                </small>
+            <small>
+                Email
+            </small>
 
-                <strong>
-                    ${escapeHtml(
-                        employee
-                            .email ||
-                        "—"
-                    )}
-                </strong>
+            <strong>
+                ${escapeHtml(
+                    employee.email ||
+                    "—"
+                )}
+            </strong>
 
-            </div>
+        </div>
 
 
-            <div
-                class="employee-detail-item"
-            >
+        <div class="employee-detail-item">
 
-                <small>
-                    Contact Number
-                </small>
+            <small>
+                Contact Number
+            </small>
 
-                <strong>
-                    ${escapeHtml(
-                        employee
-                            .contact_no ||
-                        "—"
-                    )}
-                </strong>
+            <strong>
+                ${escapeHtml(
+                    employee.contact_no ||
+                    "—"
+                )}
+            </strong>
 
-            </div>
+        </div>
 
 
-            <div
-                class="employee-detail-item"
-            >
+        <div class="employee-detail-item">
 
-                <small>
-                    Start Date
-                </small>
+            <small>
+                Start Date
+            </small>
 
-                <strong>
-                    ${formatDate(
-                        employee
-                            .start_date
-                    )}
-                </strong>
+            <strong>
+                ${formatDate(
+                    employee.start_date
+                )}
+            </strong>
 
-            </div>
+        </div>
 
 
-            <div
-                class="employee-detail-item"
-            >
+        <div class="employee-detail-item">
 
-                <small>
-                    Hired Date
-                </small>
+            <small>
+                Hired Date
+            </small>
 
-                <strong>
-                    ${formatDate(
-                        employee
-                            .hired_date
-                    )}
-                </strong>
+            <strong>
+                ${formatDate(
+                    employee.hired_date
+                )}
+            </strong>
 
-            </div>
+        </div>
 
 
-            <div
-                class="
-                    employee-detail-item
-                    employee-full
-                "
-            >
+        <div class="
+            employee-detail-item
+            employee-detail-full
+        ">
 
-                <small>
-                    Address
-                </small>
+            <small>
+                Address
+            </small>
 
-                <strong>
-                    ${escapeHtml(
-                        employee
-                            .address ||
-                        "—"
-                    )}
-                </strong>
-
-            </div>
-
+            <strong>
+                ${escapeHtml(
+                    employee.address ||
+                    "—"
+                )}
+            </strong>
 
         </div>
 
     `;
 
 
-    toggleViewEmployee(
-        true
-    );
+    toggleViewEmployee(true);
 
 }
-
 
 /* =========================================================
    CLOSE VIEW
