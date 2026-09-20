@@ -2,31 +2,80 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Job Posting Reports | Recruitment Management System</title>
+    <title>
+        Job Posting Reports | Recruitment Management System
+    </title>
 
-    <!-- MAIN SYSTEM CSS -->
-    <link rel="stylesheet" href="css/frost-ui.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/responsive.css">
 
-    <!-- REPORTS CSS -->
-    <link rel="stylesheet" href="css/reports.css">
+    <!-- =====================================================
+         GOOGLE FONT
+         ===================================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         MAIN SYSTEM CSS
+         ===================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="css/frost-ui.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/responsive.css"
+    >
+
+
+    <!-- =====================================================
+         REPORTS CSS
+         ===================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="css/reports.css"
+    >
+
 </head>
+
 
 <body
     class="app-page"
     data-active="Reports"
 >
 
+
     <!-- =====================================================
          SIDEBAR
-         SAME STRUCTURE AS APPLICATIONS / INTERVIEWS
          ===================================================== -->
 
     <aside
@@ -40,6 +89,7 @@
          ===================================================== -->
 
     <main class="app-main">
+
 
         <!-- =================================================
              TOPBAR
@@ -57,35 +107,51 @@
 
         <section class="page-content">
 
-            <!-- PAGE HEADER -->
 
-            <div class="page-intro">
+            <!-- =================================================
+                 PAGE INTRO
+                 ================================================= -->
+
+            <div class="page-intro report-page-intro">
 
                 <div>
 
-                    <!--<p class="eyebrow">
-                        Stage 9 · Recruitment Reports
-                    </p>-->
+                    <p class="eyebrow">
+                        Laboratory Activity 19
+                    </p>
 
                     <h2>
                         Job Posting Reports
                     </h2>
 
                     <p>
-                        View recruitment vacancy, applicant,
-                        and hiring statistics.
+                        Generate job posting reports covering
+                        vacancies, applicants, and hiring results.
                     </p>
 
                 </div>
 
 
-                <button
-                    id="printReportButton"
-                    type="button"
-                    class="btn btn-primary"
-                >
-                    Print Report
-                </button>
+                <div class="report-actions">
+
+                    <button
+                        id="refreshReportButton"
+                        type="button"
+                        class="btn btn-secondary"
+                    >
+                        Refresh
+                    </button>
+
+
+                    <button
+                        id="printReportButton"
+                        type="button"
+                        class="btn btn-primary"
+                    >
+                        Print Report
+                    </button>
+
+                </div>
 
             </div>
 
@@ -95,6 +161,9 @@
                  ================================================= -->
 
             <section class="report-summary">
+
+
+                <!-- OPEN VACANCIES -->
 
                 <div class="report-stat glass-panel">
 
@@ -113,6 +182,8 @@
                 </div>
 
 
+                <!-- CLOSED VACANCIES -->
+
                 <div class="report-stat glass-panel">
 
                     <small>
@@ -129,6 +200,8 @@
 
                 </div>
 
+
+                <!-- TOTAL APPLICANTS -->
 
                 <div class="report-stat glass-panel">
 
@@ -147,6 +220,8 @@
                 </div>
 
 
+                <!-- FILLED VACANCIES -->
+
                 <div class="report-stat glass-panel">
 
                     <small>
@@ -164,6 +239,8 @@
                 </div>
 
 
+                <!-- UNFILLED VACANCIES -->
+
                 <div class="report-stat glass-panel">
 
                     <small>
@@ -180,14 +257,17 @@
 
                 </div>
 
+
             </section>
 
 
             <!-- =================================================
-                 MAIN JOB REPORT
+                 JOB POSTING SUMMARY
                  ================================================= -->
 
-            <section class="glass-panel section-card report-section">
+            <section
+                class="glass-panel section-card report-section"
+            >
 
                 <div class="report-section-header">
 
@@ -202,11 +282,19 @@
                         </h3>
 
                         <p>
-                            Applicants and hiring results for
-                            every job posting.
+                            Applicants, vacancies, and hiring
+                            results for every job posting.
                         </p>
 
                     </div>
+
+
+                    <span
+                        id="jobReportCount"
+                        class="report-count"
+                    >
+                        0 records
+                    </span>
 
                 </div>
 
@@ -261,7 +349,6 @@
                                     class="table-empty"
                                 >
                                     Loading reports...
-
                                 </td>
 
                             </tr>
@@ -279,7 +366,9 @@
                  OPEN VACANCIES
                  ================================================= -->
 
-            <section class="glass-panel section-card report-section">
+            <section
+                class="glass-panel section-card report-section"
+            >
 
                 <div class="report-section-header">
 
@@ -300,6 +389,14 @@
 
                     </div>
 
+
+                    <span
+                        id="openVacanciesReportCount"
+                        class="report-count"
+                    >
+                        0 records
+                    </span>
+
                 </div>
 
 
@@ -312,6 +409,10 @@
                             <tr>
 
                                 <th>
+                                    Job Code
+                                </th>
+
+                                <th>
                                     Position
                                 </th>
 
@@ -320,23 +421,11 @@
                                 </th>
 
                                 <th>
-                                    Closing Date
-                                </th>
-
-                                <th>
-                                    Vacancies
-                                </th>
-
-                                <th>
-                                    Applicants
-                                </th>
-
-                                <th>
-                                    Hired
-                                </th>
-
-                                <th>
                                     Remaining
+                                </th>
+
+                                <th>
+                                    Closing Date
                                 </th>
 
                             </tr>
@@ -349,11 +438,10 @@
                             <tr>
 
                                 <td
-                                    colspan="7"
+                                    colspan="5"
                                     class="table-empty"
                                 >
                                     Loading...
-
                                 </td>
 
                             </tr>
@@ -371,7 +459,9 @@
                  CLOSED VACANCIES
                  ================================================= -->
 
-            <section class="glass-panel section-card report-section">
+            <section
+                class="glass-panel section-card report-section"
+            >
 
                 <div class="report-section-header">
 
@@ -386,11 +476,20 @@
                         </h3>
 
                         <p>
-                            Job postings whose recruitment period
-                            has ended.
+                            Job postings whose recruitment
+                            period has ended or vacancies
+                            have been filled.
                         </p>
 
                     </div>
+
+
+                    <span
+                        id="closedVacanciesReportCount"
+                        class="report-count"
+                    >
+                        0 records
+                    </span>
 
                 </div>
 
@@ -404,6 +503,10 @@
                             <tr>
 
                                 <th>
+                                    Job Code
+                                </th>
+
+                                <th>
                                     Position
                                 </th>
 
@@ -412,23 +515,11 @@
                                 </th>
 
                                 <th>
-                                    Closing Date
-                                </th>
-
-                                <th>
                                     Vacancies
                                 </th>
 
                                 <th>
-                                    Applicants
-                                </th>
-
-                                <th>
-                                    Hired
-                                </th>
-
-                                <th>
-                                    Unfilled
+                                    Closing Date
                                 </th>
 
                             </tr>
@@ -441,11 +532,10 @@
                             <tr>
 
                                 <td
-                                    colspan="7"
+                                    colspan="5"
                                     class="table-empty"
                                 >
                                     Loading...
-
                                 </td>
 
                             </tr>
@@ -457,6 +547,7 @@
                 </div>
 
             </section>
+
 
         </section>
 
@@ -477,13 +568,30 @@
          SUPABASE
          ===================================================== -->
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- =====================================================
+         SYSTEM JAVASCRIPT
+         ===================================================== -->
 
     <script src="js/config.js"></script>
+
     <script src="js/supabase.js"></script>
+
     <script src="js/auth.js"></script>
+
     <script src="js/components.js"></script>
+
+
+    <!-- =====================================================
+         LAB 19 REPORTS JAVASCRIPT
+         ===================================================== -->
+
     <script src="js/reports.js"></script>
+
 
 </body>
 

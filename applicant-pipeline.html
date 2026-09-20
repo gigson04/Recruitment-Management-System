@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Recruitment Pipeline | Recruitment Management System
+    </title>
+
+
+    <!-- =====================================================
+         SHARED CSS
+         ===================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="css/frost-ui.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/responsive.css"
+    >
+
+
+    <!-- =====================================================
+         PAGE CSS
+         ===================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="css/applicant-pipeline.css"
+    >
+
+</head>
+
+
+<body
+    class="app-page"
+    data-active="Recruitment Pipeline"
+>
+
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside
+        id="appSidebar"
+        class="sidebar glass-panel"
+    ></aside>
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+
+    <main class="app-main">
+
+
+        <!-- =================================================
+             TOPBAR
+             ================================================= -->
+
+        <header
+            id="appTopbar"
+            class="topbar glass-panel"
+        ></header>
+
+
+        <!-- =================================================
+             PAGE CONTENT
+             ================================================= -->
+
+        <section class="page-content">
+
+
+            <!-- =================================================
+                 PAGE INTRO
+                 ================================================= -->
+
+            <div class="page-intro pipeline-page-intro">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Laboratory Activity 21
+                    </p>
+
+                    <h2>
+                        Recruitment Pipeline Report
+                    </h2>
+
+                    <p>
+                        Track applicants through every
+                        recruitment stage.
+                    </p>
+
+                    <div
+                        id="pipelineUpdated"
+                        class="pipeline-updated"
+                    >
+                        Loading pipeline...
+                    </div>
+
+                </div>
+
+
+                <div class="page-intro-actions">
+
+                    <button
+                        id="refreshPipeline"
+                        class="btn btn-secondary"
+                        type="button"
+                    >
+                        ↻ Refresh
+                    </button>
+
+                    <button
+                        id="printPipeline"
+                        class="btn btn-primary"
+                        type="button"
+                    >
+                        ⎙ Print
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 OVERALL SUMMARY
+                 ================================================= -->
+
+            <section class="pipeline-summary-grid">
+
+
+                <!-- Applicants -->
+
+                <article class="glass-panel pipeline-summary-card">
+
+                    <div class="pipeline-summary-icon">
+                        ◎
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Applicants
+                        </span>
+
+                        <strong id="totalPipelineApplicants">
+                            0
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+                <!-- Screened -->
+
+                <article class="glass-panel pipeline-summary-card">
+
+                    <div class="pipeline-summary-icon">
+                        ✓
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Screened
+                        </span>
+
+                        <strong id="totalPipelineScreened">
+                            0
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+                <!-- Qualified -->
+
+                <article class="glass-panel pipeline-summary-card">
+
+                    <div class="pipeline-summary-icon">
+                        ★
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Qualified
+                        </span>
+
+                        <strong id="totalPipelineQualified">
+                            0
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+                <!-- Interviewed -->
+
+                <article class="glass-panel pipeline-summary-card">
+
+                    <div class="pipeline-summary-icon">
+                        ◷
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Interviewed
+                        </span>
+
+                        <strong id="totalPipelineInterviewed">
+                            0
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+                <!-- Selected -->
+
+                <article class="glass-panel pipeline-summary-card">
+
+                    <div class="pipeline-summary-icon">
+                        ◆
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Selected
+                        </span>
+
+                        <strong id="totalPipelineSelected">
+                            0
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+                <!-- Hired -->
+
+                <article class="glass-panel pipeline-summary-card">
+
+                    <div class="pipeline-summary-icon">
+                        ♙
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Hired
+                        </span>
+
+                        <strong id="totalPipelineHired">
+                            0
+                        </strong>
+
+                    </div>
+
+                </article>
+
+            </section>
+
+
+            <!-- =================================================
+                 PIPELINE FLOW
+                 ================================================= -->
+
+            <section class="glass-panel section-card pipeline-flow-section">
+
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            Recruitment Flow
+                        </p>
+
+                        <h3>
+                            Overall Pipeline
+                        </h3>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="overallPipelineFlow"
+                    class="pipeline-flow"
+                >
+
+                    <!-- JavaScript renders the pipeline -->
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 POSITION PIPELINE
+                 ================================================= -->
+
+            <section class="glass-panel section-card">
+
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            Pipeline by Position
+                        </p>
+
+                        <h3>
+                            Recruitment Stages
+                        </h3>
+
+                        <p>
+                            View how applicants move through
+                            the recruitment process for each
+                            position.
+                        </p>
+
+                    </div>
+
+
+                    <div
+                        id="pipelinePositionCount"
+                        class="section-count"
+                    >
+                        0 positions
+                    </div>
+
+                </div>
+
+
+                <!-- Search -->
+
+                <div class="pipeline-toolbar">
+
+                    <div class="pipeline-search">
+
+                        <span>
+                            ⌕
+                        </span>
+
+                        <input
+                            type="search"
+                            id="pipelineSearch"
+                            placeholder="Search position or department..."
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- Position cards -->
+
+                <div
+                    id="pipelinePositions"
+                    class="pipeline-position-grid"
+                >
+
+                    <div class="pipeline-empty">
+
+                        <strong>
+                            Loading pipeline...
+                        </strong>
+
+                        <span>
+                            Please wait.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 STAGE DETAILS
+                 ================================================= -->
+
+            <section class="glass-panel section-card">
+
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            Stage Summary
+                        </p>
+
+                        <h3>
+                            Applicant Distribution
+                        </h3>
+
+                        <p>
+                            Number of unique applicants currently
+                            recorded at each recruitment stage.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="stageSummary"
+                    class="stage-summary-grid"
+                >
+
+                    <!-- JavaScript renders stage summary -->
+
+                </div>
+
+            </section>
+
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         TOAST
+         ===================================================== -->
+
+    <div
+        id="toastRoot"
+        class="toast-root"
+    ></div>
+
+
+    <!-- =====================================================
+         SCRIPTS
+         ===================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+    <script
+        src="js/config.js"
+    ></script>
+
+    <script
+        src="js/supabase.js"
+    ></script>
+
+    <script
+        src="js/auth.js"
+    ></script>
+
+    <script
+        src="js/components.js"
+    ></script>
+
+    <script
+        src="js/applicant-pipeline.js"
+    ></script>
+
+
+</body>
+
+</html>

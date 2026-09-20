@@ -2847,3 +2847,101 @@ body[data-active="Hiring"] #selectionTable .status-badge {
     }
 
 }
+
+/* =========================================================
+   OPEN POSITIONS - FINAL FONT READABILITY FIX
+   ========================================================= */
+
+.position-card {
+    color: #1f2937 !important;
+    opacity: 1 !important;
+}
+
+.position-card * {
+    opacity: 1 !important;
+}
+
+/* Job code */
+.position-card .job-code {
+    color: #475569 !important;
+    opacity: 1 !important;
+}
+
+/* Job title */
+.position-card h3 {
+    color: #111827 !important;
+    opacity: 1 !important;
+    font-weight: 700 !important;
+}
+
+/* Department, employment, vacancies, closing date */
+.position-card .position-meta,
+.position-card .position-meta span {
+    color: #334155 !important;
+    opacity: 1 !important;
+}
+
+/* Description */
+.position-card .position-summary {
+    color: #475569 !important;
+    opacity: 1 !important;
+}
+
+/* Open badge */
+.position-card .position-status-open {
+    color: #15803d !important;
+    opacity: 1 !important;
+}
+
+/* Expired badge */
+.position-card .position-status-closed {
+    color: #dc2626 !important;
+    opacity: 1 !important;
+}
+
+/* Buttons */
+.position-card .btn {
+    opacity: 1 !important;
+}
+
+/* View Details */
+.position-card .btn-secondary {
+    color: #1f2937 !important;
+    background: #ffffff !important;
+    border-color: #d7dee7 !important;
+}
+
+/* Apply */
+.position-card .btn-primary {
+    color: #ffffff !important;
+}
+
+/* Prevent glass styling from fading card contents */
+.positions-grid .glass-panel {
+    opacity: 1 !important;
+}
+
+/* =========================================================
+   OPEN POSITIONS - 2 CARDS PER ROW
+   ========================================================= */
+
+.positions-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 16px !important;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+    .positions-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Phone */
+@media (max-width: 600px) {
+    .positions-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+

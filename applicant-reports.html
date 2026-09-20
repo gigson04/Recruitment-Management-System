@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -14,9 +15,26 @@
     </title>
 
 
-    <!-- =====================================================
-         MAIN SYSTEM CSS
-         ===================================================== -->
+    <!-- GOOGLE FONT -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- MAIN SYSTEM CSS -->
 
     <link
         rel="stylesheet"
@@ -34,9 +52,7 @@
     >
 
 
-    <!-- =====================================================
-         APPLICANT REPORT CSS
-         ===================================================== -->
+    <!-- APPLICANT REPORTS CSS -->
 
     <link
         rel="stylesheet"
@@ -63,7 +79,7 @@
 
 
     <!-- =====================================================
-         MAIN
+         MAIN APPLICATION
          ===================================================== -->
 
     <main class="app-main">
@@ -95,7 +111,7 @@
                 <div>
 
                     <p class="eyebrow">
-                        Stage 9 · Applicant Reports
+                        Laboratory Activity 20
                     </p>
 
                     <h2>
@@ -103,9 +119,8 @@
                     </h2>
 
                     <p>
-                        View applicant profiles, recruitment
-                        statuses, positions, qualifications,
-                        rejections, and hiring results.
+                        Generate applicant-related reports
+                        from the recruitment workflow.
                     </p>
 
                 </div>
@@ -136,112 +151,157 @@
 
 
             <!-- =================================================
-                 SUMMARY
+                 SUMMARY CARDS
                  ================================================= -->
 
             <section class="applicant-report-summary">
 
 
-                <!-- TOTAL APPLICANTS -->
+                <div class="report-stat glass-panel">
 
-                <div class="applicant-stat glass-panel">
-
-                    <span class="applicant-stat-label">
+                    <small>
                         Total Applicants
-                    </span>
+                    </small>
 
                     <strong id="totalApplicants">
                         0
                     </strong>
 
-                    <small>
+                    <span>
                         Registered applicants
-                    </small>
+                    </span>
 
                 </div>
 
 
-                <!-- ACTIVE -->
+                <div class="report-stat glass-panel">
 
-                <div class="applicant-stat glass-panel">
-
-                    <span class="applicant-stat-label">
-                        Active
-                    </span>
+                    <small>
+                        Active Applicants
+                    </small>
 
                     <strong id="activeApplicants">
                         0
                     </strong>
 
-                    <small>
+                    <span>
                         Active applicant profiles
-                    </small>
+                    </span>
 
                 </div>
 
 
-                <!-- QUALIFIED -->
+                <div class="report-stat glass-panel">
 
-                <div class="applicant-stat glass-panel">
-
-                    <span class="applicant-stat-label">
-                        Qualified
-                    </span>
+                    <small>
+                        Qualified Applicants
+                    </small>
 
                     <strong id="qualifiedApplicants">
                         0
                     </strong>
 
-                    <small>
-                        Qualified applicants
-                    </small>
+                    <span>
+                        Qualified applications
+                    </span>
 
                 </div>
 
 
-                <!-- REJECTED -->
+                <div class="report-stat glass-panel">
 
-                <div class="applicant-stat glass-panel">
-
-                    <span class="applicant-stat-label">
-                        Rejected
-                    </span>
+                    <small>
+                        Rejected Applicants
+                    </small>
 
                     <strong id="rejectedApplicants">
                         0
                     </strong>
 
-                    <small>
-                        Rejected applicants
-                    </small>
+                    <span>
+                        Rejected applications
+                    </span>
 
                 </div>
 
 
-                <!-- HIRED -->
+                <div class="report-stat glass-panel">
 
-                <div class="applicant-stat glass-panel">
-
-                    <span class="applicant-stat-label">
-                        Hired
-                    </span>
+                    <small>
+                        Hired Applicants
+                    </small>
 
                     <strong id="hiredApplicants">
                         0
                     </strong>
 
-                    <small>
+                    <span>
                         Successfully hired
-                    </small>
+                    </span>
+
+                </div>
+
+
+            </section>
+
+
+            <!-- =================================================
+                 FILTER BAR
+                 ================================================= -->
+
+            <section
+                class="glass-panel applicant-report-toolbar"
+            >
+
+                <div class="report-search">
+
+                    <label
+                        for="applicantReportSearch"
+                    >
+                        Search Reports
+                    </label>
+
+                    <input
+                        type="search"
+                        id="applicantReportSearch"
+                        placeholder="Search applicant, email, position, or status..."
+                    >
+
+                </div>
+
+
+                <div class="report-filter">
+
+                    <label
+                        for="applicantStatusFilter"
+                    >
+                        Applicant Status
+                    </label>
+
+                    <select
+                        id="applicantStatusFilter"
+                    >
+
+                        <option value="all">
+                            All Applicants
+                        </option>
+
+                        <option value="active">
+                            Active
+                        </option>
+
+                        <option value="inactive">
+                            Inactive
+                        </option>
+
+                    </select>
 
                 </div>
 
             </section>
 
 
-
             <!-- =================================================
-                 REPORT 1
                  APPLICANT MASTER LIST
                  ================================================= -->
 
@@ -249,12 +309,12 @@
                 class="glass-panel section-card applicant-report-section"
             >
 
-                <div class="report-section-heading">
+                <div class="report-section-header">
 
                     <div>
 
                         <p class="eyebrow">
-                            Report 01
+                            Applicant Directory
                         </p>
 
                         <h3>
@@ -262,7 +322,8 @@
                         </h3>
 
                         <p>
-                            Complete list of registered applicants.
+                            Complete list of registered applicants
+                            and their latest application information.
                         </p>
 
                     </div>
@@ -272,66 +333,15 @@
                         id="masterListCount"
                         class="report-count"
                     >
-                        0 applicants
+                        0 records
                     </span>
 
                 </div>
 
 
-                <!-- SEARCH -->
+                <div class="table-wrap applicant-report-table-wrap">
 
-                <div class="report-toolbar">
-
-                    <div class="report-search">
-
-                        <span>
-                            Search
-                        </span>
-
-                        <input
-                            id="applicantReportSearch"
-                            type="search"
-                            placeholder="Search applicant..."
-                            autocomplete="off"
-                        >
-
-                    </div>
-
-
-                    <div class="report-filter">
-
-                        <span>
-                            Status
-                        </span>
-
-                        <select
-                            id="applicantStatusFilter"
-                        >
-
-                            <option value="all">
-                                All Statuses
-                            </option>
-
-                            <option value="active">
-                                Active
-                            </option>
-
-                            <option value="inactive">
-                                Inactive
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                <div class="table-wrap report-table-wrap">
-
-                    <table
-                        id="applicantMasterTable"
-                    >
+                    <table id="applicantMasterTable">
 
                         <thead>
 
@@ -342,7 +352,7 @@
                                 </th>
 
                                 <th>
-                                    Applicant
+                                    Applicant Name
                                 </th>
 
                                 <th>
@@ -350,285 +360,7 @@
                                 </th>
 
                                 <th>
-                                    Contact
-                                </th>
-
-                                <th>
-                                    Education
-                                </th>
-
-                                <th>
-                                    Experience
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            <tr>
-
-                                <td
-                                    colspan="7"
-                                    class="table-empty"
-                                >
-                                    Loading applicants...
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </section>
-
-
-
-            <!-- =================================================
-                 REPORT 2
-                 APPLICANTS BY POSITION
-                 ================================================= -->
-
-            <section
-                class="glass-panel section-card applicant-report-section"
-            >
-
-                <div class="report-section-heading">
-
-                    <div>
-
-                        <p class="eyebrow">
-                            Report 02
-                        </p>
-
-                        <h3>
-                            Applicants by Position
-                        </h3>
-
-                        <p>
-                            Number of applicants who applied
-                            for each position.
-                        </p>
-
-                    </div>
-
-
-                    <span
-                        id="positionReportCount"
-                        class="report-count"
-                    >
-                        0 positions
-                    </span>
-
-                </div>
-
-
-                <div class="table-wrap report-table-wrap">
-
-                    <table
-                        id="applicantsByPositionTable"
-                    >
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Position
-                                </th>
-
-                                <th>
-                                    Department
-                                </th>
-
-                                <th>
-                                    Applicants
-                                </th>
-
-                                <th>
-                                    Qualified
-                                </th>
-
-                                <th>
-                                    Hired
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            <tr>
-
-                                <td
-                                    colspan="5"
-                                    class="table-empty"
-                                >
-                                    Loading...
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </section>
-
-
-
-            <!-- =================================================
-                 REPORT 3
-                 APPLICANTS BY STATUS
-                 ================================================= -->
-
-            <section
-                class="glass-panel section-card applicant-report-section"
-            >
-
-                <div class="report-section-heading">
-
-                    <div>
-
-                        <p class="eyebrow">
-                            Report 03
-                        </p>
-
-                        <h3>
-                            Applicants by Status
-                        </h3>
-
-                        <p>
-                            Distribution of applicants according
-                            to their current recruitment status.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="table-wrap report-table-wrap">
-
-                    <table
-                        id="applicantsByStatusTable"
-                    >
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Number of Applicants
-                                </th>
-
-                                <th>
-                                    Percentage
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            <tr>
-
-                                <td
-                                    colspan="3"
-                                    class="table-empty"
-                                >
-                                    Loading...
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </section>
-
-
-
-            <!-- =================================================
-                 REPORT 4
-                 QUALIFIED APPLICANTS
-                 ================================================= -->
-
-            <section
-                class="glass-panel section-card applicant-report-section"
-            >
-
-                <div class="report-section-heading">
-
-                    <div>
-
-                        <p class="eyebrow">
-                            Report 04
-                        </p>
-
-                        <h3>
-                            Qualified Applicants
-                        </h3>
-
-                        <p>
-                            Applicants who passed the screening
-                            evaluation.
-                        </p>
-
-                    </div>
-
-
-                    <span
-                        id="qualifiedReportCount"
-                        class="report-count"
-                    >
-                        0 qualified
-                    </span>
-
-                </div>
-
-
-                <div class="table-wrap report-table-wrap">
-
-                    <table
-                        id="qualifiedApplicantsTable"
-                    >
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Applicant No.
-                                </th>
-
-                                <th>
-                                    Applicant
+                                    Applicant Status
                                 </th>
 
                                 <th>
@@ -636,113 +368,7 @@
                                 </th>
 
                                 <th>
-                                    Screening Score
-                                </th>
-
-                                <th>
-                                    Result
-                                </th>
-
-                                <th>
-                                    Application Status
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            <tr>
-
-                                <td
-                                    colspan="6"
-                                    class="table-empty"
-                                >
-                                    Loading...
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </section>
-
-
-
-            <!-- =================================================
-                 REPORT 5
-                 REJECTED APPLICANTS
-                 ================================================= -->
-
-            <section
-                class="glass-panel section-card applicant-report-section"
-            >
-
-                <div class="report-section-heading">
-
-                    <div>
-
-                        <p class="eyebrow">
-                            Report 05
-                        </p>
-
-                        <h3>
-                            Rejected Applicants
-                        </h3>
-
-                        <p>
-                            Applicants whose application or
-                            screening result was rejected.
-                        </p>
-
-                    </div>
-
-
-                    <span
-                        id="rejectedReportCount"
-                        class="report-count"
-                    >
-                        0 rejected
-                    </span>
-
-                </div>
-
-
-                <div class="table-wrap report-table-wrap">
-
-                    <table
-                        id="rejectedApplicantsTable"
-                    >
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Applicant No.
-                                </th>
-
-                                <th>
-                                    Applicant
-                                </th>
-
-                                <th>
-                                    Position
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Screening Result
+                                    Latest Application Status
                                 </th>
 
                                 <th>
@@ -759,11 +385,10 @@
                             <tr>
 
                                 <td
-                                    colspan="6"
+                                    colspan="7"
                                     class="table-empty"
                                 >
-                                    Loading...
-
+                                    Loading reports...
                                 </td>
 
                             </tr>
@@ -777,51 +402,213 @@
             </section>
 
 
-
             <!-- =================================================
-                 REPORT 6
-                 HIRED APPLICANTS
+                 APPLICANTS BY POSITION
                  ================================================= -->
 
             <section
                 class="glass-panel section-card applicant-report-section"
             >
 
-                <div class="report-section-heading">
+                <div class="report-section-header">
 
                     <div>
 
                         <p class="eyebrow">
-                            Report 06
+                            Position Analysis
                         </p>
 
                         <h3>
-                            Hired Applicants
+                            Applicants by Position
                         </h3>
 
                         <p>
-                            Applicants who successfully completed
-                            the hiring process.
+                            Number of unique applicants and hired
+                            applicants for each position.
                         </p>
 
                     </div>
 
 
                     <span
-                        id="hiredReportCount"
+                        id="positionReportCount"
                         class="report-count"
                     >
-                        0 hired
+                        0 records
                     </span>
 
                 </div>
 
 
-                <div class="table-wrap report-table-wrap">
+                <div class="table-wrap applicant-report-table-wrap">
 
-                    <table
-                        id="hiredApplicantsTable"
+                    <table id="applicantsByPositionTable">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Position
+                                </th>
+
+                                <th>
+                                    Applicants
+                                </th>
+
+                                <th>
+                                    Hired
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr>
+
+                                <td
+                                    colspan="3"
+                                    class="table-empty"
+                                >
+                                    Loading reports...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 APPLICANTS BY STATUS
+                 ================================================= -->
+
+            <section
+                class="glass-panel section-card applicant-report-section"
+            >
+
+                <div class="report-section-header">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            Application Workflow
+                        </p>
+
+                        <h3>
+                            Applicants by Status
+                        </h3>
+
+                        <p>
+                            Applicants grouped according to their
+                            current application workflow status.
+                        </p>
+
+                    </div>
+
+
+                    <span
+                        id="statusReportCount"
+                        class="report-count"
                     >
+                        0 records
+                    </span>
+
+                </div>
+
+
+                <div class="table-wrap applicant-report-table-wrap">
+
+                    <table id="applicantsByStatusTable">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Application Status
+                                </th>
+
+                                <th>
+                                    Applicants
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr>
+
+                                <td
+                                    colspan="2"
+                                    class="table-empty"
+                                >
+                                    Loading reports...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 QUALIFIED APPLICANTS
+                 ================================================= -->
+
+            <section
+                class="glass-panel section-card applicant-report-section"
+            >
+
+                <div class="report-section-header">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            Screening Result
+                        </p>
+
+                        <h3>
+                            Qualified Applicants
+                        </h3>
+
+                        <p>
+                            Applicants whose application status is
+                            currently Qualified.
+                        </p>
+
+                    </div>
+
+
+                    <span
+                        id="qualifiedReportCount"
+                        class="report-count"
+                    >
+                        0 records
+                    </span>
+
+                </div>
+
+
+                <div class="table-wrap applicant-report-table-wrap">
+
+                    <table id="qualifiedApplicantsTable">
 
                         <thead>
 
@@ -832,7 +619,193 @@
                                 </th>
 
                                 <th>
-                                    Applicant
+                                    Applicant Name
+                                </th>
+
+                                <th>
+                                    Position
+                                </th>
+
+                                <th>
+                                    Application Date
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr>
+
+                                <td
+                                    colspan="5"
+                                    class="table-empty"
+                                >
+                                    Loading reports...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 REJECTED APPLICANTS
+                 ================================================= -->
+
+            <section
+                class="glass-panel section-card applicant-report-section"
+            >
+
+                <div class="report-section-header">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            Application Result
+                        </p>
+
+                        <h3>
+                            Rejected Applicants
+                        </h3>
+
+                        <p>
+                            Applicants whose application status is
+                            currently Rejected.
+                        </p>
+
+                    </div>
+
+
+                    <span
+                        id="rejectedReportCount"
+                        class="report-count"
+                    >
+                        0 records
+                    </span>
+
+                </div>
+
+
+                <div class="table-wrap applicant-report-table-wrap">
+
+                    <table id="rejectedApplicantsTable">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Applicant No.
+                                </th>
+
+                                <th>
+                                    Applicant Name
+                                </th>
+
+                                <th>
+                                    Position
+                                </th>
+
+                                <th>
+                                    Application Date
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            <tr>
+
+                                <td
+                                    colspan="5"
+                                    class="table-empty"
+                                >
+                                    Loading reports...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 HIRED APPLICANTS
+                 ================================================= -->
+
+            <section
+                class="glass-panel section-card applicant-report-section"
+            >
+
+                <div class="report-section-header">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            Hiring Result
+                        </p>
+
+                        <h3>
+                            Hired Applicants
+                        </h3>
+
+                        <p>
+                            Applicants whose application status is
+                            currently Hired.
+                        </p>
+
+                    </div>
+
+
+                    <span
+                        id="hiredReportCount"
+                        class="report-count"
+                    >
+                        0 records
+                    </span>
+
+                </div>
+
+
+                <div class="table-wrap applicant-report-table-wrap">
+
+                    <table id="hiredApplicantsTable">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Applicant No.
+                                </th>
+
+                                <th>
+                                    Applicant Name
                                 </th>
 
                                 <th>
@@ -844,11 +817,11 @@
                                 </th>
 
                                 <th>
-                                    Start Date
+                                    Employment Status
                                 </th>
 
                                 <th>
-                                    Employment Status
+                                    Start Date
                                 </th>
 
                             </tr>
@@ -864,8 +837,7 @@
                                     colspan="6"
                                     class="table-empty"
                                 >
-                                    Loading...
-
+                                    Loading reports...
                                 </td>
 
                             </tr>
@@ -898,14 +870,7 @@
          SUPABASE
          ===================================================== -->
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-    ></script>
-
-
-    <!-- =====================================================
-         PROJECT JAVASCRIPT
-         ===================================================== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script src="js/config.js"></script>
 
@@ -916,6 +881,7 @@
     <script src="js/components.js"></script>
 
     <script src="js/applicant-reports.js"></script>
+
 
 </body>
 

@@ -1,1152 +1,687 @@
 /* =========================================================
    APPLICANT REPORTS
-   LABORATORY ACTIVITY 20
+   Laboratory Activity 20
    ========================================================= */
 
+let applicantReportsData = {
+    applicants: [],
+    applications: [],
+    hiring: [],
 
-let applicants = [];
+    masterList: [],
+    byPosition: [],
+    byStatus: [],
+    qualified: [],
+    rejected: [],
+    hired: []
+};
 
-let applications = [];
-
-let jobs = [];
-
-let screenings = [];
-
-let hiringRecords = [];
-
-let applicantReportRows = [];
-
-let positionReportRows = [];
-
-let statusReportRows = [];
-
-let qualifiedRows = [];
-
-let rejectedRows = [];
-
-let hiredRows = [];
+let applicantReportEventsBound = false;
 
 
 /* =========================================================
    INITIALIZE
    ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    init
-);
+document.addEventListener("DOMContentLoaded", () => {
+    initApplicantReports();
+});
 
 
-async function init() {
+async function initApplicantReports() {
 
     /*
-     * Use the SAME application shell.
-     */
+        IMPORTANT:
+        This exact label must match the sidebar label
+        in components.js:
+
+        Applicant Reports
+    */
     renderShell({
-        active: "Reports"
+        active: "Applicant Reports"
     });
 
 
-    /*
-     * Require authenticated user.
-     */
-    const session = await requireAuth();
+    if (typeof requireAuth === "function") {
 
+        const authenticated = await requireAuth();
 
-    if (!session) {
-        return;
+        if (!authenticated) {
+            return;
+        }
     }
 
 
-    /*
-     * Load profile.
-     */
-    loadUserProfile()
-        .catch(console.warn);
+    if (!applicantReportEventsBound) {
+
+        bindApplicantReportEvents();
+
+        applicantReportEventsBound = true;
+    }
 
 
-    /*
-     * Setup page events.
-     */
-    setupEvents();
+    if (typeof loadUserProfile === "function") {
+
+        try {
+            await loadUserProfile();
+        } catch (error) {
+            console.warn(
+                "Unable to load user profile:",
+                error
+            );
+        }
+    }
 
 
-    /*
-     * Load all report data.
-     */
-    await loadAllReports();
-
+    await loadApplicantReports();
 }
 
 
 /* =========================================================
-   EVENTS
+   SUPABASE CLIENT
    ========================================================= */
 
-function setupEvents() {
+function getSupabaseClient() {
 
-    document
-        .getElementById(
-            "refreshApplicantReports"
-        )
-        ?.addEventListener(
-            "click",
-            loadAllReports
-        );
+    if (
+        window.rmsSupabase &&
+        typeof window.rmsSupabase.from === "function"
+    ) {
+        return window.rmsSupabase;
+    }
 
 
-    document
-        .getElementById(
-            "printApplicantReports"
-        )
-        ?.addEventListener(
-            "click",
-            () => {
-                window.print();
-            }
-        );
+    if (
+        window.supabaseClient &&
+        typeof window.supabaseClient.from === "function"
+    ) {
+        return window.supabaseClient;
+    }
 
 
-    document
-        .getElementById(
-            "applicantReportSearch"
-        )
-        ?.addEventListener(
-            "input",
-            renderMasterList
-        );
-
-
-    document
-        .getElementById(
-            "applicantStatusFilter"
-        )
-        ?.addEventListener(
-            "change",
-            renderMasterList
-        );
-
+    throw new Error(
+        "Supabase client was not found. Check js/supabase.js."
+    );
 }
 
 
 /* =========================================================
-   LOAD EVERYTHING
+   LOAD REPORT DATA
    ========================================================= */
 
-async function loadAllReports() {
+async function loadApplicantReports() {
 
     setLoadingState();
 
 
     try {
 
-        await Promise.all([
-            loadApplicants(),
-            loadApplications(),
-            loadJobs(),
-            loadScreenings(),
-            loadHiring()
-        ]);
+        const supabase = getSupabaseClient();
 
 
-        buildReportData();
+        /* =================================================
+           LOAD APPLICANTS
+           ================================================= */
 
+        const applicantsResult = await supabase
+            .from("applicants")
+            .select(`
+                applicant_id,
+                applicant_no,
+                first_name,
+                last_name,
+                email,
+                contact_no,
+                address,
+                education,
+                experience,
+                skills,
+                resume_file,
+                status
+            `)
+            .order("last_name", {
+                ascending: true
+            });
+
+
+        if (applicantsResult.error) {
+
+            throw new Error(
+                "Applicants: " +
+                applicantsResult.error.message
+            );
+        }
+
+
+        applicantReportsData.applicants =
+            applicantsResult.data || [];
+
+
+        /* =================================================
+           LOAD APPLICATIONS
+           ================================================= */
+
+        const applicationsResult = await supabase
+            .from("applications")
+            .select(`
+                application_id,
+                applicant_id,
+                job_id,
+                application_date,
+                status,
+                created_at,
+
+                applicants (
+                    applicant_id,
+                    applicant_no,
+                    first_name,
+                    last_name,
+                    email,
+                    status
+                ),
+
+                job_postings (
+                    job_id,
+                    job_code,
+                    job_title,
+                    department
+                )
+            `)
+            .order("application_date", {
+                ascending: false
+            });
+
+
+        if (applicationsResult.error) {
+
+            throw new Error(
+                "Applications: " +
+                applicationsResult.error.message
+            );
+        }
+
+
+        applicantReportsData.applications =
+            applicationsResult.data || [];
+
+
+        /* =================================================
+           LOAD HIRING RECORDS
+           ================================================= */
+
+        const hiringResult = await supabase
+            .from("hiring")
+            .select(`
+                hiring_id,
+                application_id,
+                hiring_date,
+                position,
+                salary_offer,
+                employment_status,
+                start_date,
+                status,
+                created_at,
+                updated_at
+            `)
+            .order("created_at", {
+                ascending: false
+            });
+
+
+        if (hiringResult.error) {
+
+            throw new Error(
+                "Hiring: " +
+                hiringResult.error.message
+            );
+        }
+
+
+        applicantReportsData.hiring =
+            hiringResult.data || [];
+
+
+        /* =================================================
+           BUILD REPORTS
+           ================================================= */
+
+        buildAllReports();
+
+
+        /* =================================================
+           RENDER
+           ================================================= */
 
         renderAllReports();
 
 
+        showApplicantReportToast(
+            "Applicant reports loaded successfully.",
+            "success"
+        );
+
     } catch (error) {
 
         console.error(
-            "Applicant reports error:",
+            "Applicant Reports Error:",
             error
         );
 
 
-        showToast(
+        renderErrorState(
+            error.message || "Unable to load applicant reports."
+        );
+
+
+        showApplicantReportToast(
+            error.message ||
             "Unable to load applicant reports.",
             "error"
         );
-
     }
-
 }
 
 
 /* =========================================================
-   LOAD APPLICANTS
+   BUILD ALL REPORTS
    ========================================================= */
 
-async function loadApplicants() {
+function buildAllReports() {
 
-    const {
-        data,
-        error
-    } = await window.rmsSupabase
+    const applicants =
+        applicantReportsData.applicants || [];
 
-        .from("applicants")
+    const applications =
+        applicantReportsData.applications || [];
 
-        .select(`
-            applicant_id,
-            applicant_no,
-            first_name,
-            last_name,
-            email,
-            contact_no,
-            address,
-            education,
-            experience,
-            skills,
-            resume_file,
-            status
-        `)
+    const hiring =
+        applicantReportsData.hiring || [];
 
-        .order(
-            "last_name",
-            {
-                ascending: true
-            }
+
+    applicantReportsData.masterList =
+        buildMasterList(
+            applicants,
+            applications
         );
 
 
-    if (error) {
-        throw error;
-    }
-
-
-    applicants =
-        Array.isArray(data)
-            ? data
-            : [];
-
-}
-
-
-/* =========================================================
-   LOAD APPLICATIONS
-   ========================================================= */
-
-async function loadApplications() {
-
-    const {
-        data,
-        error
-    } = await window.rmsSupabase
-
-        .from("applications")
-
-        .select(`
-            application_id,
-            applicant_id,
-            job_id,
-            application_date,
-            cover_letter,
-            status
-        `)
-
-        .order(
-            "application_date",
-            {
-                ascending: false
-            }
+    applicantReportsData.byPosition =
+        buildPositionReport(
+            applications
         );
 
 
-    if (error) {
-        throw error;
-    }
-
-
-    applications =
-        Array.isArray(data)
-            ? data
-            : [];
-
-}
-
-
-/* =========================================================
-   LOAD JOBS
-   ========================================================= */
-
-async function loadJobs() {
-
-    const {
-        data,
-        error
-    } = await window.rmsSupabase
-
-        .from("job_postings")
-
-        .select(`
-            job_id,
-            job_code,
-            job_title,
-            department,
-            vacancies,
-            status
-        `);
-
-
-    if (error) {
-        throw error;
-    }
-
-
-    jobs =
-        Array.isArray(data)
-            ? data
-            : [];
-
-}
-
-
-/* =========================================================
-   LOAD SCREENINGS
-   ========================================================= */
-
-async function loadScreenings() {
-
-    const {
-        data,
-        error
-    } = await window.rmsSupabase
-
-        .from("screenings")
-
-        .select(`
-            screening_id,
-            application_id,
-            screening_date,
-            score,
-            result,
-            remarks,
-            screened_by
-        `)
-
-        .order(
-            "screening_date",
-            {
-                ascending: false
-            }
+    applicantReportsData.byStatus =
+        buildStatusReport(
+            applications
         );
 
 
-    if (error) {
-        throw error;
-    }
+    applicantReportsData.qualified =
+        applications.filter(application => {
+
+            return normalizeStatus(
+                application.status
+            ) === "QUALIFIED";
+
+        });
 
 
-    screenings =
-        Array.isArray(data)
-            ? data
-            : [];
+    applicantReportsData.rejected =
+        applications.filter(application => {
 
+            return normalizeStatus(
+                application.status
+            ) === "REJECTED";
+
+        });
+
+
+    applicantReportsData.hired =
+        applications.filter(application => {
+
+            return normalizeStatus(
+                application.status
+            ) === "HIRED";
+
+        });
+
+
+    /*
+        Attach latest hiring record to hired applications.
+    */
+
+    applicantReportsData.hired =
+        applicantReportsData.hired.map(application => {
+
+            return {
+                ...application,
+                hiringRecord:
+                    getLatestHiringRecord(
+                        application.application_id,
+                        hiring
+                    )
+            };
+
+        });
 }
 
 
 /* =========================================================
-   LOAD HIRING
+   MASTER LIST
    ========================================================= */
 
-async function loadHiring() {
-
-    const {
-        data,
-        error
-    } = await window.rmsSupabase
-
-        .from("hiring")
-
-        .select(`
-            hiring_id,
-            application_id,
-            hiring_date,
-            position,
-            salary_offer,
-            employment_status,
-            start_date,
-            status
-        `)
-
-        .order(
-            "hiring_date",
-            {
-                ascending: false
-            }
-        );
-
-
-    if (error) {
-        throw error;
-    }
-
-
-    hiringRecords =
-        Array.isArray(data)
-            ? data
-            : [];
-
-}
-
-
-/* =========================================================
-   BUILD REPORT DATA
-   ========================================================= */
-
-function buildReportData() {
-
-    applicantReportRows =
-        applicants.map(
-            applicant => {
-
-                const applicantApplications =
-                    applications.filter(
-                        application =>
-                            application.applicant_id ===
-                            applicant.applicant_id
-                    );
-
-
-                const latestApplication =
-                    applicantApplications[0] || null;
-
-
-                const applicantHires =
-                    hiringRecords.filter(
-                        hiring => {
-
-                            return applicantApplications.some(
-                                application =>
-                                    application.application_id ===
-                                    hiring.application_id
-                            );
-
-                        }
-                    );
-
-
-                const applicantScreenings =
-                    screenings.filter(
-                        screening => {
-
-                            return applicantApplications.some(
-                                application =>
-                                    application.application_id ===
-                                    screening.application_id
-                            );
-
-                        }
-                    );
-
-
-                return {
-
-                    ...applicant,
-
-                    applications:
-                        applicantApplications,
-
-                    latestApplication,
-
-                    screenings:
-                        applicantScreenings,
-
-                    hires:
-                        applicantHires,
-
-                    derivedStatus:
-                        getApplicantStatus(
-                            applicant,
-                            applicantApplications,
-                            applicantScreenings,
-                            applicantHires
-                        )
-
-                };
-
-            }
-        );
-
-
-    buildPositionReports();
-
-    buildStatusReports();
-
-    buildQualifiedReports();
-
-    buildRejectedReports();
-
-    buildHiredReports();
-
-}
-
-
-/* =========================================================
-   DETERMINE APPLICANT STATUS
-   ========================================================= */
-
-function getApplicantStatus(
-    applicant,
-    applicantApplications,
-    applicantScreenings,
-    applicantHires
+function buildMasterList(
+    applicants,
+    applications
 ) {
 
-    /*
-     * Hiring has the highest priority.
-     */
-    const hasHired =
-        applicantHires.some(
-            hiring =>
-                normalize(
-                    hiring.status
-                ) === "hired"
-        );
+    return applicants.map(applicant => {
 
+        const applicantApplications =
+            applications.filter(application => {
 
-    if (hasHired) {
-        return "Hired";
-    }
-
-
-    /*
-     * Explicit rejected application.
-     */
-    const hasRejectedApplication =
-        applicantApplications.some(
-            application =>
-                normalize(
-                    application.status
-                ) === "rejected"
-        );
-
-
-    if (hasRejectedApplication) {
-        return "Rejected";
-    }
-
-
-    /*
-     * Qualified screening.
-     */
-    const hasQualifiedScreening =
-        applicantScreenings.some(
-            screening =>
-                normalize(
-                    screening.result
-                ) === "qualified"
-        );
-
-
-    if (hasQualifiedScreening) {
-        return "Qualified";
-    }
-
-
-    /*
-     * Not qualified screening.
-     */
-    const hasNotQualified =
-        applicantScreenings.some(
-            screening => {
-
-                const result =
-                    normalize(
-                        screening.result
-                    );
-
-                return (
-                    result === "not qualified" ||
-                    result === "notqualified"
-                );
-
-            }
-        );
-
-
-    if (hasNotQualified) {
-        return "Rejected";
-    }
-
-
-    /*
-     * Fall back to latest application status.
-     */
-    if (
-        applicantApplications.length > 0
-    ) {
-
-        const status =
-            normalize(
-                applicantApplications[0].status
-            );
-
-
-        if (
-            status === "hired"
-        ) {
-            return "Hired";
-        }
-
-
-        if (
-            status === "rejected"
-        ) {
-            return "Rejected";
-        }
-
-
-        if (
-            status === "qualified"
-        ) {
-            return "Qualified";
-        }
-
-
-        if (
-            status === "interview"
-        ) {
-            return "For Interview";
-        }
-
-
-        if (
-            status === "selected"
-        ) {
-            return "Selected";
-        }
-
-
-        if (
-            status === "screening" ||
-            status === "under screening"
-        ) {
-            return "Under Screening";
-        }
-
-
-        if (
-            status === "submitted"
-        ) {
-            return "Submitted";
-        }
-
-    }
-
-
-    /*
-     * Applicant profile status.
-     */
-    const applicantStatus =
-        normalize(
-            applicant.status
-        );
-
-
-    if (
-        applicantStatus === "inactive"
-    ) {
-        return "Inactive";
-    }
-
-
-    return "Active";
-
-}
-
-
-/* =========================================================
-   BUILD POSITION REPORT
-   ========================================================= */
-
-function buildPositionReports() {
-
-    const groups = {};
-
-
-    applications.forEach(
-        application => {
-
-            const job =
-                jobs.find(
-                    item =>
-                        item.job_id ===
-                        application.job_id
-                );
-
-
-            if (!job) {
-                return;
-            }
-
-
-            const key =
-                job.job_id;
-
-
-            if (!groups[key]) {
-
-                groups[key] = {
-
-                    jobId:
-                        job.job_id,
-
-                    position:
-                        job.job_title ||
-                        "Unknown Position",
-
-                    department:
-                        job.department ||
-                        "—",
-
-                    applicants:
-                        new Set(),
-
-                    qualified:
-                        new Set(),
-
-                    hired:
-                        new Set()
-
-                };
-
-            }
-
-
-            groups[key]
-                .applicants
-                .add(
+                return String(
                     application.applicant_id
+                ) === String(
+                    applicant.applicant_id
                 );
 
+            });
 
-            const applicationScreenings =
-                screenings.filter(
-                    screening =>
-                        screening.application_id ===
-                        application.application_id
-                );
+
+        /*
+            Sort newest application first.
+        */
+
+        applicantApplications.sort(
+            compareApplicationsNewest
+        );
+
+
+        const latestApplication =
+            applicantApplications[0] || null;
+
+
+        /*
+            Get all unique positions.
+        */
+
+        const positions = [];
+
+
+        applicantApplications.forEach(application => {
+
+            const position =
+                getPosition(application);
 
 
             if (
-                applicationScreenings.some(
-                    screening =>
-                        normalize(
-                            screening.result
-                        ) === "qualified"
-                )
+                position &&
+                position !== "—" &&
+                !positions.includes(position)
             ) {
-
-                groups[key]
-                    .qualified
-                    .add(
-                        application.applicant_id
-                    );
-
+                positions.push(position);
             }
 
+        });
 
-            const applicationHires =
-                hiringRecords.filter(
-                    hiring =>
-                        hiring.application_id ===
-                        application.application_id
+
+        return {
+
+            applicant_id:
+                applicant.applicant_id,
+
+            applicant_no:
+                applicant.applicant_no || "—",
+
+            name:
+                getApplicantName(
+                    applicant
+                ),
+
+            email:
+                applicant.email || "—",
+
+            applicant_status:
+                applicant.status || "—",
+
+            position:
+                positions.length
+                    ? positions.join(", ")
+                    : "—",
+
+            latest_status:
+                latestApplication
+                    ? (
+                        latestApplication.status ||
+                        "—"
+                    )
+                    : "—",
+
+            application_date:
+                latestApplication
+                    ? latestApplication.application_date
+                    : null
+        };
+
+    });
+}
+
+
+/* =========================================================
+   BY POSITION
+   ========================================================= */
+
+function buildPositionReport(
+    applications
+) {
+
+    const positionMap = new Map();
+
+
+    applications.forEach(application => {
+
+        const position =
+            getPosition(application);
+
+
+        if (
+            !position ||
+            position === "—"
+        ) {
+            return;
+        }
+
+
+        if (!positionMap.has(position)) {
+
+            positionMap.set(
+                position,
+                {
+                    position: position,
+                    applicants: new Set(),
+                    hired: new Set()
+                }
+            );
+        }
+
+
+        const record =
+            positionMap.get(position);
+
+
+        if (application.applicant_id) {
+
+            record.applicants.add(
+                String(
+                    application.applicant_id
+                )
+            );
+        }
+
+
+        if (
+            normalizeStatus(
+                application.status
+            ) === "HIRED"
+        ) {
+
+            if (application.applicant_id) {
+
+                record.hired.add(
+                    String(
+                        application.applicant_id
+                    )
                 );
+            }
+        }
+
+    });
 
 
-            if (
-                applicationHires.some(
-                    hiring =>
-                        normalize(
-                            hiring.status
-                        ) === "hired"
-                )
-            ) {
+    return Array.from(
+        positionMap.values()
+    )
+    .map(record => {
 
-                groups[key]
-                    .hired
-                    .add(
+        return {
+
+            position:
+                record.position,
+
+            applicants:
+                record.applicants.size,
+
+            hired:
+                record.hired.size
+        };
+
+    })
+    .sort((a, b) => {
+
+        return a.position.localeCompare(
+            b.position
+        );
+
+    });
+}
+
+
+/* =========================================================
+   BY STATUS
+   ========================================================= */
+
+function buildStatusReport(
+    applications
+) {
+
+    const statusMap = new Map();
+
+
+    applications.forEach(application => {
+
+        let status =
+            normalizeStatus(
+                application.status
+            );
+
+
+        if (!status) {
+            status = "NO STATUS";
+        }
+
+
+        if (!statusMap.has(status)) {
+
+            statusMap.set(
+                status,
+                new Set()
+            );
+        }
+
+
+        if (application.applicant_id) {
+
+            statusMap
+                .get(status)
+                .add(
+                    String(
                         application.applicant_id
-                    );
-
-            }
-
+                    )
+                );
         }
-    );
+
+    });
 
 
-    positionReportRows =
-        Object.values(groups)
-            .map(
-                group => ({
+    const statusOrder = [
+        "SUBMITTED",
+        "UNDER SCREENING",
+        "QUALIFIED",
+        "FOR INTERVIEW",
+        "INTERVIEWED",
+        "SELECTED FOR HIRING",
+        "HIRED",
+        "REJECTED",
+        "DECLINED",
+        "ON HOLD",
+        "NO STATUS"
+    ];
 
-                    position:
-                        group.position,
 
-                    department:
-                        group.department,
+    return Array.from(
+        statusMap.entries()
+    )
+    .map(([status, applicants]) => {
 
-                    applicants:
-                        group.applicants.size,
+        return {
 
-                    qualified:
-                        group.qualified.size,
+            status:
+                formatStatus(status),
 
-                    hired:
-                        group.hired.size
+            normalizedStatus:
+                status,
 
-                })
-            )
-            .sort(
-                (a, b) =>
-                    b.applicants -
-                    a.applicants
+            applicants:
+                applicants.size
+        };
+
+    })
+    .sort((a, b) => {
+
+        const aIndex =
+            statusOrder.indexOf(
+                a.normalizedStatus
             );
 
-}
-
-
-/* =========================================================
-   BUILD STATUS REPORT
-   ========================================================= */
-
-function buildStatusReports() {
-
-    const groups = {};
-
-
-    applicantReportRows.forEach(
-        applicant => {
-
-            const status =
-                applicant.derivedStatus ||
-                "Active";
-
-
-            if (!groups[status]) {
-                groups[status] = 0;
-            }
-
-
-            groups[status]++;
-
-        }
-    );
-
-
-    const total =
-        applicantReportRows.length;
-
-
-    statusReportRows =
-        Object.entries(groups)
-            .map(
-                ([status, count]) => ({
-
-                    status,
-
-                    count,
-
-                    percentage:
-                        total > 0
-                            ? (
-                                count /
-                                total *
-                                100
-                            )
-                            : 0
-
-                })
-            )
-            .sort(
-                (a, b) =>
-                    b.count -
-                    a.count
+        const bIndex =
+            statusOrder.indexOf(
+                b.normalizedStatus
             );
 
-}
 
+        if (aIndex === -1 && bIndex === -1) {
 
-/* =========================================================
-   BUILD QUALIFIED REPORT
-   ========================================================= */
-
-function buildQualifiedReports() {
-
-    qualifiedRows = [];
-
-
-    applicantReportRows.forEach(
-        applicant => {
-
-            applicant.screenings.forEach(
-                screening => {
-
-                    if (
-                        normalize(
-                            screening.result
-                        ) !== "qualified"
-                    ) {
-                        return;
-                    }
-
-
-                    const application =
-                        applicant.applications.find(
-                            item =>
-                                item.application_id ===
-                                screening.application_id
-                        );
-
-
-                    const job =
-                        application
-                            ? jobs.find(
-                                item =>
-                                    item.job_id ===
-                                    application.job_id
-                            )
-                            : null;
-
-
-                    qualifiedRows.push({
-
-                        applicantNo:
-                            applicant.applicant_no,
-
-                        name:
-                            getFullName(
-                                applicant
-                            ),
-
-                        position:
-                            job?.job_title ||
-                            "—",
-
-                        score:
-                            screening.score ??
-                            "—",
-
-                        result:
-                            screening.result ||
-                            "Qualified",
-
-                        applicationStatus:
-                            application?.status ||
-                            "—"
-
-                    });
-
-                }
+            return a.status.localeCompare(
+                b.status
             );
-
         }
-    );
 
 
-    /*
-     * Remove duplicate applicant-position entries.
-     */
-    qualifiedRows =
-        uniqueRows(
-            qualifiedRows,
-            row =>
-                `${row.applicantNo}|${row.position}`
-        );
-
-}
-
-
-/* =========================================================
-   BUILD REJECTED REPORT
-   ========================================================= */
-
-function buildRejectedReports() {
-
-    rejectedRows = [];
-
-
-    applicantReportRows.forEach(
-        applicant => {
-
-            /*
-             * Check every application.
-             */
-            applicant.applications.forEach(
-                application => {
-
-                    const screening =
-                        applicant.screenings.find(
-                            item =>
-                                item.application_id ===
-                                application.application_id
-                        );
-
-
-                    const rejectedApplication =
-                        normalize(
-                            application.status
-                        ) === "rejected";
-
-
-                    const rejectedScreening =
-                        screening &&
-                        (
-                            normalize(
-                                screening.result
-                            ) === "not qualified" ||
-
-                            normalize(
-                                screening.result
-                            ) === "notqualified"
-                            );
-
-
-
-                    if (
-                        !rejectedApplication &&
-                        !rejectedScreening
-                    ) {
-                        return;
-                    }
-
-
-                    const job =
-                        jobs.find(
-                            item =>
-                                item.job_id ===
-                                application.job_id
-                        );
-
-
-                    rejectedRows.push({
-
-                        applicantNo:
-                            applicant.applicant_no,
-
-                        name:
-                            getFullName(
-                                applicant
-                            ),
-
-                        position:
-                            job?.job_title ||
-                            "—",
-
-                        status:
-                            application.status ||
-                            "Rejected",
-
-                        screeningResult:
-                            screening?.result ||
-                            "—",
-
-                        applicationDate:
-                            application.application_date
-
-                    });
-
-                }
-            );
-
+        if (aIndex === -1) {
+            return 1;
         }
-    );
 
 
-    rejectedRows =
-        uniqueRows(
-            rejectedRows,
-            row =>
-                `${row.applicantNo}|${row.position}`
-        );
-
-}
-
-
-/* =========================================================
-   BUILD HIRED REPORT
-   ========================================================= */
-
-function buildHiredReports() {
-
-    hiredRows = [];
-
-
-    applicantReportRows.forEach(
-        applicant => {
-
-            applicant.hires.forEach(
-                hiring => {
-
-                    if (
-                        normalize(
-                            hiring.status
-                        ) !== "hired"
-                    ) {
-                        return;
-                    }
-
-
-                    const application =
-                        applicant.applications.find(
-                            item =>
-                                item.application_id ===
-                                hiring.application_id
-                        );
-
-
-                    const job =
-                        application
-                            ? jobs.find(
-                                item =>
-                                    item.job_id ===
-                                    application.job_id
-                            )
-                            : null;
-
-
-                    hiredRows.push({
-
-                        applicantNo:
-                            applicant.applicant_no,
-
-                        name:
-                            getFullName(
-                                applicant
-                            ),
-
-                        position:
-                            hiring.position ||
-                            job?.job_title ||
-                            "—",
-
-                        hiringDate:
-                            hiring.hiring_date,
-
-                        startDate:
-                            hiring.start_date,
-
-                        employmentStatus:
-                            hiring.employment_status ||
-                            "—"
-
-                    });
-
-                }
-            );
-
+        if (bIndex === -1) {
+            return -1;
         }
-    );
 
 
-    hiredRows =
-        uniqueRows(
-            hiredRows,
-            row =>
-                row.applicantNo
-        );
+        return aIndex - bIndex;
 
+    });
 }
 
 
@@ -1169,7 +704,6 @@ function renderAllReports() {
     renderRejectedReport();
 
     renderHiredReport();
-
 }
 
 
@@ -1179,73 +713,98 @@ function renderAllReports() {
 
 function renderSummary() {
 
-    const total =
-        applicantReportRows.length;
+    const applicants =
+        applicantReportsData.applicants || [];
+
+    const applications =
+        applicantReportsData.applications || [];
 
 
-    const active =
-        applicantReportRows.filter(
-            applicant =>
-                normalize(
-                    applicant.status
-                ) === "active"
-        ).length;
+    const totalApplicants =
+        applicants.length;
 
 
-    const qualified =
-        qualifiedRows.length;
+    const activeApplicants =
+        applicants.filter(applicant => {
+
+            return normalizeStatus(
+                applicant.status
+            ) === "ACTIVE";
+
+        }).length;
 
 
-    const rejected =
-        rejectedRows.length;
+    const qualifiedApplicants =
+        getUniqueApplicantCountByStatus(
+            applications,
+            "QUALIFIED"
+        );
 
 
-    const hired =
-        hiredRows.length;
+    const rejectedApplicants =
+        getUniqueApplicantCountByStatus(
+            applications,
+            "REJECTED"
+        );
+
+
+    const hiredApplicants =
+        getUniqueApplicantCountByStatus(
+            applications,
+            "HIRED"
+        );
 
 
     setText(
         "totalApplicants",
-        total
+        totalApplicants
     );
 
 
     setText(
         "activeApplicants",
-        active
+        activeApplicants
     );
 
 
     setText(
         "qualifiedApplicants",
-        qualified
+        qualifiedApplicants
     );
 
 
     setText(
         "rejectedApplicants",
-        rejected
+        rejectedApplicants
     );
 
 
     setText(
         "hiredApplicants",
-        hired
+        hiredApplicants
     );
-
 }
 
 
 /* =========================================================
-   MASTER LIST
+   MASTER LIST RENDER
    ========================================================= */
 
 function renderMasterList() {
 
-    const tbody =
-        document.querySelector(
-            "#applicantMasterTable tbody"
+    const table =
+        document.getElementById(
+            "applicantMasterTable"
         );
+
+
+    if (!table) {
+        return;
+    }
+
+
+    const tbody =
+        table.querySelector("tbody");
 
 
     if (!tbody) {
@@ -1265,78 +824,77 @@ function renderMasterList() {
         );
 
 
-    const search =
-        normalize(
-            searchInput?.value
-        );
+    const searchTerm =
+        searchInput
+            ? searchInput.value
+                .trim()
+                .toLowerCase()
+            : "";
 
 
-    const filter =
-        normalize(
-            statusFilter?.value
-        );
+    const selectedStatus =
+        statusFilter
+            ? statusFilter.value
+            : "all";
 
 
     const filtered =
-        applicantReportRows.filter(
+        applicantReportsData.masterList.filter(
             applicant => {
 
-                const name =
-                    normalize(
-                        getFullName(
-                            applicant
-                        )
-                    );
+                const searchableText = [
 
+                    applicant.applicant_no,
 
-                const applicantNo =
-                    normalize(
-                        applicant.applicant_no
-                    );
+                    applicant.name,
 
+                    applicant.email,
 
-                const email =
-                    normalize(
-                        applicant.email
-                    );
+                    applicant.applicant_status,
+
+                    applicant.position,
+
+                    applicant.latest_status
+
+                ]
+                .join(" ")
+                .toLowerCase();
 
 
                 const matchesSearch =
-                    !search ||
+                    !searchTerm ||
+                    searchableText.includes(
+                        searchTerm
+                    );
 
-                    name.includes(search) ||
 
-                    applicantNo.includes(search) ||
-
-                    email.includes(search);
+                const normalizedApplicantStatus =
+                    normalizeStatus(
+                        applicant.applicant_status
+                    );
 
 
                 const matchesStatus =
-                    filter === "all" ||
-
-                    normalize(
-                        applicant.status
-                    ) === filter;
+                    selectedStatus === "all" ||
+                    normalizedApplicantStatus ===
+                        selectedStatus.toUpperCase();
 
 
                 return (
                     matchesSearch &&
                     matchesStatus
                 );
-
             }
         );
 
 
     setText(
         "masterListCount",
-        `${filtered.length} applicants`
+        `${filtered.length} record${filtered.length === 1 ? "" : "s"}`
     );
 
 
-    if (
-        filtered.length === 0
-    ) {
+    if (!filtered.length) {
 
         tbody.innerHTML = emptyRow(
             7,
@@ -1344,203 +902,161 @@ function renderMasterList() {
         );
 
         return;
-
     }
 
 
     tbody.innerHTML =
-        filtered
-            .map(
-                applicant => `
+        filtered.map(applicant => {
 
-                    <tr>
+            return `
+                <tr>
 
-                        <td>
-                            <strong>
-                                ${escapeHtml(
-                                    applicant.applicant_no ||
-                                    "—"
-                                )}
-                            </strong>
-                        </td>
+                    <td>
+                        ${escapeHtml(
+                            applicant.applicant_no
+                        )}
+                    </td>
 
-
-                        <td>
-
-                            <div class="report-applicant">
-
-                                <strong>
-                                    ${escapeHtml(
-                                        getFullName(
-                                            applicant
-                                        )
-                                    )}
-                                </strong>
-
-                                <span>
-                                    ${escapeHtml(
-                                        applicant.address ||
-                                        "No address"
-                                    )}
-                                </span>
-
-                            </div>
-
-                        </td>
-
-
-                        <td>
+                    <td>
+                        <strong>
                             ${escapeHtml(
-                                applicant.email ||
-                                "—"
+                                applicant.name
                             )}
-                        </td>
+                        </strong>
+                    </td>
 
+                    <td>
+                        ${escapeHtml(
+                            applicant.email
+                        )}
+                    </td>
 
-                        <td>
-                            ${escapeHtml(
-                                applicant.contact_no ||
-                                "—"
-                            )}
-                        </td>
+                    <td>
+                        ${statusBadge(
+                            applicant.applicant_status
+                        )}
+                    </td>
 
+                    <td>
+                        ${escapeHtml(
+                            applicant.position
+                        )}
+                    </td>
 
-                        <td>
-                            ${escapeHtml(
-                                applicant.education ||
-                                "—"
-                            )}
-                        </td>
+                    <td>
+                        ${statusBadge(
+                            applicant.latest_status
+                        )}
+                    </td>
 
+                    <td>
+                        ${formatDate(
+                            applicant.application_date
+                        )}
+                    </td>
 
-                        <td>
-                            ${escapeHtml(
-                                applicant.experience ||
-                                "—"
-                            )}
-                        </td>
+                </tr>
+            `;
 
-
-                        <td>
-                            ${statusBadge(
-                                applicant.status
-                            )}
-                        </td>
-
-                    </tr>
-
-                `
-            )
-            .join("");
-
+        }).join("");
 }
 
 
 /* =========================================================
-   POSITION REPORT
+   POSITION REPORT RENDER
    ========================================================= */
 
 function renderPositionReport() {
 
-    const tbody =
-        document.querySelector(
-            "#applicantsByPositionTable tbody"
+    const table =
+        document.getElementById(
+            "applicantsByPositionTable"
         );
+
+
+    if (!table) {
+        return;
+    }
+
+
+    const tbody =
+        table.querySelector("tbody");
 
 
     if (!tbody) {
         return;
     }
+
+
+    const data =
+        applicantReportsData.byPosition || [];
 
 
     setText(
         "positionReportCount",
-        `${positionReportRows.length} positions`
+        `${data.length} record${data.length === 1 ? "" : "s"}`
     );
 
 
-    if (
-        positionReportRows.length === 0
-    ) {
+    if (!data.length) {
 
         tbody.innerHTML = emptyRow(
-            5,
-            "No application position data found."
+            3,
+            "No position data available."
         );
 
         return;
-
     }
 
 
     tbody.innerHTML =
-        positionReportRows
-            .map(
-                row => `
+        data.map(record => {
 
-                    <tr>
+            return `
+                <tr>
 
-                        <td>
-
-                            <div class="report-applicant">
-
-                                <strong>
-                                    ${escapeHtml(
-                                        row.position
-                                    )}
-                                </strong>
-
-                            </div>
-
-                        </td>
-
-
-                        <td>
+                    <td>
+                        <strong>
                             ${escapeHtml(
-                                row.department
+                                record.position
                             )}
-                        </td>
+                        </strong>
+                    </td>
 
+                    <td>
+                        ${record.applicants}
+                    </td>
 
-                        <td>
-                            <span class="report-number">
-                                ${row.applicants}
-                            </span>
-                        </td>
+                    <td>
+                        ${record.hired}
+                    </td>
 
+                </tr>
+            `;
 
-                        <td>
-                            <span class="report-number">
-                                ${row.qualified}
-                            </span>
-                        </td>
-
-
-                        <td>
-                            <span class="report-number">
-                                ${row.hired}
-                            </span>
-                        </td>
-
-                    </tr>
-
-                `
-            )
-            .join("");
-
+        }).join("");
 }
 
 
 /* =========================================================
-   STATUS REPORT
+   STATUS REPORT RENDER
    ========================================================= */
 
 function renderStatusReport() {
 
-    const tbody =
-        document.querySelector(
-            "#applicantsByStatusTable tbody"
+    const table =
+        document.getElementById(
+            "applicantsByStatusTable"
         );
+
+
+    if (!table) {
+        return;
+    }
+
+
+    const tbody =
+        table.querySelector("tbody");
 
 
     if (!tbody) {
@@ -1548,53 +1064,47 @@ function renderStatusReport() {
     }
 
 
-    if (
-        statusReportRows.length === 0
-    ) {
+    const data =
+        applicantReportsData.byStatus || [];
+
+
+    setText(
+        "statusReportCount",
+        `${data.length} status${data.length === 1 ? "" : "es"}`
+    );
+
+
+    if (!data.length) {
 
         tbody.innerHTML = emptyRow(
-            3,
-            "No applicant status data found."
+            2,
+            "No application status data available."
         );
 
         return;
-
     }
 
 
     tbody.innerHTML =
-        statusReportRows
-            .map(
-                row => `
+        data.map(record => {
 
-                    <tr>
+            return `
+                <tr>
 
-                        <td>
-                            ${statusBadge(
-                                row.status
-                            )}
-                        </td>
+                    <td>
+                        ${statusBadge(
+                            record.status
+                        )}
+                    </td>
 
+                    <td>
+                        ${record.applicants}
+                    </td>
 
-                        <td>
+                </tr>
+            `;
 
-                            <span class="report-number">
-                                ${row.count}
-                            </span>
-
-                        </td>
-
-
-                        <td>
-                            ${row.percentage.toFixed(1)}%
-                        </td>
-
-                    </tr>
-
-                `
-            )
-            .join("");
-
+        }).join("");
 }
 
 
@@ -1604,10 +1114,19 @@ function renderStatusReport() {
 
 function renderQualifiedReport() {
 
-    const tbody =
-        document.querySelector(
-            "#qualifiedApplicantsTable tbody"
+    const table =
+        document.getElementById(
+            "qualifiedApplicantsTable"
         );
+
+
+    if (!table) {
+        return;
+    }
+
+
+    const tbody =
+        table.querySelector("tbody");
 
 
     if (!tbody) {
@@ -1615,92 +1134,75 @@ function renderQualifiedReport() {
     }
 
 
+    const data =
+        applicantReportsData.qualified || [];
+
+
     setText(
         "qualifiedReportCount",
-        `${qualifiedRows.length} qualified`
+        `${data.length} record${data.length === 1 ? "" : "s"}`
     );
 
 
-    if (
-        qualifiedRows.length === 0
-    ) {
+    if (!data.length) {
 
         tbody.innerHTML = emptyRow(
-            6,
+            5,
             "No qualified applicants found."
         );
 
         return;
-
     }
 
 
     tbody.innerHTML =
-        qualifiedRows
-            .map(
-                row => `
+        data.map(application => {
 
-                    <tr>
+            return `
+                <tr>
 
-                        <td>
+                    <td>
+                        ${escapeHtml(
+                            getApplicantNumber(
+                                application
+                            )
+                        )}
+                    </td>
+
+                    <td>
+                        <strong>
                             ${escapeHtml(
-                                row.applicantNo
+                                getApplicantNameFromApplication(
+                                    application
+                                )
                             )}
-                        </td>
+                        </strong>
+                    </td>
 
+                    <td>
+                        ${escapeHtml(
+                            getPosition(
+                                application
+                            )
+                        )}
+                    </td>
 
-                        <td>
+                    <td>
+                        ${formatDate(
+                            application.application_date
+                        )}
+                    </td>
 
-                            <div class="report-applicant">
+                    <td>
+                        ${statusBadge(
+                            application.status
+                        )}
+                    </td>
 
-                                <strong>
-                                    ${escapeHtml(
-                                        row.name
-                                    )}
-                                </strong>
+                </tr>
+            `;
 
-                            </div>
-
-                        </td>
-
-
-                        <td>
-                            ${escapeHtml(
-                                row.position
-                            )}
-                        </td>
-
-
-                        <td>
-
-                            <span class="report-number">
-                                ${escapeHtml(
-                                    row.score
-                                )}
-                            </span>
-
-                        </td>
-
-
-                        <td>
-                            ${statusBadge(
-                                "Qualified"
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${escapeHtml(
-                                row.applicationStatus
-                            )}
-                        </td>
-
-                    </tr>
-
-                `
-            )
-            .join("");
-
+        }).join("");
 }
 
 
@@ -1710,10 +1212,19 @@ function renderQualifiedReport() {
 
 function renderRejectedReport() {
 
-    const tbody =
-        document.querySelector(
-            "#rejectedApplicantsTable tbody"
+    const table =
+        document.getElementById(
+            "rejectedApplicantsTable"
         );
+
+
+    if (!table) {
+        return;
+    }
+
+
+    const tbody =
+        table.querySelector("tbody");
 
 
     if (!tbody) {
@@ -1721,88 +1232,75 @@ function renderRejectedReport() {
     }
 
 
+    const data =
+        applicantReportsData.rejected || [];
+
+
     setText(
         "rejectedReportCount",
-        `${rejectedRows.length} rejected`
+        `${data.length} record${data.length === 1 ? "" : "s"}`
     );
 
 
-    if (
-        rejectedRows.length === 0
-    ) {
+    if (!data.length) {
 
         tbody.innerHTML = emptyRow(
-            6,
+            5,
             "No rejected applicants found."
         );
 
         return;
-
     }
 
 
     tbody.innerHTML =
-        rejectedRows
-            .map(
-                row => `
+        data.map(application => {
 
-                    <tr>
+            return `
+                <tr>
 
-                        <td>
+                    <td>
+                        ${escapeHtml(
+                            getApplicantNumber(
+                                application
+                            )
+                        )}
+                    </td>
+
+                    <td>
+                        <strong>
                             ${escapeHtml(
-                                row.applicantNo
+                                getApplicantNameFromApplication(
+                                    application
+                                )
                             )}
-                        </td>
+                        </strong>
+                    </td>
 
+                    <td>
+                        ${escapeHtml(
+                            getPosition(
+                                application
+                            )
+                        )}
+                    </td>
 
-                        <td>
+                    <td>
+                        ${formatDate(
+                            application.application_date
+                        )}
+                    </td>
 
-                            <div class="report-applicant">
+                    <td>
+                        ${statusBadge(
+                            application.status
+                        )}
+                    </td>
 
-                                <strong>
-                                    ${escapeHtml(
-                                        row.name
-                                    )}
-                                </strong>
+                </tr>
+            `;
 
-                            </div>
-
-                        </td>
-
-
-                        <td>
-                            ${escapeHtml(
-                                row.position
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${statusBadge(
-                                "Rejected"
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${escapeHtml(
-                                row.screeningResult
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${formatDate(
-                                row.applicationDate
-                            )}
-                        </td>
-
-                    </tr>
-
-                `
-            )
-            .join("");
-
+        }).join("");
 }
 
 
@@ -1812,10 +1310,19 @@ function renderRejectedReport() {
 
 function renderHiredReport() {
 
-    const tbody =
-        document.querySelector(
-            "#hiredApplicantsTable tbody"
+    const table =
+        document.getElementById(
+            "hiredApplicantsTable"
         );
+
+
+    if (!table) {
+        return;
+    }
+
+
+    const tbody =
+        table.querySelector("tbody");
 
 
     if (!tbody) {
@@ -1823,15 +1330,17 @@ function renderHiredReport() {
     }
 
 
+    const data =
+        applicantReportsData.hired || [];
+
+
     setText(
         "hiredReportCount",
-        `${hiredRows.length} hired`
+        `${data.length} record${data.length === 1 ? "" : "s"}`
     );
 
 
-    if (
-        hiredRows.length === 0
-    ) {
+    if (!data.length) {
 
         tbody.innerHTML = emptyRow(
             6,
@@ -1839,278 +1348,550 @@ function renderHiredReport() {
         );
 
         return;
-
     }
 
 
     tbody.innerHTML =
-        hiredRows
-            .map(
-                row => `
+        data.map(application => {
 
-                    <tr>
+            const hiringRecord =
+                application.hiringRecord;
 
-                        <td>
+
+            const position =
+                getPosition(
+                    application
+                ) !== "—"
+                    ? getPosition(
+                        application
+                    )
+                    : (
+                        hiringRecord &&
+                        hiringRecord.position
+                            ? hiringRecord.position
+                            : "—"
+                    );
+
+
+            return `
+                <tr>
+
+                    <td>
+                        ${escapeHtml(
+                            getApplicantNumber(
+                                application
+                            )
+                        )}
+                    </td>
+
+                    <td>
+                        <strong>
                             ${escapeHtml(
-                                row.applicantNo
+                                getApplicantNameFromApplication(
+                                    application
+                                )
                             )}
-                        </td>
+                        </strong>
+                    </td>
 
+                    <td>
+                        ${escapeHtml(
+                            position
+                        )}
+                    </td>
 
-                        <td>
+                    <td>
+                        ${formatDate(
+                            hiringRecord
+                                ? hiringRecord.hiring_date
+                                : null
+                        )}
+                    </td>
 
-                            <div class="report-applicant">
+                    <td>
+                        ${escapeHtml(
+                            hiringRecord &&
+                            hiringRecord.employment_status
+                                ? hiringRecord.employment_status
+                                : "—"
+                        )}
+                    </td>
 
-                                <strong>
-                                    ${escapeHtml(
-                                        row.name
-                                    )}
-                                </strong>
+                    <td>
+                        ${formatDate(
+                            hiringRecord
+                                ? hiringRecord.start_date
+                                : null
+                        )}
+                    </td>
 
-                            </div>
+                </tr>
+            `;
 
-                        </td>
-
-
-                        <td>
-                            ${escapeHtml(
-                                row.position
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${formatDate(
-                                row.hiringDate
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${formatDate(
-                                row.startDate
-                            )}
-                        </td>
-
-
-                        <td>
-                            ${escapeHtml(
-                                row.employmentStatus
-                            )}
-                        </td>
-
-                    </tr>
-
-                `
-            )
-            .join("");
-
+        }).join("");
 }
 
 
 /* =========================================================
-   LOADING STATE
+   EVENTS
    ========================================================= */
 
-function setLoadingState() {
+function bindApplicantReportEvents() {
 
-    const tables = [
-
-        [
-            "applicantMasterTable",
-            7
-        ],
-
-        [
-            "applicantsByPositionTable",
-            5
-        ],
-
-        [
-            "applicantsByStatusTable",
-            3
-        ],
-
-        [
-            "qualifiedApplicantsTable",
-            6
-        ],
-
-        [
-            "rejectedApplicantsTable",
-            6
-        ],
-
-        [
-            "hiredApplicantsTable",
-            6
-        ]
-
-    ];
+    const refreshButton =
+        document.getElementById(
+            "refreshApplicantReports"
+        );
 
 
-    tables.forEach(
-        ([id, colspan]) => {
+    if (refreshButton) {
 
-            const tbody =
-                document.querySelector(
-                    `#${id} tbody`
-                );
+        refreshButton.addEventListener(
+            "click",
+            async () => {
 
+                await loadApplicantReports();
 
-            if (!tbody) {
-                return;
             }
+        );
+    }
 
 
-            tbody.innerHTML =
-                emptyRow(
-                    colspan,
-                    "Loading..."
-                );
+    const printButton =
+        document.getElementById(
+            "printApplicantReports"
+        );
 
-        }
-    );
 
+    if (printButton) {
+
+        printButton.addEventListener(
+            "click",
+            () => {
+
+                window.print();
+
+            }
+        );
+    }
+
+
+    const searchInput =
+        document.getElementById(
+            "applicantReportSearch"
+        );
+
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "input",
+            () => {
+
+                renderMasterList();
+
+            }
+        );
+    }
+
+
+    const statusFilter =
+        document.getElementById(
+            "applicantStatusFilter"
+        );
+
+
+    if (statusFilter) {
+
+        statusFilter.addEventListener(
+            "change",
+            () => {
+
+                renderMasterList();
+
+            }
+        );
+    }
 }
 
 
 /* =========================================================
+   HELPER:
+   GET UNIQUE APPLICANT COUNT BY APPLICATION STATUS
+   ========================================================= */
+
+function getUniqueApplicantCountByStatus(
+    applications,
+    wantedStatus
+) {
+
+    const ids = new Set();
+
+
+    applications.forEach(application => {
+
+        if (
+            normalizeStatus(
+                application.status
+            ) !== wantedStatus
+        ) {
+            return;
+        }
+
+
+        if (application.applicant_id) {
+
+            ids.add(
+                String(
+                    application.applicant_id
+                )
+            );
+        }
+
+    });
+
+
+    return ids.size;
+}
+
+
+/* =========================================================
+   HELPER:
+   GET LATEST HIRING RECORD
+   ========================================================= */
+
+function getLatestHiringRecord(
+    applicationId,
+    hiringRecords
+) {
+
+    const records =
+        hiringRecords.filter(record => {
+
+            return String(
+                record.application_id
+            ) === String(
+                applicationId
+            );
+
+        });
+
+
+    if (!records.length) {
+        return null;
+    }
+
+
+    records.sort((a, b) => {
+
+        const dateA =
+            new Date(
+                a.updated_at ||
+                a.created_at ||
+                a.hiring_date ||
+                0
+            ).getTime();
+
+
+        const dateB =
+            new Date(
+                b.updated_at ||
+                b.created_at ||
+                b.hiring_date ||
+                0
+            ).getTime();
+
+
+        return dateB - dateA;
+
+    });
+
+
+    return records[0];
+}
+
+
+/* =========================================================
+   HELPER:
+   GET POSITION
+   ========================================================= */
+
+function getPosition(application) {
+
+    if (
+        application &&
+        application.job_postings &&
+        application.job_postings.job_title
+    ) {
+
+        return application.job_postings.job_title;
+    }
+
+
+    return "—";
+}
+
+
+/* =========================================================
+   HELPER:
+   GET APPLICANT NAME
+   ========================================================= */
+
+function getApplicantName(applicant) {
+
+    if (!applicant) {
+        return "—";
+    }
+
+
+    const firstName =
+        applicant.first_name || "";
+
+
+    const lastName =
+        applicant.last_name || "";
+
+
+    const fullName =
+        `${firstName} ${lastName}`.trim();
+
+
+    return fullName || "—";
+}
+
+
+/* =========================================================
+   HELPER:
+   GET APPLICANT NAME FROM APPLICATION
+   ========================================================= */
+
+function getApplicantNameFromApplication(
+    application
+) {
+
+    if (
+        application &&
+        application.applicants
+    ) {
+
+        return getApplicantName(
+            application.applicants
+        );
+    }
+
+
+    return "—";
+}
+
+
+/* =========================================================
+   HELPER:
+   GET APPLICANT NUMBER
+   ========================================================= */
+
+function getApplicantNumber(
+    application
+) {
+
+    if (
+        application &&
+        application.applicants &&
+        application.applicants.applicant_no
+    ) {
+
+        return application
+            .applicants
+            .applicant_no;
+    }
+
+
+    return "—";
+}
+
+
+/* =========================================================
+   HELPER:
+   NORMALIZE STATUS
+   ========================================================= */
+
+function normalizeStatus(status) {
+
+    return String(
+        status || ""
+    )
+    .trim()
+    .toUpperCase()
+    .replace(/_/g, " ")
+    .replace(/\s+/g, " ");
+}
+
+
+/* =========================================================
+   HELPER:
+   FORMAT STATUS
+   ========================================================= */
+
+function formatStatus(status) {
+
+    const normalized =
+        normalizeStatus(status);
+
+
+    const statusNames = {
+
+        "SUBMITTED":
+            "Submitted",
+
+        "UNDER SCREENING":
+            "Under Screening",
+
+        "QUALIFIED":
+            "Qualified",
+
+        "FOR INTERVIEW":
+            "For Interview",
+
+        "INTERVIEWED":
+            "Interviewed",
+
+        "SELECTED FOR HIRING":
+            "Selected for Hiring",
+
+        "HIRED":
+            "Hired",
+
+        "REJECTED":
+            "Rejected",
+
+        "DECLINED":
+            "Declined",
+
+        "ON HOLD":
+            "On Hold",
+
+        "ACTIVE":
+            "Active",
+
+        "INACTIVE":
+            "Inactive",
+
+        "NO STATUS":
+            "No Status"
+    };
+
+
+    return (
+        statusNames[normalized] ||
+        normalized
+            .toLowerCase()
+            .replace(/\b\w/g, letter =>
+                letter.toUpperCase()
+            )
+    );
+}
+
+
+/* =========================================================
+   HELPER:
    STATUS BADGE
    ========================================================= */
 
 function statusBadge(status) {
 
-    const cleanStatus =
-        String(
-            status ||
-            "Active"
-        )
-        .trim();
+    if (
+        status === null ||
+        status === undefined ||
+        String(status).trim() === ""
+    ) {
+        return `
+            <span class="status-badge">
+                —
+            </span>
+        `;
+    }
 
 
     const normalized =
-        normalize(
-            cleanStatus
-        );
+        normalizeStatus(status);
 
 
-    let className =
-        "status-active";
+    let badgeClass =
+        "status-badge";
 
 
     if (
-        normalized === "inactive"
+        normalized === "ACTIVE" ||
+        normalized === "QUALIFIED" ||
+        normalized === "HIRED"
     ) {
 
-        className =
-            "status-inactive";
+        badgeClass +=
+            " status-success";
 
-    }
-
-
-    else if (
-        normalized === "qualified"
+    } else if (
+        normalized === "REJECTED" ||
+        normalized === "DECLINED" ||
+        normalized === "INACTIVE"
     ) {
 
-        className =
-            "status-qualified";
+        badgeClass +=
+            " status-danger";
 
-    }
-
-
-    else if (
-        normalized === "rejected" ||
-        normalized === "not qualified" ||
-        normalized === "notqualified"
+    } else if (
+        normalized === "ON HOLD" ||
+        normalized === "UNDER SCREENING" ||
+        normalized === "FOR INTERVIEW"
     ) {
 
-        className =
-            "status-rejected";
-
-    }
-
-
-    else if (
-        normalized === "hired"
-    ) {
-
-        className =
-            "status-hired";
-
-    }
-
-
-    else if (
-        normalized === "submitted" ||
-        normalized === "screening" ||
-        normalized === "under screening" ||
-        normalized === "interview" ||
-        normalized === "for interview" ||
-        normalized === "selected"
-    ) {
-
-        className =
-            "status-pending";
-
+        badgeClass +=
+            " status-warning";
     }
 
 
     return `
-        <span
-            class="applicant-report-status ${className}"
-        >
-            ${escapeHtml(cleanStatus)}
+        <span class="${badgeClass}">
+            ${escapeHtml(
+                formatStatus(status)
+            )}
         </span>
     `;
-
 }
 
 
 /* =========================================================
-   HELPERS
+   HELPER:
+   COMPARE APPLICATIONS
    ========================================================= */
 
-function getFullName(applicant) {
-
-    return [
-        applicant.first_name,
-        applicant.last_name
-    ]
-        .filter(Boolean)
-        .join(" ")
-        .trim() || "Unnamed Applicant";
-
-}
-
-
-function normalize(value) {
-
-    return String(
-        value ?? ""
-    )
-        .trim()
-        .toLowerCase();
-
-}
-
-
-function setText(
-    id,
-    value
+function compareApplicationsNewest(
+    a,
+    b
 ) {
 
-    const element =
-        document.getElementById(id);
+    const dateA =
+        new Date(
+            a.application_date ||
+            a.created_at ||
+            0
+        ).getTime();
 
 
-    if (element) {
-        element.textContent =
-            value;
-    }
+    const dateB =
+        new Date(
+            b.application_date ||
+            b.created_at ||
+            0
+        ).getTime();
 
+
+    return dateB - dateA;
 }
 
+
+/* =========================================================
+   HELPER:
+   FORMAT DATE
+   ========================================================= */
 
 function formatDate(value) {
 
@@ -2123,57 +1904,50 @@ function formatDate(value) {
         new Date(value);
 
 
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-        return escapeHtml(
-            String(value)
-        );
+    if (Number.isNaN(
+        date.getTime()
+    )) {
+        return "—";
     }
 
 
     return date.toLocaleDateString(
         "en-US",
         {
-            year: "numeric",
             month: "short",
-            day: "numeric"
+            day: "numeric",
+            year: "numeric"
         }
     );
-
 }
 
 
-function escapeHtml(value) {
+/* =========================================================
+   HELPER:
+   SET TEXT
+   ========================================================= */
 
-    return String(
-        value ?? ""
-    )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+function setText(
+    id,
+    value
+) {
 
+    const element =
+        document.getElementById(id);
+
+
+    if (element) {
+
+        element.textContent =
+            value;
+    }
 }
 
+
+/* =========================================================
+   HELPER:
+   EMPTY TABLE ROW
+   ========================================================= */
 
 function emptyRow(
     colspan,
@@ -2182,46 +1956,244 @@ function emptyRow(
 
     return `
         <tr>
+
             <td
                 colspan="${colspan}"
                 class="table-empty"
             >
                 ${escapeHtml(message)}
             </td>
+
         </tr>
     `;
-
 }
 
 
-function uniqueRows(
-    rows,
-    keyFunction
-) {
+/* =========================================================
+   LOADING STATE
+   ========================================================= */
 
-    const seen =
-        new Set();
+function setLoadingState() {
+
+    const tableIds = [
+
+        [
+            "applicantMasterTable",
+            7
+        ],
+
+        [
+            "applicantsByPositionTable",
+            3
+        ],
+
+        [
+            "applicantsByStatusTable",
+            2
+        ],
+
+        [
+            "qualifiedApplicantsTable",
+            5
+        ],
+
+        [
+            "rejectedApplicantsTable",
+            5
+        ],
+
+        [
+            "hiredApplicantsTable",
+            6
+        ]
+
+    ];
 
 
-    return rows.filter(
-        row => {
+    tableIds.forEach(
+        ([id, colspan]) => {
 
-            const key =
-                keyFunction(row);
+            const table =
+                document.getElementById(id);
 
 
-            if (
-                seen.has(key)
-            ) {
-                return false;
+            if (!table) {
+                return;
             }
 
 
-            seen.add(key);
+            const tbody =
+                table.querySelector("tbody");
 
-            return true;
+
+            if (!tbody) {
+                return;
+            }
+
+
+            tbody.innerHTML =
+                emptyRow(
+                    colspan,
+                    "Loading reports..."
+                );
 
         }
     );
+}
 
+
+/* =========================================================
+   ERROR STATE
+   ========================================================= */
+
+function renderErrorState(
+    message
+) {
+
+    const tableIds = [
+
+        [
+            "applicantMasterTable",
+            7
+        ],
+
+        [
+            "applicantsByPositionTable",
+            3
+        ],
+
+        [
+            "applicantsByStatusTable",
+            2
+        ],
+
+        [
+            "qualifiedApplicantsTable",
+            5
+        ],
+
+        [
+            "rejectedApplicantsTable",
+            5
+        ],
+
+        [
+            "hiredApplicantsTable",
+            6
+        ]
+
+    ];
+
+
+    tableIds.forEach(
+        ([id, colspan]) => {
+
+            const table =
+                document.getElementById(id);
+
+
+            if (!table) {
+                return;
+            }
+
+
+            const tbody =
+                table.querySelector("tbody");
+
+
+            if (!tbody) {
+                return;
+            }
+
+
+            tbody.innerHTML =
+                emptyRow(
+                    colspan,
+                    message
+                );
+
+        }
+    );
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+function showApplicantReportToast(
+    message,
+    type = "info"
+) {
+
+    /*
+        Use the shared showToast() if
+        components.js provides it.
+    */
+
+    if (
+        typeof showToast === "function"
+    ) {
+
+        showToast(
+            message,
+            type
+        );
+
+        return;
+    }
+
+
+    const toastRoot =
+        document.getElementById(
+            "toastRoot"
+        );
+
+
+    if (!toastRoot) {
+        return;
+    }
+
+
+    const toast =
+        document.createElement(
+            "div"
+        );
+
+
+    toast.className =
+        `toast toast-${type}`;
+
+
+    toast.textContent =
+        message;
+
+
+    toastRoot.appendChild(
+        toast
+    );
+
+
+    setTimeout(() => {
+
+        toast.remove();
+
+    }, 3500);
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+   ========================================================= */
+
+function escapeHtml(value) {
+
+    return String(
+        value ?? ""
+    )
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }

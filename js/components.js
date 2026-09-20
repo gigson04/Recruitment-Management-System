@@ -68,6 +68,16 @@ const RMS_COMPONENTS = {
             '⌁'
         ],
 
+        /* =================================================
+           LAB 20 - APPLICANT REPORTS
+           ================================================= */
+
+        [
+            'applicant-reports.html',
+            'Applicant Reports',
+            '▥'
+        ],
+
         [
             'users.html',
             'Users',
