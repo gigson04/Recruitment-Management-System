@@ -174,6 +174,19 @@
             color: #e59a9a;
         }
 
+        .position-status-expired {
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
+            padding: 5px 8px;
+            border-radius: 999px;
+            background:
+                rgba(181, 71, 71, 0.10);
+            border: 1px solid
+                rgba(181, 71, 71, 0.22);
+            color: #ff8f8f !important;
+        }
+
 
         /* =================================================
            META
@@ -394,9 +407,9 @@
 
                 <div>
 
-                    <p class="eyebrow">
+                    <!--<p class="eyebrow">
                         Laboratory Activity 4
-                    </p>
+                    </p>-->
 
                     <h2>
                         Open Positions
@@ -502,12 +515,16 @@
                         class="select-control"
                     >
 
+                        <option value="">
+                            All statuses
+                        </option>
+
                         <option value="Open">
                             Open
                         </option>
 
-                        <option value="">
-                            All statuses
+                        <option value="Expired">
+                            Expired
                         </option>
 
                         <option value="Closed">

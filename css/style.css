@@ -2737,3 +2737,113 @@ body[data-active="Hiring"] #selectionTable .status-badge {
         overflow: hidden;
     }
 }
+
+/* =========================================================
+   JOB POSTINGS ACTION BUTTONS
+   Keep all actions in the same neutral color palette
+   ========================================================= */
+
+.table-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+
+/* VIEW / EDIT / DELETE */
+
+.table-actions .action-btn,
+.table-actions .action-btn.view,
+.table-actions .action-btn.edit,
+.table-actions .action-btn.delete {
+    appearance: none;
+    -webkit-appearance: none;
+
+    background: #edf0f3 !important;
+    color: #273142 !important;
+
+    border: 1px solid #d2d8df !important;
+
+    border-radius: 8px;
+
+    padding: 7px 12px;
+
+    min-width: 52px;
+    height: 34px;
+
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow: none !important;
+
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease;
+}
+
+
+/* HOVER */
+
+.table-actions .action-btn:hover,
+.table-actions .action-btn.view:hover,
+.table-actions .action-btn.edit:hover,
+.table-actions .action-btn.delete:hover {
+    background: #e1e5e9 !important;
+    color: #1f2937 !important;
+
+    border-color: #c5ccd4 !important;
+
+    box-shadow: none !important;
+
+    transform: translateY(-1px);
+}
+
+
+/* CLICK */
+
+.table-actions .action-btn:active {
+    background: #d9dee3 !important;
+    color: #1f2937 !important;
+
+    transform: translateY(0);
+}
+
+
+/* FOCUS */
+
+.table-actions .action-btn:focus,
+.table-actions .action-btn:focus-visible {
+    background: #edf0f3 !important;
+    color: #273142 !important;
+
+    border-color: #c5ccd4 !important;
+
+    outline: 2px solid #cbd1d8;
+    outline-offset: 2px;
+
+    box-shadow: none !important;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+
+    .table-actions {
+        gap: 6px;
+    }
+
+    .table-actions .action-btn {
+        min-width: 50px;
+        padding: 7px 10px;
+    }
+
+}

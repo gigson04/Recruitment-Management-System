@@ -6,6 +6,7 @@
 
 let positions = [];
 let selectedPosition = null;
+let expirationTimer = null;
 
 
 /* =========================================================
@@ -83,6 +84,12 @@ async function initOpenPositions() {
          */
         await loadOpenPositions();
 
+        /*
+         * Keep the displayed status in sync with the
+         * closing date automatically.
+         */
+        startExpirationWatcher();
+
 
     } catch (error) {
 
@@ -100,6 +107,80 @@ async function initOpenPositions() {
 
     }
 
+}
+
+
+/* =========================================================
+   AUTOMATIC EXPIRATION WATCHER
+   ========================================================= */
+
+function startExpirationWatcher() {
+
+    if (expirationTimer) {
+        clearInterval(expirationTimer);
+    }
+
+    /*
+     * Re-check every 30 seconds.
+     * This allows a position to change from Open
+     * to Expired without refreshing the browser.
+     */
+    expirationTimer = setInterval(
+        () => {
+            renderPositions();
+
+            /*
+             * If the details modal is open, refresh its
+             * status and Apply button too.
+             */
+            if (selectedPosition) {
+                const currentJob =
+                    positions.find(
+                        item =>
+                            String(item.job_id) ===
+                            String(selectedPosition.job_id)
+                    );
+
+                if (currentJob) {
+                    selectedPosition = currentJob;
+                    updateDetailsExpirationState(currentJob);
+                }
+            }
+        },
+        30000
+    );
+}
+
+
+/* =========================================================
+   UPDATE DETAILS EXPIRATION STATE
+   ========================================================= */
+
+function updateDetailsExpirationState(job) {
+
+    const detailsStatus =
+        document.querySelector(
+            "#detailsBody .detail-block:nth-child(4) strong"
+        );
+
+    if (detailsStatus) {
+        detailsStatus.innerHTML =
+            statusBadge(
+                getEffectiveStatus(job)
+            );
+    }
+
+    const applyButton =
+        document.getElementById(
+            "applyFromDetails"
+        );
+
+    if (applyButton) {
+        applyButton.style.display =
+            getEffectiveStatus(job) === "OPEN"
+                ? "inline-flex"
+                : "none";
+    }
 }
 
 
@@ -416,8 +497,7 @@ async function loadOpenPositions() {
         const {
             data,
             error
-        } =
-            await window.rmsSupabase
+        } =            await window.rmsSupabase
                 .from(
                     "job_postings"
                 )
@@ -693,7 +773,8 @@ function renderPositions() {
     /*
      * Status
      *
-     * Default is Open.
+     * Default is All statuses so expired positions
+     * remain visible on the Open Positions page.
      */
     const statusSelect =
         document.getElementById(
@@ -707,7 +788,7 @@ function renderPositions() {
                 statusSelect.value ||
                 ""
             ).trim()
-            : "Open";
+            : "";
 
 
     /*
@@ -718,8 +799,8 @@ function renderPositions() {
             job => {
 
                 const normalizedStatus =
-                    normalizeStatus(
-                        job.status
+                    getEffectiveStatus(
+                        job
                     );
 
 
@@ -865,10 +946,14 @@ function createPositionCard(
     job
 ) {
 
+    const effectiveStatus =
+        getEffectiveStatus(
+            job
+        );
+
+
     const isOpen =
-        normalizeStatus(
-            job.status
-        ) ===
+        effectiveStatus ===
         "OPEN";
 
 
@@ -918,7 +1003,7 @@ function createPositionCard(
 
 
                 ${statusBadge(
-                    job.status
+                    effectiveStatus
                 )}
 
             </div>
@@ -1010,9 +1095,7 @@ function createPositionCard(
 
         </article>
     `;
-
 }
-
 
 /* =========================================================
    OPEN DETAILS MODAL
@@ -1130,7 +1213,9 @@ function openDetails(
 
                     <strong>
                         ${statusBadge(
-                            job.status
+                            getEffectiveStatus(
+                                job
+                            )
                         )}
                     </strong>
 
@@ -1227,8 +1312,8 @@ function openDetails(
     if (applyButton) {
 
         const isOpen =
-            normalizeStatus(
-                job.status
+            getEffectiveStatus(
+                job
             ) ===
             "OPEN";
 
@@ -1288,8 +1373,8 @@ function selectJobForApplication(
        ===================================================== */
 
     if (
-        normalizeStatus(
-            job.status
+        getEffectiveStatus(
+            job
         ) !==
         "OPEN"
     ) {
@@ -1507,6 +1592,22 @@ function statusBadge(
 
     if (
         normalized ===
+        "EXPIRED"
+    ) {
+
+        return `
+            <span
+                class="position-status-expired"
+            >
+                Expired
+            </span>
+        `;
+
+    }
+
+
+    if (
+        normalized ===
         "CLOSED"
     ) {
 
@@ -1531,6 +1632,59 @@ function statusBadge(
             )}
         </span>
     `;
+
+}
+
+/* =========================================================
+   EFFECTIVE POSITION STATUS
+   ========================================================= */
+
+function getEffectiveStatus(
+    job
+) {
+
+    if (!job) {
+        return "CLOSED";
+    }
+
+
+    /*
+     * A position automatically becomes EXPIRED
+     * after the end of its closing date.
+     *
+     * Example:
+     * closing_date = 2026-09-20
+     * remains Open until 11:59:59 PM on Sep 20.
+     * At Sep 21 12:00 AM it becomes Expired.
+     */
+    if (
+        job.closing_date
+    ) {
+
+        const closingDate =
+            new Date(
+                `${job.closing_date}T23:59:59`
+            );
+
+
+        if (
+            !Number.isNaN(
+                closingDate.getTime()
+            ) &&
+            Date.now() >
+            closingDate.getTime()
+        ) {
+
+            return "EXPIRED";
+
+        }
+
+    }
+
+
+    return normalizeStatus(
+        job.status
+    );
 
 }
 
