@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Recruitment Performance | Recruitment Management System
+    </title>
+
+
+    <!-- =====================================================
+         SHARED STYLES
+         ===================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="css/frost-ui.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/responsive.css"
+    >
+
+
+    <!-- =====================================================
+         LAB 22 PAGE STYLE
+         ===================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="css/recruitment-performance.css"
+    >
+
+</head>
+
+
+<body
+    class="app-page"
+    data-active="Recruitment Performance"
+>
+
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside
+        id="appSidebar"
+        class="sidebar glass-panel"
+    ></aside>
+
+
+    <!-- =====================================================
+         MAIN APPLICATION
+         ===================================================== -->
+
+    <main class="app-main">
+
+
+        <!-- =================================================
+             TOPBAR
+             ================================================= -->
+
+        <header
+            id="appTopbar"
+            class="topbar glass-panel"
+        ></header>
+
+
+        <!-- =================================================
+             PAGE CONTENT
+             ================================================= -->
+
+        <section class="page-content performance-page-content">
+
+
+            <!-- =================================================
+                 PAGE INTRO
+                 ================================================= -->
+
+            <div class="performance-page-intro">
+
+                <div>
+
+                    <p class="eyebrow">
+                        Laboratory Activity 22
+                    </p>
+
+                    <h2>
+                        Recruitment Performance Reports
+                    </h2>
+
+                    <p>
+                        Analyze recruitment performance using
+                        hiring, screening, interview, application,
+                        and vacancy data.
+                    </p>
+
+                    <span
+                        id="performanceUpdated"
+                        class="performance-updated"
+                    >
+                        Loading performance data...
+                    </span>
+
+                </div>
+
+
+                <div class="performance-page-actions">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="refreshPerformance"
+                    >
+                        ↻ Refresh
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        id="printPerformance"
+                    >
+                        🖨 Print Report
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 PERFORMANCE SUMMARY
+                 ================================================= -->
+
+            <section
+                class="performance-summary-grid"
+                aria-label="Recruitment performance summary"
+            >
+
+
+                <!-- TIME TO HIRE -->
+
+                <article
+                    class="glass-panel performance-summary-card"
+                >
+
+                    <div class="performance-summary-icon">
+                        ⏱
+                    </div>
+
+                    <span>
+                        Avg. Time-to-Hire
+                    </span>
+
+                    <strong id="averageTimeToHire">
+                        —
+                    </strong>
+
+                    <small>
+                        Days
+                    </small>
+
+                </article>
+
+
+                <!-- APPLICANTS -->
+
+                <article
+                    class="glass-panel performance-summary-card"
+                >
+
+                    <div class="performance-summary-icon">
+                        ◎
+                    </div>
+
+                    <span>
+                        Applicants
+                    </span>
+
+                    <strong id="totalPerformanceApplicants">
+                        0
+                    </strong>
+
+                    <small>
+                        Total applications
+                    </small>
+
+                </article>
+
+
+                <!-- SCREENING -->
+
+                <article
+                    class="glass-panel performance-summary-card"
+                >
+
+                    <div class="performance-summary-icon">
+                        ✓
+                    </div>
+
+                    <span>
+                        Screening Pass Rate
+                    </span>
+
+                    <strong id="screeningPassRate">
+                        0%
+                    </strong>
+
+                    <small>
+                        Qualified / screened
+                    </small>
+
+                </article>
+
+
+                <!-- INTERVIEW -->
+
+                <article
+                    class="glass-panel performance-summary-card"
+                >
+
+                    <div class="performance-summary-icon">
+                        ◷
+                    </div>
+
+                    <span>
+                        Interview Pass Rate
+                    </span>
+
+                    <strong id="interviewPassRate">
+                        0%
+                    </strong>
+
+                    <small>
+                        Passed interviews
+                    </small>
+
+                </article>
+
+
+                <!-- HIRING -->
+
+                <article
+                    class="glass-panel performance-summary-card"
+                >
+
+                    <div class="performance-summary-icon">
+                        ◆
+                    </div>
+
+                    <span>
+                        Hiring Rate
+                    </span>
+
+                    <strong id="hiringRate">
+                        0%
+                    </strong>
+
+                    <small>
+                        Hired / applicants
+                    </small>
+
+                </article>
+
+
+                <!-- VACANCY -->
+
+                <article
+                    class="glass-panel performance-summary-card"
+                >
+
+                    <div class="performance-summary-icon">
+                        ▤
+                    </div>
+
+                    <span>
+                        Vacancy Fulfillment
+                    </span>
+
+                    <strong id="vacancyFulfillmentRate">
+                        0%
+                    </strong>
+
+                    <small>
+                        Filled vacancies
+                    </small>
+
+                </article>
+
+            </section>
+
+
+            <!-- =================================================
+                 APPLICANTS PER VACANCY
+                 ================================================= -->
+
+            <section
+                class="glass-panel performance-section-card"
+            >
+
+                <div class="performance-section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            Recruitment Volume
+                        </p>
+
+                        <h3>
+                            Number of Applicants per Vacancy
+                        </h3>
+
+                        <p>
+                            Shows the number of applications
+                            received for each job posting.
+                        </p>
+
+                    </div>
+
+                    <span
+                        id="applicantsPerVacancyCount"
+                        class="performance-section-count"
+                    >
+                        0 Jobs
+                    </span>
+
+                </div>
+
+
+                <div class="performance-table-wrapper">
+
+                    <table class="performance-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Job Code
+                                </th>
+
+                                <th>
+                                    Position
+                                </th>
+
+                                <th>
+                                    Department
+                                </th>
+
+                                <th>
+                                    Vacancies
+                                </th>
+
+                                <th>
+                                    Applicants
+                                </th>
+
+                                <th>
+                                    Applicants / Vacancy
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody
+                            id="applicantsPerVacancyTable"
+                        >
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="performance-empty"
+                                >
+                                    Loading...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SCREENING PERFORMANCE
+                 ================================================= -->
+
+            <section
+                class="glass-panel performance-section-card"
+            >
+
+                <div class="performance-section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            Screening Performance
+                        </p>
+
+                        <h3>
+                            Screening Pass Rate
+                        </h3>
+
+                        <p>
+                            Compares screened applicants with
+                            applicants who passed screening.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="performance-metric-layout">
+
+
+                    <div
+                        class="performance-large-metric"
+                    >
+
+                        <span>
+                            Overall Screening Pass Rate
+                        </span>
+
+                        <strong id="screeningPassRateLarge">
+                            0%
+                        </strong>
+
+                    </div>
+
+
+                    <div
+                        class="performance-stat-list"
+                    >
+
+                        <div>
+
+                            <span>
+                                Screened
+                            </span>
+
+                            <strong id="screenedPerformanceCount">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Qualified
+                            </span>
+
+                            <strong id="qualifiedPerformanceCount">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Rejected
+                            </span>
+
+                            <strong id="rejectedPerformanceCount">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 INTERVIEW PERFORMANCE
+                 ================================================= -->
+
+            <section
+                class="glass-panel performance-section-card"
+            >
+
+                <div class="performance-section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            Interview Performance
+                        </p>
+
+                        <h3>
+                            Interview Pass Rate
+                        </h3>
+
+                        <p>
+                            Measures the percentage of evaluated
+                            interviews that resulted in a passed
+                            interview.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="performance-metric-layout">
+
+
+                    <div
+                        class="performance-large-metric"
+                    >
+
+                        <span>
+                            Overall Interview Pass Rate
+                        </span>
+
+                        <strong id="interviewPassRateLarge">
+                            0%
+                        </strong>
+
+                    </div>
+
+
+                    <div
+                        class="performance-stat-list"
+                    >
+
+                        <div>
+
+                            <span>
+                                Interviews
+                            </span>
+
+                            <strong id="totalInterviewsPerformance">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Passed
+                            </span>
+
+                            <strong id="passedInterviewsPerformance">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Failed
+                            </span>
+
+                            <strong id="failedInterviewsPerformance">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 HIRING PERFORMANCE
+                 ================================================= -->
+
+            <section
+                class="glass-panel performance-section-card"
+            >
+
+                <div class="performance-section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            Hiring Performance
+                        </p>
+
+                        <h3>
+                            Hiring Rate
+                        </h3>
+
+                        <p>
+                            Shows the percentage of applicants
+                            who reached the final hired stage.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="performance-metric-layout">
+
+
+                    <div
+                        class="performance-large-metric"
+                    >
+
+                        <span>
+                            Overall Hiring Rate
+                        </span>
+
+                        <strong id="hiringRateLarge">
+                            0%
+                        </strong>
+
+                    </div>
+
+
+                    <div
+                        class="performance-stat-list"
+                    >
+
+                        <div>
+
+                            <span>
+                                Applicants
+                            </span>
+
+                            <strong id="hiringApplicantsCount">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Selected
+                            </span>
+
+                            <strong id="selectedPerformanceCount">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Hired
+                            </span>
+
+                            <strong id="hiredPerformanceCount">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 RECRUITMENT SOURCE
+                 ================================================= -->
+
+            <section
+                class="glass-panel performance-section-card"
+            >
+
+                <div class="performance-section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            Recruitment Source
+                        </p>
+
+                        <h3>
+                            Applicants by Recruitment Source
+                        </h3>
+
+                        <p>
+                            Displays recruitment channels when
+                            source information is available.
+                        </p>
+
+                    </div>
+
+                    <span
+                        id="recruitmentSourceCount"
+                        class="performance-section-count"
+                    >
+                        0 Sources
+                    </span>
+
+                </div>
+
+
+                <div class="performance-table-wrapper">
+
+                    <table class="performance-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Recruitment Source
+                                </th>
+
+                                <th>
+                                    Applicants
+                                </th>
+
+                                <th>
+                                    Qualified
+                                </th>
+
+                                <th>
+                                    Hired
+                                </th>
+
+                                <th>
+                                    Qualification Rate
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody
+                            id="recruitmentSourceTable"
+                        >
+
+                            <tr>
+
+                                <td
+                                    colspan="5"
+                                    class="performance-empty"
+                                >
+                                    No recruitment source data available.
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 VACANCY FULFILLMENT
+                 ================================================= -->
+
+            <section
+                class="glass-panel performance-section-card"
+            >
+
+                <div class="performance-section-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            Vacancy Performance
+                        </p>
+
+                        <h3>
+                            Vacancy Fulfillment Rate
+                        </h3>
+
+                        <p>
+                            Compares available vacancies with
+                            positions successfully filled.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="performance-table-wrapper">
+
+                    <table class="performance-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Job Code
+                                </th>
+
+                                <th>
+                                    Position
+                                </th>
+
+                                <th>
+                                    Department
+                                </th>
+
+                                <th>
+                                    Vacancies
+                                </th>
+
+                                <th>
+                                    Hired
+                                </th>
+
+                                <th>
+                                    Fulfillment Rate
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody
+                            id="vacancyFulfillmentTable"
+                        >
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="performance-empty"
+                                >
+                                    Loading...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 TOAST
+                 ================================================= -->
+
+            <div
+                id="toastRoot"
+                aria-live="polite"
+                aria-atomic="true"
+            ></div>
+
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         SUPABASE
+         ===================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+    <script src="js/config.js"></script>
+
+    <script src="js/supabase.js"></script>
+
+    <script src="js/auth.js"></script>
+
+    <script src="js/components.js"></script>
+
+    <script src="js/recruitment-performance.js"></script>
+
+
+</body>
+
+</html>

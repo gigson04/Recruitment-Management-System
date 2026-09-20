@@ -89,9 +89,15 @@ const RMS_COMPONENTS = {
         ],
 
         [
-            'users.html',
-            'Users',
-            '◉'
+        'recruitment-performance.html',
+        'Recruitment Performance',
+        '◈'
+        ],
+
+        [
+        'users.html',
+        'Users',
+        '◉'
         ]
 
     ]

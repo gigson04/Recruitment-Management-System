@@ -1,0 +1,1006 @@
+/* =========================================================
+   RECRUITMENT MANAGEMENT SYSTEM
+   LABORATORY ACTIVITY 22
+   RECRUITMENT PERFORMANCE REPORTS
+   ========================================================= */
+
+
+/* =========================================================
+   PAGE INTRO
+   ========================================================= */
+
+.performance-page-content {
+    width: 100%;
+    max-width: 100%;
+}
+
+
+.performance-page-intro {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+
+.performance-page-intro > div:first-child {
+    min-width: 0;
+}
+
+
+.performance-page-intro h2 {
+    margin: 4px 0 8px;
+    color: var(--text);
+    font-size: clamp(1.55rem, 2.4vw, 2.05rem);
+    line-height: 1.2;
+    font-weight: 750;
+}
+
+
+.performance-page-intro p:not(.eyebrow) {
+    margin: 0;
+    color: var(--muted);
+    max-width: 760px;
+}
+
+
+.performance-updated {
+    display: block;
+    margin-top: 9px;
+    color: var(--muted);
+    font-size: 0.78rem;
+}
+
+
+.performance-page-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+
+.performance-page-actions .btn {
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   SUMMARY CARDS
+   ========================================================= */
+
+.performance-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+
+.performance-summary-card {
+    min-width: 0;
+    padding: 18px;
+    border-radius: 18px;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    border: 1px solid color-mix(
+        in srgb,
+        var(--line) 80%,
+        transparent
+    );
+}
+
+
+.performance-summary-icon {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 13px;
+
+    border-radius: 11px;
+
+    color: var(--text);
+
+    background: color-mix(
+        in srgb,
+        var(--text) 7%,
+        transparent
+    );
+
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+
+.performance-summary-card span {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 0.77rem;
+    line-height: 1.35;
+}
+
+
+.performance-summary-card strong {
+    display: block;
+
+    margin-top: 5px;
+
+    color: var(--text);
+
+    font-size: clamp(
+        1.25rem,
+        2vw,
+        1.7rem
+    );
+
+    line-height: 1.15;
+    font-weight: 750;
+
+    overflow-wrap: anywhere;
+}
+
+
+.performance-summary-card small {
+    display: block;
+
+    margin-top: 5px;
+
+    color: var(--muted);
+
+    font-size: 0.7rem;
+    line-height: 1.35;
+}
+
+
+/* =========================================================
+   SECTION CARD
+   ========================================================= */
+
+.performance-section-card {
+    width: 100%;
+    min-width: 0;
+
+    margin-bottom: 22px;
+    padding: 22px;
+
+    border-radius: 20px;
+
+    border: 1px solid color-mix(
+        in srgb,
+        var(--line) 80%,
+        transparent
+    );
+
+    overflow: hidden;
+}
+
+
+.performance-section-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 18px;
+}
+
+
+.performance-section-heading > div {
+    min-width: 0;
+}
+
+
+.performance-section-heading h3 {
+    margin: 3px 0 6px;
+
+    color: var(--text);
+
+    font-size: 1.05rem;
+    line-height: 1.3;
+    font-weight: 750;
+}
+
+
+.performance-section-heading p:not(.eyebrow) {
+    margin: 0;
+
+    color: var(--muted);
+
+    font-size: 0.82rem;
+    line-height: 1.5;
+
+    max-width: 720px;
+}
+
+
+.performance-section-count {
+    flex-shrink: 0;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 30px;
+    padding: 6px 11px;
+
+    border-radius: 999px;
+
+    color: var(--text);
+
+    background: color-mix(
+        in srgb,
+        var(--text) 6%,
+        transparent
+    );
+
+    border: 1px solid color-mix(
+        in srgb,
+        var(--line) 70%,
+        transparent
+    );
+
+    font-size: 0.75rem;
+    font-weight: 650;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   TABLE WRAPPER
+   ========================================================= */
+
+.performance-table-wrapper {
+    width: 100%;
+    max-width: 100%;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    border-radius: 14px;
+
+    border: 1px solid color-mix(
+        in srgb,
+        var(--line) 75%,
+        transparent
+    );
+
+    -webkit-overflow-scrolling: touch;
+}
+
+
+/* =========================================================
+   PERFORMANCE TABLE
+   ========================================================= */
+
+.performance-table {
+    width: 100%;
+
+    min-width: 720px;
+
+    border-collapse: collapse;
+    border-spacing: 0;
+
+    color: var(--text);
+
+    font-size: 0.82rem;
+}
+
+
+.performance-table th {
+    padding: 12px 14px;
+
+    text-align: left;
+    vertical-align: middle;
+
+    color: var(--text);
+
+    background: color-mix(
+        in srgb,
+        var(--text) 5%,
+        transparent
+    );
+
+    border-bottom: 1px solid color-mix(
+        in srgb,
+        var(--line) 85%,
+        transparent
+    );
+
+    font-size: 0.72rem;
+    font-weight: 750;
+
+    white-space: nowrap;
+}
+
+
+.performance-table td {
+    padding: 13px 14px;
+
+    color: var(--text);
+
+    border-bottom: 1px solid color-mix(
+        in srgb,
+        var(--line) 55%,
+        transparent
+    );
+
+    vertical-align: middle;
+
+    line-height: 1.45;
+}
+
+
+.performance-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+.performance-table tbody tr:hover td {
+    background: color-mix(
+        in srgb,
+        var(--text) 3%,
+        transparent
+    );
+}
+
+
+.performance-table td:first-child,
+.performance-table th:first-child {
+    padding-left: 16px;
+}
+
+
+.performance-table td:last-child,
+.performance-table th:last-child {
+    padding-right: 16px;
+}
+
+
+/* =========================================================
+   EMPTY TABLE STATE
+   ========================================================= */
+
+.performance-empty {
+    padding: 30px 18px !important;
+
+    text-align: center !important;
+
+    color: var(--muted) !important;
+
+    font-size: 0.82rem;
+}
+
+
+/* =========================================================
+   METRIC LAYOUT
+   ========================================================= */
+
+.performance-metric-layout {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(280px, 1fr);
+
+    gap: 18px;
+
+    align-items: stretch;
+}
+
+
+.performance-large-metric {
+    min-height: 150px;
+
+    padding: 24px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    border-radius: 16px;
+
+    border: 1px solid color-mix(
+        in srgb,
+        var(--line) 75%,
+        transparent
+    );
+
+    background: color-mix(
+        in srgb,
+        var(--text) 3.5%,
+        transparent
+    );
+}
+
+
+.performance-large-metric span {
+    color: var(--muted);
+
+    font-size: 0.82rem;
+}
+
+
+.performance-large-metric strong {
+    display: block;
+
+    margin-top: 8px;
+
+    color: var(--text);
+
+    font-size: clamp(
+        2rem,
+        5vw,
+        3.25rem
+    );
+
+    line-height: 1;
+
+    font-weight: 800;
+
+    overflow-wrap: anywhere;
+}
+
+
+.performance-stat-list {
+    display: grid;
+
+    grid-template-columns: repeat(
+        3,
+        minmax(0, 1fr)
+    );
+
+    gap: 12px;
+}
+
+
+.performance-stat-list > div {
+    min-width: 0;
+
+    padding: 18px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    border-radius: 15px;
+
+    border: 1px solid color-mix(
+        in srgb,
+        var(--line) 70%,
+        transparent
+    );
+
+    background: color-mix(
+        in srgb,
+        var(--text) 2.5%,
+        transparent
+    );
+}
+
+
+.performance-stat-list span {
+    color: var(--muted);
+
+    font-size: 0.76rem;
+    line-height: 1.3;
+}
+
+
+.performance-stat-list strong {
+    display: block;
+
+    margin-top: 7px;
+
+    color: var(--text);
+
+    font-size: 1.5rem;
+    line-height: 1.1;
+
+    font-weight: 750;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.performance-page-actions .btn {
+    min-height: 40px;
+
+    border-radius: 10px;
+
+    font-size: 0.78rem;
+    font-weight: 650;
+
+    cursor: pointer;
+}
+
+
+.performance-page-actions .btn:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   TOAST SUPPORT
+   ========================================================= */
+
+#toastRoot {
+    position: fixed;
+
+    right: 20px;
+    bottom: 20px;
+
+    z-index: 9999;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+
+    gap: 8px;
+
+    pointer-events: none;
+}
+
+
+#toastRoot .toast {
+    pointer-events: auto;
+
+    max-width: min(
+        360px,
+        calc(100vw - 40px)
+    );
+
+    padding: 12px 15px;
+
+    border-radius: 11px;
+
+    color: var(--text);
+
+    background: color-mix(
+        in srgb,
+        var(--text) 7%,
+        transparent
+    );
+
+    border: 1px solid color-mix(
+        in srgb,
+        var(--line) 85%,
+        transparent
+    );
+
+    box-shadow: 0 12px 30px rgba(
+        0,
+        0,
+        0,
+        0.12
+    );
+
+    font-size: 0.8rem;
+
+    opacity: 0;
+    transform: translateY(8px);
+
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+#toastRoot .toast.show {
+    opacity: 1;
+
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+@media print {
+
+    body {
+        background: #ffffff !important;
+        color: #111111 !important;
+    }
+
+
+    .sidebar,
+    #appSidebar,
+    .topbar,
+    #appTopbar,
+    .performance-page-actions,
+    #mobileSidebarOverlay {
+        display: none !important;
+    }
+
+
+    .app-main {
+        margin: 0 !important;
+        width: 100% !important;
+    }
+
+
+    .page-content,
+    .performance-page-content {
+        width: 100% !important;
+        max-width: none !important;
+
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+
+    .performance-page-intro {
+        display: block;
+        margin-bottom: 18px;
+    }
+
+
+    .performance-page-intro h2,
+    .performance-section-heading h3,
+    .performance-summary-card strong,
+    .performance-table td,
+    .performance-table th {
+        color: #111111 !important;
+    }
+
+
+    .performance-page-intro p,
+    .performance-updated,
+    .performance-section-heading p,
+    .performance-summary-card span,
+    .performance-summary-card small,
+    .performance-empty,
+    .performance-large-metric span,
+    .performance-stat-list span {
+        color: #555555 !important;
+    }
+
+
+    .performance-summary-grid {
+        grid-template-columns: repeat(
+            3,
+            minmax(0, 1fr)
+        );
+
+        gap: 10px;
+    }
+
+
+    .performance-section-card,
+    .performance-summary-card,
+    .performance-large-metric,
+    .performance-stat-list > div {
+        background: #ffffff !important;
+
+        border: 1px solid #dddddd !important;
+
+        box-shadow: none !important;
+
+        break-inside: avoid;
+    }
+
+
+    .performance-table-wrapper {
+        overflow: visible !important;
+
+        border: 1px solid #dddddd !important;
+    }
+
+
+    .performance-table {
+        min-width: 0 !important;
+    }
+
+
+    .performance-table th,
+    .performance-table td {
+        color: #111111 !important;
+
+        border-color: #dddddd !important;
+
+        background: #ffffff !important;
+    }
+
+
+    .performance-metric-layout {
+        grid-template-columns: 1fr 1fr;
+    }
+
+}
+
+
+/* =========================================================
+   LARGE TABLET / SMALL DESKTOP
+   ========================================================= */
+
+@media (max-width: 1250px) {
+
+    .performance-summary-grid {
+        grid-template-columns: repeat(
+            3,
+            minmax(0, 1fr)
+        );
+    }
+
+
+    .performance-metric-layout {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .performance-page-intro {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+
+    .performance-page-actions {
+        width: 100%;
+    }
+
+
+    .performance-page-actions .btn {
+        flex: 1;
+    }
+
+
+    .performance-summary-grid {
+        grid-template-columns: repeat(
+            2,
+            minmax(0, 1fr)
+        );
+    }
+
+
+    .performance-section-card {
+        padding: 18px;
+    }
+
+
+    .performance-section-heading {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+
+    .performance-section-count {
+        align-self: flex-start;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .performance-page-intro {
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+
+    .performance-page-intro h2 {
+        font-size: 1.45rem;
+    }
+
+
+    .performance-page-actions {
+        flex-direction: column;
+    }
+
+
+    .performance-page-actions .btn {
+        width: 100%;
+        flex: none;
+    }
+
+
+    .performance-summary-grid {
+        grid-template-columns: 1fr 1fr;
+
+        gap: 10px;
+
+        margin-bottom: 16px;
+    }
+
+
+    .performance-summary-card {
+        padding: 14px;
+
+        border-radius: 15px;
+    }
+
+
+    .performance-summary-icon {
+        width: 34px;
+        height: 34px;
+
+        margin-bottom: 10px;
+
+        border-radius: 9px;
+    }
+
+
+    .performance-summary-card strong {
+        font-size: 1.25rem;
+    }
+
+
+    .performance-section-card {
+        padding: 15px;
+
+        margin-bottom: 16px;
+
+        border-radius: 16px;
+    }
+
+
+    .performance-section-heading h3 {
+        font-size: 0.98rem;
+    }
+
+
+    .performance-section-heading p:not(.eyebrow) {
+        font-size: 0.78rem;
+    }
+
+
+    .performance-metric-layout {
+        grid-template-columns: 1fr;
+
+        gap: 12px;
+    }
+
+
+    .performance-large-metric {
+        min-height: 130px;
+
+        padding: 20px;
+    }
+
+
+    .performance-large-metric strong {
+        font-size: 2.25rem;
+    }
+
+
+    .performance-stat-list {
+        grid-template-columns: repeat(
+            3,
+            minmax(0, 1fr)
+        );
+
+        gap: 8px;
+    }
+
+
+    .performance-stat-list > div {
+        padding: 13px 10px;
+    }
+
+
+    .performance-stat-list strong {
+        font-size: 1.2rem;
+    }
+
+
+    .performance-table {
+        min-width: 680px;
+
+        font-size: 0.76rem;
+    }
+
+
+    .performance-table th,
+    .performance-table td {
+        padding: 10px 11px;
+    }
+
+
+    #toastRoot {
+        right: 12px;
+        bottom: 12px;
+    }
+
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+    .performance-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .performance-summary-card {
+        display: grid;
+
+        grid-template-columns:
+            36px
+            minmax(0, 1fr);
+
+        column-gap: 11px;
+
+        align-items: center;
+    }
+
+
+    .performance-summary-icon {
+        grid-row: span 3;
+
+        margin: 0;
+    }
+
+
+    .performance-summary-card span {
+        align-self: end;
+    }
+
+
+    .performance-summary-card strong {
+        margin-top: 2px;
+    }
+
+
+    .performance-summary-card small {
+        margin-top: 2px;
+    }
+
+
+    .performance-stat-list {
+        grid-template-columns: 1fr;
+    }
+
+
+    .performance-stat-list > div {
+        display: flex;
+        flex-direction: row;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 10px;
+    }
+
+
+    .performance-stat-list strong {
+        margin-top: 0;
+    }
+
+}
