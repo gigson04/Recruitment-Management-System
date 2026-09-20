@@ -78,6 +78,16 @@ const RMS_COMPONENTS = {
             '▥'
         ],
 
+        /* =================================================
+           LAB 21 - RECRUITMENT PIPELINE
+           ================================================= */
+
+        [
+            'applicant-pipeline.html',
+            'Recruitment Pipeline',
+            '⇢'
+        ],
+
         [
             'users.html',
             'Users',

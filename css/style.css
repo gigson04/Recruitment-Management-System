@@ -2945,3 +2945,1101 @@ body[data-active="Hiring"] #selectionTable .status-badge {
     }
 }
 
+/* =========================================================
+   RMS FINAL LIGHT / DARK MODE READABILITY FIX
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   DEFAULT THEME VARIABLES
+   Uses the existing RMS theme variables
+   --------------------------------------------------------- */
+
+body {
+    color: var(--text, #1f2937);
+}
+
+
+/* =========================================================
+   GENERAL TEXT
+   ========================================================= */
+
+.page-content,
+.page-content h1,
+.page-content h2,
+.page-content h3,
+.page-content h4,
+.page-content h5,
+.page-content h6,
+.page-content p,
+.page-content span,
+.page-content strong,
+.page-content small,
+.page-content label {
+    opacity: 1;
+}
+
+
+/* Main headings */
+
+.page-intro h2 {
+    color: var(--text, #1f2937) !important;
+}
+
+.page-intro p:not(.eyebrow) {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* Section headings */
+
+.section-header h3 {
+    color: var(--text, #1f2937) !important;
+}
+
+.section-header p {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.nav-item {
+    color: var(--muted, #64748b);
+}
+
+.nav-item:hover {
+    color: var(--text, #1f2937);
+}
+
+.nav-item.active {
+    color: var(--primary, #2d6cdf);
+}
+
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.metric-card {
+    color: var(--text, #1f2937);
+}
+
+.metric-label {
+    color: var(--muted, #64748b) !important;
+}
+
+.metric-value {
+    color: var(--text, #1f2937) !important;
+}
+
+.metric-hint {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+
+.table-wrap {
+    color: var(--text, #1f2937);
+}
+
+.table-wrap table {
+    color: var(--text, #1f2937);
+}
+
+.table-wrap th {
+    color: var(--muted, #64748b) !important;
+}
+
+.table-wrap td {
+    color: var(--text, #1f2937) !important;
+}
+
+.table-wrap td strong {
+    color: var(--text, #1f2937) !important;
+}
+
+.table-wrap td span {
+    opacity: 1;
+}
+
+
+/* Table hover */
+
+.table-wrap tbody tr:hover {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 4%,
+        transparent
+    );
+}
+
+
+/* Empty table */
+
+.table-empty {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* =========================================================
+   INPUTS / SEARCH / SELECT
+   ========================================================= */
+
+input,
+select,
+textarea,
+.select-control {
+    color: var(--text, #1f2937) !important;
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 4%,
+        transparent
+    ) !important;
+    border-color: var(--line, rgba(80, 102, 124, 0.18)) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--muted, #64748b) !important;
+    opacity: 1 !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.select-control:focus {
+    color: var(--text, #1f2937) !important;
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 5%,
+        transparent
+    ) !important;
+}
+
+
+/* =========================================================
+   FORM LABELS
+   ========================================================= */
+
+.form-grid label,
+.form-stack label {
+    color: var(--text, #1f2937) !important;
+}
+
+
+/* =========================================================
+   PROFILE / DETAIL BOXES
+   ========================================================= */
+
+.profile-item,
+.detail-block {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 4%,
+        transparent
+    ) !important;
+
+    border-color: var(--line, rgba(80, 102, 124, 0.16)) !important;
+}
+
+.profile-item small,
+.detail-block small {
+    color: var(--muted, #64748b) !important;
+}
+
+.profile-item > div,
+.detail-block strong {
+    color: var(--text, #1f2937) !important;
+}
+
+
+/* =========================================================
+   MODALS
+   ========================================================= */
+
+.modal {
+    color: var(--text, #1f2937);
+}
+
+.modal h3,
+.modal h2 {
+    color: var(--text, #1f2937) !important;
+}
+
+.modal p {
+    color: var(--muted, #64748b);
+}
+
+
+/* Modal close button */
+
+.icon-button {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 5%,
+        transparent
+    ) !important;
+
+    color: var(--text, #1f2937) !important;
+
+    border-color: var(--line) !important;
+}
+
+.icon-button:hover {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 10%,
+        transparent
+    ) !important;
+
+    color: var(--text, #1f2937) !important;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.btn-secondary {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 5%,
+        transparent
+    ) !important;
+
+    color: var(--text, #1f2937) !important;
+
+    border-color: var(--line) !important;
+}
+
+.btn-secondary:hover {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 10%,
+        transparent
+    ) !important;
+
+    color: var(--text, #1f2937) !important;
+}
+
+
+/* =========================================================
+   TABLE ACTION BUTTONS
+   IMPORTANT:
+   Removes the hard-coded dark #15191d buttons
+   ========================================================= */
+
+.table-actions .action-btn,
+.table-actions .action-btn.view,
+.table-actions .action-btn.edit,
+.table-actions .action-btn.delete,
+.table-wrap .table-action {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 7%,
+        transparent
+    ) !important;
+
+    color: var(--text, #1f2937) !important;
+
+    border: 1px solid var(--line) !important;
+
+    opacity: 1 !important;
+}
+
+.table-actions .action-btn:hover,
+.table-actions .action-btn.view:hover,
+.table-actions .action-btn.edit:hover,
+.table-actions .action-btn.delete:hover,
+.table-wrap .table-action:hover {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 13%,
+        transparent
+    ) !important;
+
+    color: var(--text, #1f2937) !important;
+
+    border-color: var(--line) !important;
+}
+
+
+/* =========================================================
+   DANGER BUTTON
+   ========================================================= */
+
+.table-actions .action-btn.delete,
+.table-wrap .table-action.danger {
+    color: var(--danger, #b84d55) !important;
+}
+
+.table-actions .action-btn.delete:hover,
+.table-wrap .table-action.danger:hover {
+    background: color-mix(
+        in srgb,
+        var(--danger, #b84d55) 12%,
+        transparent
+    ) !important;
+
+    color: var(--danger, #b84d55) !important;
+}
+
+
+/* =========================================================
+   OPEN POSITIONS
+   ========================================================= */
+
+.position-card {
+    color: var(--text, #1f2937) !important;
+    opacity: 1 !important;
+}
+
+.position-card * {
+    opacity: 1 !important;
+}
+
+.position-card .job-code {
+    color: var(--muted, #64748b) !important;
+}
+
+.position-card h3 {
+    color: var(--text, #1f2937) !important;
+}
+
+.position-card .position-meta,
+.position-card .position-meta span {
+    color: var(--muted, #64748b) !important;
+}
+
+.position-card .position-summary {
+    color: var(--muted, #64748b) !important;
+}
+
+.position-card .btn-secondary {
+    color: var(--text, #1f2937) !important;
+
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 5%,
+        transparent
+    ) !important;
+
+    border-color: var(--line) !important;
+}
+
+
+/* =========================================================
+   INTERVIEW HISTORY
+   ========================================================= */
+
+.interview-history-item {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 4%,
+        transparent
+    ) !important;
+
+    border-color: var(--line) !important;
+}
+
+.interview-history-number {
+    color: var(--text, #1f2937) !important;
+}
+
+.interview-history-details > div {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 4%,
+        transparent
+    ) !important;
+
+    border-color: var(--line) !important;
+}
+
+.interview-history-details small {
+    color: var(--muted, #64748b) !important;
+}
+
+.interview-history-details strong {
+    color: var(--text, #1f2937) !important;
+}
+
+.interview-history-details .history-remarks p {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* =========================================================
+   HIRING PAGE
+   REMOVE THE OLD HARD-CODED LIGHT-ONLY COLORS
+   ========================================================= */
+
+body[data-active="Hiring"] {
+    color: var(--text, #1f2937);
+}
+
+body[data-active="Hiring"] .page-intro h2 {
+    color: var(--text, #1f2937) !important;
+}
+
+body[data-active="Hiring"] .page-intro p:not(.eyebrow) {
+    color: var(--muted, #64748b) !important;
+}
+
+body[data-active="Hiring"] .metric-card {
+    color: var(--text, #1f2937) !important;
+}
+
+body[data-active="Hiring"] .metric-label {
+    color: var(--muted, #64748b) !important;
+}
+
+body[data-active="Hiring"] .metric-value {
+    color: var(--text, #1f2937) !important;
+}
+
+body[data-active="Hiring"] .metric-hint {
+    color: var(--muted, #64748b) !important;
+}
+
+body[data-active="Hiring"] #selectionSearch,
+body[data-active="Hiring"] #selectionFilter {
+    color: var(--text, #1f2937) !important;
+}
+
+body[data-active="Hiring"] #selectionSearch::placeholder {
+    color: var(--muted, #64748b) !important;
+}
+
+body[data-active="Hiring"] #selectionTable th {
+    color: var(--muted, #64748b) !important;
+}
+
+body[data-active="Hiring"] #selectionTable td {
+    color: var(--text, #1f2937) !important;
+}
+
+body[data-active="Hiring"] #selectionTable td strong {
+    color: var(--text, #1f2937) !important;
+}
+
+
+/* =========================================================
+   APPLICATION DETAILS MODAL
+   ========================================================= */
+
+#viewApplicationModal #viewApplicationBody .profile-item {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 5%,
+        transparent
+    ) !important;
+
+    border-color: var(--line) !important;
+}
+
+#viewApplicationModal #viewApplicationBody .profile-item small {
+    color: var(--muted, #64748b) !important;
+}
+
+#viewApplicationModal #viewApplicationBody .profile-item > div {
+    color: var(--text, #1f2937) !important;
+}
+
+
+/* =========================================================
+   INTERVIEW MODALS
+   ========================================================= */
+
+.interview-modal,
+.interview-confirm-modal {
+    color: var(--text, #1f2937) !important;
+}
+
+.interview-modal h3,
+.interview-confirm-modal h3 {
+    color: var(--text, #1f2937) !important;
+}
+
+.interview-modal p,
+.interview-confirm-modal p,
+.interview-confirm-message {
+    color: var(--muted, #64748b) !important;
+}
+
+.interview-stat,
+.interview-info-item,
+.interview-detail-item {
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 5%,
+        transparent
+    ) !important;
+
+    border-color: var(--line) !important;
+}
+
+.interview-stat strong,
+.interview-meta strong,
+.interview-info-item strong,
+.interview-detail-item div {
+    color: var(--text, #1f2937) !important;
+}
+
+.interview-stat span,
+.interview-meta span,
+.interview-info-item small,
+.interview-detail-item small {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* =========================================================
+   CANCEL INTERVIEW
+   ========================================================= */
+
+.cancel-confirm-text > strong {
+    color: var(--text, #1f2937) !important;
+}
+
+.cancel-confirm-text p {
+    color: var(--muted, #64748b) !important;
+}
+
+.cancel-confirm-warning {
+    color: var(--text, #1f2937) !important;
+
+    background: color-mix(
+        in srgb,
+        var(--danger, #b84d55) 7%,
+        transparent
+    ) !important;
+
+    border-color: color-mix(
+        in srgb,
+        var(--danger, #b84d55) 18%,
+        transparent
+    ) !important;
+}
+
+
+/* =========================================================
+   RECRUITMENT PIPELINE
+   LABORATORY ACTIVITY 21
+   ========================================================= */
+
+body[data-active="Recruitment Pipeline"] {
+    color: var(--text, #1f2937);
+}
+
+
+/* Page title */
+
+body[data-active="Recruitment Pipeline"] .page-intro h2 {
+    color: var(--text, #1f2937) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .page-intro p:not(.eyebrow) {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* Updated text */
+
+body[data-active="Recruitment Pipeline"] .pipeline-updated {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* Summary cards */
+
+body[data-active="Recruitment Pipeline"] .pipeline-summary-card {
+    color: var(--text, #1f2937) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .pipeline-summary-card span {
+    color: var(--muted, #64748b) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .pipeline-summary-card strong {
+    color: var(--text, #1f2937) !important;
+}
+
+
+/* Section headings */
+
+body[data-active="Recruitment Pipeline"] .section-heading h3,
+body[data-active="Recruitment Pipeline"] .pipeline-section-heading h3 {
+    color: var(--text, #1f2937) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .section-heading p,
+body[data-active="Recruitment Pipeline"] .pipeline-section-heading p {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* Pipeline flow */
+
+body[data-active="Recruitment Pipeline"] .pipeline-flow-stage {
+    color: var(--text, #1f2937) !important;
+
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 5%,
+        transparent
+    ) !important;
+
+    border-color: var(--line) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .pipeline-flow-stage small {
+    color: var(--muted, #64748b) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .pipeline-flow-stage strong {
+    color: var(--text, #1f2937) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .pipeline-flow-stage span {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* Pipeline position cards */
+
+body[data-active="Recruitment Pipeline"] .pipeline-position-card {
+    color: var(--text, #1f2937) !important;
+
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 4%,
+        transparent
+    ) !important;
+
+    border-color: var(--line) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .pipeline-position-title h4 {
+    color: var(--text, #1f2937) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .pipeline-position-title p,
+body[data-active="Recruitment Pipeline"] .pipeline-job-code {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* Position stages */
+
+body[data-active="Recruitment Pipeline"] .position-stage {
+    color: var(--text, #1f2937) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .position-stage strong {
+    color: var(--text, #1f2937) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .position-stage span {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* Progress */
+
+body[data-active="Recruitment Pipeline"] .pipeline-progress-text {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* Stage summary */
+
+body[data-active="Recruitment Pipeline"] .stage-summary-item {
+    color: var(--text, #1f2937) !important;
+
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 4%,
+        transparent
+    ) !important;
+
+    border-color: var(--line) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .stage-summary-item span {
+    color: var(--muted, #64748b) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .stage-summary-item strong {
+    color: var(--text, #1f2937) !important;
+}
+
+
+/* Pipeline search */
+
+body[data-active="Recruitment Pipeline"] .pipeline-search input {
+    color: var(--text, #1f2937) !important;
+
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 4%,
+        transparent
+    ) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .pipeline-search input::placeholder {
+    color: var(--muted, #64748b) !important;
+}
+
+body[data-active="Recruitment Pipeline"] .pipeline-search span {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* Empty pipeline */
+
+body[data-active="Recruitment Pipeline"] .pipeline-empty {
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* =========================================================
+   APPLICANT REPORTS
+   ========================================================= */
+
+body[data-active="Applicant Reports"] {
+    color: var(--text, #1f2937);
+}
+
+body[data-active="Applicant Reports"] .page-intro h2 {
+    color: var(--text, #1f2937) !important;
+}
+
+body[data-active="Applicant Reports"] .page-intro p:not(.eyebrow) {
+    color: var(--muted, #64748b) !important;
+}
+
+body[data-active="Applicant Reports"] .metric-card {
+    color: var(--text, #1f2937) !important;
+}
+
+body[data-active="Applicant Reports"] .metric-label,
+body[data-active="Applicant Reports"] .metric-hint {
+    color: var(--muted, #64748b) !important;
+}
+
+body[data-active="Applicant Reports"] .metric-value {
+    color: var(--text, #1f2937) !important;
+}
+
+
+/* =========================================================
+   DARK MODE
+   =========================================================
+   
+   These selectors cover common theme implementations.
+   The important part is that dark mode uses variables,
+   NOT hard-coded light colors.
+   ========================================================= */
+
+body.dark-mode,
+body.dark,
+html.dark-mode body,
+html.dark body,
+body[data-theme="dark"] {
+
+    color: var(--text, #f3f4f6);
+}
+
+
+/* Dark mode headings */
+
+body.dark-mode .page-intro h2,
+body.dark .page-intro h2,
+html.dark-mode .page-intro h2,
+html.dark .page-intro h2,
+body[data-theme="dark"] .page-intro h2 {
+
+    color: var(--text, #f3f4f6) !important;
+}
+
+
+/* Dark mode normal text */
+
+body.dark-mode .page-intro p:not(.eyebrow),
+body.dark .page-intro p:not(.eyebrow),
+html.dark-mode .page-intro p:not(.eyebrow),
+html.dark .page-intro p:not(.eyebrow),
+body[data-theme="dark"] .page-intro p:not(.eyebrow) {
+
+    color: var(--muted, #aeb7c2) !important;
+}
+
+
+/* Dark mode tables */
+
+body.dark-mode .table-wrap th,
+body.dark .table-wrap th,
+html.dark-mode .table-wrap th,
+html.dark .table-wrap th,
+body[data-theme="dark"] .table-wrap th {
+
+    color: var(--muted, #aeb7c2) !important;
+}
+
+body.dark-mode .table-wrap td,
+body.dark .table-wrap td,
+html.dark-mode .table-wrap td,
+html.dark .table-wrap td,
+body[data-theme="dark"] .table-wrap td {
+
+    color: var(--text, #f3f4f6) !important;
+}
+
+
+/* Dark mode inputs */
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea,
+body.dark-mode .select-control,
+
+body.dark input,
+body.dark select,
+body.dark textarea,
+body.dark .select-control,
+
+html.dark-mode input,
+html.dark-mode select,
+html.dark-mode textarea,
+html.dark-mode .select-control,
+
+html.dark input,
+html.dark select,
+html.dark textarea,
+html.dark .select-control,
+
+body[data-theme="dark"] input,
+body[data-theme="dark"] select,
+body[data-theme="dark"] textarea,
+body[data-theme="dark"] .select-control {
+
+    color: var(--text, #f3f4f6) !important;
+
+    background: color-mix(
+        in srgb,
+        var(--text, #f3f4f6) 7%,
+        transparent
+    ) !important;
+
+    border-color: var(--line) !important;
+}
+
+
+/* Dark mode placeholders */
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder,
+body.dark input::placeholder,
+body.dark textarea::placeholder,
+html.dark-mode input::placeholder,
+html.dark-mode textarea::placeholder,
+html.dark input::placeholder,
+html.dark textarea::placeholder,
+body[data-theme="dark"] input::placeholder,
+body[data-theme="dark"] textarea::placeholder {
+
+    color: var(--muted, #aeb7c2) !important;
+}
+
+
+/* Dark mode action buttons */
+
+body.dark-mode .table-actions .action-btn,
+body.dark-mode .table-wrap .table-action,
+
+body.dark .table-actions .action-btn,
+body.dark .table-wrap .table-action,
+
+html.dark-mode .table-actions .action-btn,
+html.dark-mode .table-wrap .table-action,
+
+html.dark .table-actions .action-btn,
+html.dark .table-wrap .table-action,
+
+body[data-theme="dark"] .table-actions .action-btn,
+body[data-theme="dark"] .table-wrap .table-action {
+
+    background: color-mix(
+        in srgb,
+        white 8%,
+        transparent
+    ) !important;
+
+    color: var(--text, #f3f4f6) !important;
+
+    border-color: var(--line) !important;
+}
+
+
+/* Dark mode action hover */
+
+body.dark-mode .table-actions .action-btn:hover,
+body.dark-mode .table-wrap .table-action:hover,
+body.dark .table-actions .action-btn:hover,
+body.dark .table-wrap .table-action:hover,
+html.dark-mode .table-actions .action-btn:hover,
+html.dark-mode .table-wrap .table-action:hover,
+html.dark .table-actions .action-btn:hover,
+html.dark .table-wrap .table-action:hover,
+body[data-theme="dark"] .table-actions .action-btn:hover,
+body[data-theme="dark"] .table-wrap .table-action:hover {
+
+    background: color-mix(
+        in srgb,
+        white 14%,
+        transparent
+    ) !important;
+
+    color: #ffffff !important;
+}
+
+
+/* =========================================================
+   LIGHT MODE
+   ========================================================= */
+
+body.light-mode,
+body.light,
+html.light-mode body,
+html.light body,
+body[data-theme="light"] {
+
+    color: var(--text, #1f2937);
+}
+
+
+/* Light mode headings */
+
+body.light-mode .page-intro h2,
+body.light .page-intro h2,
+html.light-mode .page-intro h2,
+html.light .page-intro h2,
+body[data-theme="light"] .page-intro h2 {
+
+    color: var(--text, #1f2937) !important;
+}
+
+
+/* Light mode paragraphs */
+
+body.light-mode .page-intro p:not(.eyebrow),
+body.light .page-intro p:not(.eyebrow),
+html.light-mode .page-intro p:not(.eyebrow),
+html.light .page-intro p:not(.eyebrow),
+body[data-theme="light"] .page-intro p:not(.eyebrow) {
+
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* Light mode tables */
+
+body.light-mode .table-wrap td,
+body.light .table-wrap td,
+html.light-mode .table-wrap td,
+html.light .table-wrap td,
+body[data-theme="light"] .table-wrap td {
+
+    color: var(--text, #1f2937) !important;
+}
+
+body.light-mode .table-wrap th,
+body.light .table-wrap th,
+html.light-mode .table-wrap th,
+html.light .table-wrap th,
+body[data-theme="light"] .table-wrap th {
+
+    color: var(--muted, #64748b) !important;
+}
+
+
+/* Light mode buttons */
+
+body.light-mode .table-actions .action-btn,
+body.light-mode .table-wrap .table-action,
+body.light .table-actions .action-btn,
+body.light .table-wrap .table-action,
+html.light-mode .table-actions .action-btn,
+html.light-mode .table-wrap .table-action,
+html.light .table-actions .action-btn,
+html.light .table-wrap .table-action,
+body[data-theme="light"] .table-actions .action-btn,
+body[data-theme="light"] .table-wrap .table-action {
+
+    background: color-mix(
+        in srgb,
+        var(--text, #1f2937) 7%,
+        transparent
+    ) !important;
+
+    color: var(--text, #1f2937) !important;
+
+    border-color: var(--line) !important;
+}
+
+
+/* =========================================================
+   PIPELINE - FORCE VISIBILITY IN BOTH MODES
+   ========================================================= */
+
+body[data-active="Recruitment Pipeline"] .pipeline-summary-card *,
+body[data-active="Recruitment Pipeline"] .pipeline-flow-stage *,
+body[data-active="Recruitment Pipeline"] .pipeline-position-card *,
+body[data-active="Recruitment Pipeline"] .stage-summary-item * {
+
+    opacity: 1 !important;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .page-intro h2 {
+        font-size: 25px !important;
+    }
+
+    .page-intro p:not(.eyebrow) {
+        font-size: 13px !important;
+    }
+
+    .table-wrap {
+        overflow-x: auto;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL PHONE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .page-intro h2 {
+        font-size: 23px !important;
+    }
+
+    .metric-value {
+        font-size: 27px !important;
+    }
+
+}
