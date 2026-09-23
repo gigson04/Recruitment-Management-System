@@ -864,3 +864,140 @@
     }
 
 }
+/* =========================================================
+   PIPELINE TEXT + EMOJI VISIBILITY FIX
+   ========================================================= */
+
+.pipeline-summary-icon {
+    font-family:
+        "Segoe UI Emoji",
+        "Apple Color Emoji",
+        "Noto Color Emoji",
+        sans-serif;
+
+    color: #ffffff;
+
+    font-size: 18px;
+
+    opacity: 1;
+}
+
+
+.pipeline-summary-card span {
+    color: #667085;
+}
+
+
+.pipeline-summary-card strong {
+    color: #172033;
+}
+
+
+.pipeline-section-heading h3 {
+    color: #172033;
+}
+
+
+.pipeline-section-heading p:not(.eyebrow) {
+    color: #667085;
+}
+
+
+.pipeline-section-count {
+    color: #667085;
+}
+
+
+.pipeline-flow-stage small {
+    color: #667085;
+}
+
+
+.pipeline-flow-stage strong {
+    color: #172033;
+}
+
+
+.pipeline-flow-stage span {
+    color: #667085;
+}
+
+
+.pipeline-stage-number {
+    color: #172033;
+}
+
+
+.pipeline-position-title h4 {
+    color: #172033;
+}
+
+
+.pipeline-position-title p {
+    color: #667085;
+}
+
+
+.pipeline-job-code {
+    color: #667085;
+}
+
+
+.position-stage strong {
+    color: #172033;
+}
+
+
+.position-stage span {
+    color: #667085;
+}
+
+
+.pipeline-position-footer {
+    color: #667085;
+}
+
+
+.pipeline-progress-text {
+    color: #667085;
+}
+
+
+.stage-summary-item span {
+    color: #667085;
+}
+
+
+.stage-summary-item strong {
+    color: #172033;
+}
+
+
+.pipeline-empty strong {
+    color: #172033;
+}
+
+
+.pipeline-empty span {
+    color: #667085;
+}
+
+
+.pipeline-page-content .eyebrow {
+    color: #64748b;
+}
+
+
+.pipeline-search span {
+    color: #667085;
+}
+
+
+.pipeline-search input {
+    color: #172033;
+}
+
+
+.pipeline-search input::placeholder {
+    color: #7b8794;
+}
